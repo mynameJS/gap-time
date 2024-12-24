@@ -11,7 +11,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import Image from 'next/image';
-import { ColorModeToggle } from '../components/color-mode-toggle';
+import { ColorModeToggle } from '../components/chakraUI/color-mode-toggle';
 
 export default async function Page() {
   return (
@@ -57,7 +57,7 @@ export default async function Page() {
         </Progress.Root>
 
         <HStack>
-          <Button>Let's go!</Button>
+          <Button>Let s go!</Button>
           <Button variant="outline">bun install @chakra-ui/react</Button>
         </HStack>
       </VStack>

@@ -1,9 +1,9 @@
-import Provider from '../components/chakraUI/provider';
 import type { Metadata } from 'next';
+import Header from './components/layout/header';
 
 export const metadata: Metadata = {
   title: 'Time-Gap',
-  description: 'Time-Gap Developing',
+  description: 'Time-Gap LandingPage',
 };
 
 export default function RootLayout({
@@ -14,7 +14,8 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body>
-        <Provider>{children}</Provider>
+        <Header />
+        {children}
       </body>
     </html>
   );
