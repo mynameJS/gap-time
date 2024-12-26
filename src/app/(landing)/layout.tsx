@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Header from './components/layout/header';
+import { Box, Flex } from '@chakra-ui/react';
 
 export const metadata: Metadata = {
   title: 'Time-Gap',
@@ -14,8 +15,10 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body>
-        <Header />
-        {children}
+        <Flex height="100vh" direction="column">
+          <Header />
+          <Box flex={1}>{children}</Box>
+        </Flex>
       </body>
     </html>
   );
