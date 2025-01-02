@@ -1,4 +1,5 @@
-import { Box, Button, Flex, Text } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
+import CustomButton from './components/CustomButton';
 
 export default async function Page() {
   return (
@@ -12,11 +13,7 @@ export default async function Page() {
             </Text>
             <Text>자투리 시간에 뭐할까 고민하지말고 틈새시간을 이용해보세요.</Text>
           </Box>
-          <Button
-            width="
-          20%">
-            틈새시간 시작하기
-          </Button>
+          <CustomButton path="/plan">틈새시간 이용하기</CustomButton>
         </Flex>
         <Box borderWidth="3px" width="50%" height="100%">
           비디오 영역
