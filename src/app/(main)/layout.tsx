@@ -13,10 +13,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" suppressHydrationWarning>
-      <body>
-        <Box height="100vh">{children}</Box>
-      </body>
-    </html>
+    <>
+      <Box width="100vw" height="100vh">
+        {children}
+      </Box>
+    </>
   );
 }

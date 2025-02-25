@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Header from './components/layout/header';
+import Header from './components/layout/Header';
 import { Box, Flex } from '@chakra-ui/react';
 
 export const metadata: Metadata = {
@@ -13,13 +13,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" suppressHydrationWarning>
-      <body>
-        <Flex height="100vh" direction="column">
-          <Header />
-          <Box flex={1}>{children}</Box>
-        </Flex>
-      </body>
-    </html>
+    <>
+      <Flex height="100vh" direction="column" px={40}>
+        <Header />
+        <Box flex={1}>{children}</Box>
+      </Flex>
+    </>
   );
 }
