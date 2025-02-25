@@ -1,4 +1,5 @@
 import { Box, Flex } from '@chakra-ui/react';
+import ReactKakaoMap from './components/KakaoMap';
 
 export default async function Page() {
   return (
@@ -8,7 +9,7 @@ export default async function Page() {
           플랜영역
         </Box>
         <Box borderWidth="3px" width="50%" height="100%">
-          카카오지도 영역
+          <ReactKakaoMap />맵 영역
         </Box>
       </Flex>
     </Box>
