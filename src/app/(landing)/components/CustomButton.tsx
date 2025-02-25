@@ -20,7 +20,9 @@ export default function CustomButton({ path, children }: CustomButtonProps) {
     <Button
       onClick={handleButtonClick}
       width="
-          20%">
+          30%"
+      height="10%"
+      textStyle="md">
       {children}
     </Button>
   );

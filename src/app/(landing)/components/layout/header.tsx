@@ -2,7 +2,7 @@ import { Box, Flex, HStack, Text, Button } from '@chakra-ui/react';
 
 export default function Header() {
   return (
-    <Box as="header" bg="gray.100" py={4} px={8}>
+    <Box as="header" py={4}>
       {/* Flex: 헤더의 전체 레이아웃 구성 */}
       <Flex justify="space-between" align="center">
         {/* 로고 영역 */}

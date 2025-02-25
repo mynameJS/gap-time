@@ -3,7 +3,7 @@ import CustomButton from './components/CustomButton';
 
 export default async function Page() {
   return (
-    <Box borderWidth="3px" height="100%" borderColor="black" padding={10}>
+    <Box borderWidth="3px" height="90%" borderColor="black">
       <Flex align="center" borderWidth="3px" height="100%" width="100%">
         <Flex flexDirection="column" borderWidth={3} gap={10} width="50%" height="100%" justifyContent="center">
           <Box>
