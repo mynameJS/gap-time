@@ -21,8 +21,10 @@
     "customConditions": ["source"],
     "plugins": [{ "name": "next" }],
     "paths": {
-      "@chakra-ui/react": ["../../packages/react/src"]
-    }
+      "@chakra-ui/react": ["../../packages/react/src"],
+      "@/*": ["./src/*"]
+    },
+    "baseUrl": "."
   },
   "exclude": ["node_modules"],
   "include": ["**/*.ts", "**/*.tsx", ".next/types/**/*.ts"]
