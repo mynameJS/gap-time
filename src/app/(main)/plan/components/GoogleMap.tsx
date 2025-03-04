@@ -1,18 +1,14 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { GoogleMap, LoadScript } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { Box, Spinner } from '@chakra-ui/react';
-import { fetchNearbyPlaces } from '@/lib/api/places';
+import useCurrentLocationStore from '@/store/useCurrentLocationStore';
+// import { fetchNearbyPlaces } from '@/lib/api/places';
 
 // 타입 정의
 const containerStyle: React.CSSProperties = {
   width: '100%',
   height: '100%',
-};
-
-const defaultCenter: google.maps.LatLngLiteral = {
-  lat: 37.5665, // 서울 위도
-  lng: 126.978, // 서울 경도
 };
 
 const mapOptions: google.maps.MapOptions = {
@@ -25,7 +21,7 @@ const mapOptions: google.maps.MapOptions = {
 function GoogleMaps() {
   const [map, setMap] = useState<google.maps.Map | null>(null); // 맵 객체 타입 정의
   // 추후 마커나 마우스무브, 세부페이지 이동 시에 사용예정
-  const [currentLocation, setCurrentLocation] = useState<google.maps.LatLngLiteral>(defaultCenter);
+  const { currentLocation, setCurrentLocation } = useCurrentLocationStore();
 
   // onLoad 콜백
   const onLoad = useCallback((map: google.maps.Map) => {
@@ -75,8 +71,9 @@ function GoogleMaps() {
           zoom={16}
           options={mapOptions}
           onLoad={onLoad}
-          onUnmount={onUnmount}
-        />
+          onUnmount={onUnmount}>
+          <Marker position={currentLocation} />
+        </GoogleMap>
       </LoadScript>
     </Box>
   );

@@ -10,7 +10,7 @@ declare global {
 }
 
 function KakaoMap() {
-  const apiKey: string | undefined = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY;
+  const apiKey: string | undefined = process.env.NEXT_PUBLIC_KAKAO_MAPS_KEY;
   useEffect(() => {
     const script: HTMLScriptElement = document.createElement('script');
     script.async = true;
