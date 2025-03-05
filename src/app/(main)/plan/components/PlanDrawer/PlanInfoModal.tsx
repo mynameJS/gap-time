@@ -1,12 +1,32 @@
 import { useState } from 'react';
 import { Button, VStack } from '@chakra-ui/react';
 import { DialogBody, DialogContent, DialogFooter, DialogHeader, DialogRoot, DialogTitle } from '@/components/ui/dialog';
+import usePlanStore from '@/store/usePlanInfoStore';
 import TimeSelector from './TimeSelector';
 import TransportPicker from './TransportPicker';
 import LocationPicker from './LocationPicker';
+import { PlanInfo } from '@/types/interface';
 
 function PlanInfoModal() {
   const [isOpen, setIsOpen] = useState<boolean>(true);
+  const [planInfo, setPlanInfo] = useState<PlanInfo>({
+    startTime: [],
+    endTime: [],
+    transport: '',
+    geocode: { lat: 0, lng: 0 },
+    formattedAddress: '',
+  });
+
+  const { setPlanInfo: setGlobalPlanInfo } = usePlanStore();
+  const handleUpdatePlanInfo = (updates: Partial<PlanInfo>) => {
+    setPlanInfo(prevInfo => ({ ...prevInfo, ...updates }));
+  };
+
+  // 저장 버튼 클릭 시 전역 상태 업데이트
+  const handleSave = () => {
+    setGlobalPlanInfo(planInfo);
+    setIsOpen(false);
+  };
 
   return (
     <DialogRoot open={isOpen}>
@@ -16,13 +36,13 @@ function PlanInfoModal() {
         </DialogHeader>
         <DialogBody borderWidth={3}>
           <VStack align="center" gap={4}>
-            <TimeSelector />
-            <TransportPicker />
-            <LocationPicker />
+            <TimeSelector startTime={planInfo.startTime} endTime={planInfo.endTime} onUpdate={handleUpdatePlanInfo} />
+            <TransportPicker transport={planInfo.transport} onUpdate={handleUpdatePlanInfo} />
+            <LocationPicker formattedAddress={planInfo.formattedAddress} onUpdate={handleUpdatePlanInfo} />
           </VStack>
         </DialogBody>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setIsOpen(false)}>
+          <Button variant="outline" onClick={handleSave}>
             맞춤 일정 만들기
           </Button>
         </DialogFooter>

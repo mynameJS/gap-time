@@ -1,11 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, VStack, Text, Input } from '@chakra-ui/react';
+import { Button, VStack, Text } from '@chakra-ui/react';
 import { fetchAddress } from '@/lib/api/places';
+import { PlanInfo } from '@/types/interface';
 
-export default function LocationPicker() {
-  const [location, setLocation] = useState<string>('');
+interface LocationPickerProps {
+  formattedAddress: string;
+  onUpdate: (updates: Partial<PlanInfo>) => void;
+}
+
+export default function LocationPicker({ formattedAddress, onUpdate }: LocationPickerProps) {
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -16,10 +21,11 @@ export default function LocationPicker() {
       navigator.geolocation.getCurrentPosition(
         async position => {
           const { latitude, longitude } = position.coords;
+          onUpdate({ geocode: { lat: latitude, lng: longitude } });
           try {
             const address = await fetchAddress({ latitude, longitude });
             if (address) {
-              setLocation(address[4].formatted_address);
+              onUpdate({ formattedAddress: address[4].formatted_address });
               setError('');
             } else {
               setError('주소를 찾을 수 없습니다.');
@@ -51,9 +57,9 @@ export default function LocationPicker() {
       </Button>
 
       {/* 선택된 위치 표시 */}
-      {location && (
+      {formattedAddress && (
         <Text mt={4}>
-          현재 위치: <strong>{location}</strong>
+          현재 위치: <strong>{formattedAddress}</strong>
         </Text>
       )}
 

@@ -1,17 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import PlanInfoModal from './PlanInfoModal';
+import { useState } from 'react';
 import { Box, Flex, Input, Text, List } from '@chakra-ui/react';
 import { InputGroup } from '@/components/ui/input-group';
 import { CloseButton } from '@/components/ui/close-button';
 import { CiSearch } from 'react-icons/ci';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
+import PlanInfoModal from './PlanInfoModal';
 import { fetchNearbyPlaces } from '@/lib/api/places';
+import usePlanStore from '@/store/usePlanInfoStore';
 
 function PlanDrawer() {
   const [isOpened, setIsOpened] = useState(true);
-
+  const { planInfo } = usePlanStore();
+  console.log(planInfo);
   return (
     <>
       {isOpened ? (
@@ -27,7 +29,18 @@ function PlanDrawer() {
           <Text>서울</Text>
           <SearchBar />
           <Box borderWidth={3} w="100%" h="100%">
-            <List.Root>하하하</List.Root>
+            <List.Root>
+              {planInfo && (
+                <>
+                  <Text>{planInfo.startTime[0]}</Text>
+                  <Text>{planInfo.endTime[0]}</Text>
+                  <Text>{planInfo.transport}</Text>
+                  <Text>{planInfo.formattedAddress}</Text>
+                  <Text>{planInfo.geocode.lat}</Text>
+                  <Text>{planInfo.geocode.lng}</Text>
+                </>
+              )}
+            </List.Root>
           </Box>
           <PlanInfoModal />
           <CloseCustomButton onClick={() => setIsOpened(false)} />
