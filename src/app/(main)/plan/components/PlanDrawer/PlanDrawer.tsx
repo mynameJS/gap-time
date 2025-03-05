@@ -9,7 +9,7 @@ import { CiSearch } from 'react-icons/ci';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import { fetchNearbyPlaces } from '@/lib/api/places';
 
-function StepDrawer() {
+function PlanDrawer() {
   const [isOpened, setIsOpened] = useState(true);
 
   return (
@@ -39,7 +39,7 @@ function StepDrawer() {
   );
 }
 
-export default StepDrawer;
+export default PlanDrawer;
 
 const SearchBar = () => {
   return (

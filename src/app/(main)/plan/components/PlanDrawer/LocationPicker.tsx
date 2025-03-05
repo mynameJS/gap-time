@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, VStack, Text } from '@chakra-ui/react';
+import { Button, VStack, Text, Input } from '@chakra-ui/react';
 import { fetchAddress } from '@/lib/api/places';
 
 export default function LocationPicker() {
@@ -12,24 +12,30 @@ export default function LocationPicker() {
   // 현재 위치 가져오기
   const getLocation = () => {
     if (navigator.geolocation) {
-      setLoading(true); // 로딩 상태로 설정
+      setLoading(true);
       navigator.geolocation.getCurrentPosition(
         async position => {
           const { latitude, longitude } = position.coords;
-          const params = { latitude, longitude };
-          console.log(params);
-          const address = await fetchAddress(params); // fetchAddress 함수 호출
-          console.log(address);
-          if (address) {
-            setLocation(address[4].formatted_address); // 받아온 주소 설정
-          } else {
-            setError('주소를 찾을 수 없습니다.');
+          try {
+            const address = await fetchAddress({ latitude, longitude });
+            if (address) {
+              setLocation(address[4].formatted_address);
+              setError('');
+            } else {
+              setError('주소를 찾을 수 없습니다.');
+            }
+          } catch (fetchError) {
+            setError('주소 정보를 가져오는 중 오류가 발생했습니다.');
           }
-          setLoading(false); // 로딩 완료
+          setLoading(false);
         },
         err => {
-          setLoading(false); // 로딩 완료
-          setError('위치 정보를 가져올 수 없습니다.');
+          setLoading(false);
+          if (err.code === 1) {
+            setError('위치 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.');
+          } else {
+            setError('위치 정보를 가져오는 중 오류가 발생했습니다.');
+          }
         }
       );
     } else {
@@ -39,17 +45,19 @@ export default function LocationPicker() {
 
   return (
     <VStack gap={4} width="100%">
+      {/* 현재 위치 가져오기 버튼 */}
       <Button onClick={getLocation} colorScheme="blue" loading={loading}>
         현재 위치 가져오기
       </Button>
 
-      {/* 위치 정보 또는 에러 메시지 */}
+      {/* 선택된 위치 표시 */}
       {location && (
         <Text mt={4}>
           현재 위치: <strong>{location}</strong>
         </Text>
       )}
 
+      {/* 에러 메시지 */}
       {error && (
         <Text mt={4} color="red.500">
           {error}

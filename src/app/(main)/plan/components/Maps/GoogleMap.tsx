@@ -72,7 +72,7 @@ function GoogleMaps() {
           options={mapOptions}
           onLoad={onLoad}
           onUnmount={onUnmount}>
-          <Marker position={currentLocation} />
+          {/* <Marker position={currentLocation} /> */}
         </GoogleMap>
       </LoadScript>
     </Box>
