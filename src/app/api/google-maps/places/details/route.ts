@@ -1,0 +1,31 @@
+import { NextResponse } from 'next/server';
+
+export async function POST(req: Request) {
+  try {
+    const { placeId } = await req.json();
+
+    if (!placeId) {
+      return NextResponse.json({ error: 'Missing placeId' }, { status: 400 });
+    }
+
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: 'API Key is missing' }, { status: 500 });
+    }
+
+    // ✅ Google Places Details API 요청 URL (모든 fields 포함)
+    const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=address_component,adr_address,formatted_address,geometry,icon,icon_mask_base_uri,icon_background_color,name,permanently_closed,photo,place_id,plus_code,type,url,utc_offset,vicinity,wheelchair_accessible_entrance,opening_hours,curbside_pickup,delivery,dine_in,editorial_summary,formatted_phone_number,international_phone_number,website,price_level,rating,reservable,reviews,serves_beer,serves_breakfast,serves_brunch,serves_dinner,serves_lunch,serves_vegetarian_food,serves_wine,takeout,user_ratings_total&language=ko&key=${apiKey}`;
+
+    const response = await fetch(detailsUrl);
+    const data = await response.json();
+
+    if (data.status !== 'OK') {
+      return NextResponse.json({ error: 'Error fetching place details', details: data }, { status: 500 });
+    }
+
+    return NextResponse.json(data.result);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: 'Failed to fetch place details', details: error }, { status: 500 });
+  }
+}

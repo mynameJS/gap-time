@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'API Key is missing' }, { status: 500 });
     }
 
-    const googleMapsUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
+    const googleMapsUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&language=ko&key=${apiKey}`;
 
     const response = await fetch(googleMapsUrl);
     const data = await response.json();

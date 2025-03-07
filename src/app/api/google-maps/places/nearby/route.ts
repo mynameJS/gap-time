@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
-    const { latitude, longitude, radius } = await req.json();
+    const { latitude, longitude, radius, type, sortBy } = await req.json();
 
-    if (!latitude || !longitude || !radius) {
+    if (!latitude || !longitude || !type) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
@@ -13,7 +13,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'API Key is missing' }, { status: 500 });
     }
 
-    const googleMapsUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radius}&key=${apiKey}`;
+    let googleMapsUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&type=${type}&language=ko&key=${apiKey}`;
+
+    if (sortBy === 'distance') {
+      googleMapsUrl += `&rankby=distance`;
+    } else {
+      googleMapsUrl += `&radius=${radius}`;
+    }
 
     const response = await fetch(googleMapsUrl);
     const data = await response.json();
