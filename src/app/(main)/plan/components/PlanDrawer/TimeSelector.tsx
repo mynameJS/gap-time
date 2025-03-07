@@ -4,10 +4,10 @@ import { Flex, Text, VStack, createListCollection } from '@chakra-ui/react';
 import { SelectRoot, SelectTrigger, SelectContent, SelectItem, SelectValueText } from '@/components/ui/select';
 import { PlanInfo } from '@/types/interface';
 
-// 시간 목록 생성 (00:00 ~ 23:00)
+// 09:00 ~ 24:00 시간 목록 생성
 const timeCollection = createListCollection({
-  items: Array.from({ length: 24 }, (_, i) => {
-    const hour = i.toString().padStart(2, '0'); // 두 자리 숫자 변환
+  items: Array.from({ length: 16 }, (_, i) => {
+    const hour = (i + 9).toString().padStart(2, '0'); // 9부터 시작
     return { label: `${hour}:00`, value: `${hour}:00` };
   }),
 });
