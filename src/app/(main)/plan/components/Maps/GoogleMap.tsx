@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { Box, Spinner } from '@chakra-ui/react';
 import useCurrentLocationStore from '@/store/useCurrentLocationStore';
-// import { fetchNearbyPlaces } from '@/lib/api/places';
 
 // 타입 정의
 const containerStyle: React.CSSProperties = {
@@ -49,19 +48,6 @@ function GoogleMaps() {
     }
   }, []);
 
-  // useEffect(() => {
-  //   if (map) {
-  //     // ✅ 주변 장소 가져오기
-  //     fetchNearbyPlaces({ latitude: currentLocation.lat, longitude: currentLocation.lng, radius: 1000 }).then(
-  //       places => {
-  //         if (places) {
-  //           console.log(places);
-  //         }
-  //       }
-  //     );
-  //   }
-  // }, [map, currentLocation]);
-
   return (
     <Box w="100%" h="100%" position="relative" borderRadius="lg" overflow="hidden" boxShadow="lg">
       <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!} loadingElement={<Spinner />}>
@@ -72,7 +58,7 @@ function GoogleMaps() {
           options={mapOptions}
           onLoad={onLoad}
           onUnmount={onUnmount}>
-          {/* <Marker position={currentLocation} /> */}
+          <Marker position={currentLocation} label={'야야야야야야야야'} />
         </GoogleMap>
       </LoadScript>
     </Box>

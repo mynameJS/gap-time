@@ -6,26 +6,17 @@ import { InputGroup } from '@/components/ui/input-group';
 import { CloseButton } from '@/components/ui/close-button';
 import { CiSearch } from 'react-icons/ci';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
-import PlanInfoModal from './PlanInfoModal';
-import { fetchNearbyPlaces } from '@/lib/api/places';
 import usePlanStore from '@/store/usePlanInfoStore';
+import PlanInfoModal from './PlanInfoModal';
 
 function PlanDrawer() {
   const [isOpened, setIsOpened] = useState(true);
   const { planInfo } = usePlanStore();
-  console.log(planInfo);
+
   return (
     <>
       {isOpened ? (
-        <Flex
-          flexDirection={'column'}
-          gap={1}
-          w="50%"
-          h="100%"
-          position="relative"
-          p={3}
-          borderWidth={3}
-          borderColor="black">
+        <Flex flexDirection={'column'} gap={1} w="50%" h="100%" position="relative" p={3}>
           <Text>서울</Text>
           <SearchBar />
           <Box borderWidth={3} w="100%" h="100%">
@@ -42,7 +33,7 @@ function PlanDrawer() {
               )}
             </List.Root>
           </Box>
-          <PlanInfoModal />
+          {!planInfo && <PlanInfoModal />}
           <CloseCustomButton onClick={() => setIsOpened(false)} />
         </Flex>
       ) : (

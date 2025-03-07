@@ -25,7 +25,7 @@ export default function LocationPicker({ formattedAddress, onUpdate }: LocationP
           try {
             const address = await fetchAddress({ latitude, longitude });
             if (address) {
-              onUpdate({ formattedAddress: address[4].formatted_address });
+              onUpdate({ formattedAddress: address[0].formatted_address });
               setError('');
             } else {
               setError('주소를 찾을 수 없습니다.');

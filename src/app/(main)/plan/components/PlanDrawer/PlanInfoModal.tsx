@@ -6,6 +6,7 @@ import TimeSelector from './TimeSelector';
 import TransportPicker from './TransportPicker';
 import LocationPicker from './LocationPicker';
 import { PlanInfo } from '@/types/interface';
+// import generateSchedule from '@/utils/generateSchedule';
 
 function PlanInfoModal() {
   const [isOpen, setIsOpen] = useState<boolean>(true);
@@ -16,6 +17,9 @@ function PlanInfoModal() {
     geocode: { lat: 0, lng: 0 },
     formattedAddress: '',
   });
+
+  // const test = generateSchedule('10:00', '12:00');
+  // console.log(test);
 
   const { setPlanInfo: setGlobalPlanInfo } = usePlanStore();
   const handleUpdatePlanInfo = (updates: Partial<PlanInfo>) => {
