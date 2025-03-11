@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
-    const { latitude, longitude, radius, type, sortBy } = await req.json();
+    const { latitude, longitude, radius = 5000, type, sortBy } = await req.json();
 
     if (!latitude || !longitude || !type) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
