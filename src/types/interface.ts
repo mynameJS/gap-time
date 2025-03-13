@@ -12,4 +12,5 @@ export interface ScheduleBlock {
   end: string;
   activityType: string;
   placeId?: string | null;
+  travel?: { distance: string; duration: string } | null;
 }
