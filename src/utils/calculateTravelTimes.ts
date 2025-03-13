@@ -13,16 +13,15 @@ const calculateTravelTimes = async ({ schedule, mode, routeType, currentLocation
 
   const places = schedule.map(block => block.placeId).filter(Boolean) as string[];
 
-  // ✅ 현재 위치에서 첫 번째 장소까지 거리 & 시간 요청
-  const firstPlaceId = places[0];
-  const firstTravel = await fetchDistanceMatrix({ origin: currentLocation, destination: firstPlaceId, mode });
+  const finalSchedule: ScheduleBlock[] = [];
 
-  // ✅ 새로운 'start' 블록 추가 (현재 위치 → 첫 번째 장소)
-  const startBlock = {
-    start: firstTravel ? adjustTime(schedule[0].start, -firstTravel.duration.value) : schedule[0].start, // 이동 시간 고려하여 start 조정
-    end: schedule[0].start, // 첫 번째 일정 시작시간과 동일
-    activityType: 'start',
-    placeId: 'currentLocation',
+  // ✅ 1. 현재 위치에서 첫 번째 장소까지의 이동 블록 추가
+  const firstTravel = await fetchDistanceMatrix({ origin: currentLocation, destination: places[0], mode });
+  const firstMoveBlock: ScheduleBlock = {
+    start: schedule[0].start,
+    end: adjustTime(schedule[0].start, firstTravel?.duration.value || 0),
+    activityType: 'move',
+    placeId: null,
     travel: firstTravel
       ? {
           distance: firstTravel.distance.text,
@@ -30,56 +29,67 @@ const calculateTravelTimes = async ({ schedule, mode, routeType, currentLocation
         }
       : null,
   };
+  finalSchedule.push(firstMoveBlock);
 
-  // ✅ 기존 일정의 각 장소 간 이동 거리 & 시간 요청
+  // ✅ 2. 기존 일정의 각 장소 간 이동 거리 & 시간 요청
   const travelDataList = await Promise.all(
-    places.slice(0, -1).map((placeId, index) => {
-      return fetchDistanceMatrix({ origin: placeId, destination: places[index + 1], mode });
-    })
+    places
+      .slice(0, -1)
+      .map((placeId, index) => fetchDistanceMatrix({ origin: placeId, destination: places[index + 1], mode }))
   );
 
-  // ✅ 기존 일정에 travel 정보 추가 & start 시간 조정
-  const updatedSchedule = schedule.map((block, index) => {
-    if (index === 0) return block; // 첫 번째 블록은 기존 start 유지 (startBlock에서 이미 조정됨)
-
-    const prevBlock = schedule[index - 1]; // 이전 블록 정보 가져오기
-    const travelData = travelDataList[index - 1]; // 이동 거리 & 시간 정보 가져오기
-
-    return {
+  // ✅ 3. 각 블록을 이동 블록(`move`)과 일정 블록(`activity`)로 나누어 추가
+  schedule.forEach((block, index) => {
+    // ✅ 일정 블록의 start를 이전 move 블록의 end로 설정
+    const lastEnd = finalSchedule[finalSchedule.length - 1].end;
+    const updatedActivityBlock: ScheduleBlock = {
       ...block,
-      start: travelData ? adjustTime(prevBlock.end, travelData.duration.value) : prevBlock.end, // ✅ start 시간 조정
-      travel: travelData
-        ? {
-            distance: travelData.distance.text,
-            duration: travelData.duration.text,
-          }
-        : null, // 마지막 장소의 경우 travel은 null
+      start: lastEnd,
+      travel: null, // ✅ 일정 블록에는 travel 없음
     };
+    finalSchedule.push(updatedActivityBlock);
+
+    // ✅ 마지막 블록이 아니면 move 블록 추가
+    if (index < travelDataList.length) {
+      const travelData = travelDataList[index];
+      const moveBlock: ScheduleBlock = {
+        start: updatedActivityBlock.end,
+        end: adjustTime(updatedActivityBlock.end, travelData?.duration.value || 0),
+        activityType: 'move',
+        placeId: null,
+        travel: travelData
+          ? {
+              distance: travelData.distance.text,
+              duration: travelData.duration.text,
+            }
+          : null,
+      };
+      finalSchedule.push(moveBlock);
+    }
   });
 
-  // ✅ 왕복일 경우 마지막 장소에서 현재 위치로 돌아오는 일정 추가
-  const finalSchedule = [startBlock, ...updatedSchedule];
-
+  // ✅ 4. 왕복일 경우, 마지막 장소에서 현재 위치로 돌아오는 이동 블록 추가
   if (routeType === '왕복') {
-    const lastPlaceId = places[places.length - 1];
-    const returnTravel = await fetchDistanceMatrix({ origin: lastPlaceId, destination: currentLocation, mode });
+    const lastActivity = finalSchedule[finalSchedule.length - 1];
+    const returnTravel = await fetchDistanceMatrix({
+      origin: places[places.length - 1],
+      destination: currentLocation,
+      mode,
+    });
 
-    finalSchedule.push({
-      start: returnTravel
-        ? adjustTime(updatedSchedule[updatedSchedule.length - 1].end, returnTravel.duration.value)
-        : updatedSchedule[updatedSchedule.length - 1].end,
-      end: returnTravel
-        ? adjustTime(updatedSchedule[updatedSchedule.length - 1].end, returnTravel.duration.value)
-        : updatedSchedule[updatedSchedule.length - 1].end,
-      activityType: 'end',
-      placeId: 'currentLocation',
+    const returnMoveBlock: ScheduleBlock = {
+      start: lastActivity.end,
+      end: adjustTime(lastActivity.end, returnTravel?.duration.value || 0),
+      activityType: 'move',
+      placeId: null,
       travel: returnTravel
         ? {
             distance: returnTravel.distance.text,
             duration: returnTravel.duration.text,
           }
         : null,
-    });
+    };
+    finalSchedule.push(returnMoveBlock);
   }
 
   return finalSchedule;
