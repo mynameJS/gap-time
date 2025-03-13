@@ -23,7 +23,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Error fetching place details', details: data }, { status: 500 });
     }
 
-    return NextResponse.json(data.result);
+    const placeData = data.result;
+
+    return NextResponse.json({
+      name: placeData.name,
+      address: placeData.formatted_address,
+      open_hours: placeData.opening_hours,
+      rating: placeData.rating ?? null,
+      total_reviews: placeData.user_ratings_total ?? 0,
+      url: placeData.url ?? null,
+      photoReference: placeData.photos?.length ? placeData.photos[0].photo_reference : null,
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Failed to fetch place details', details: error }, { status: 500 });
