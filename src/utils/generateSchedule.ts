@@ -1,7 +1,8 @@
-import { fetchNearbyPlaces } from '@/lib/api/places';
+import { fetchNearbyPlaces, fetchPlaceDetails } from '@/lib/api/places';
 import getTimeBlocks from './getTimeBlocks';
 import getActivityByTimes from './getActivityByTimes';
 import getRandomIndexes from './getRandomIndexes';
+import { PlaceDetails } from '@/types/interface';
 
 interface FetchAllNearbyPlacesParams {
   latitude: number;
@@ -59,6 +60,17 @@ const generateSchedule = async ({ startTime, endTime, latitude, longitude }: Gen
   const placesMap = await fetchAllNearbyPlaces({ latitude, longitude, activityCounts });
   const usedPlaceIds = new Set<string>(); // ✅ 중복 체크용 Set
 
+  // ✅ 장소 ID를 기반으로 상세 정보 가져오기 (병렬 처리)
+  const placeDetailsMap: Record<string, PlaceDetails> = {};
+  await Promise.all(
+    Object.values(placesMap)
+      .flat()
+      .map(async placeId => {
+        const details = await fetchPlaceDetails(placeId);
+        if (details) placeDetailsMap[placeId] = details;
+      })
+  );
+
   const schedule = scheduleBlocks.map(block => {
     // ✅ activityType을 다시 랜덤 선택하지 않고, 고정된 값 사용
     const { activityType } = block;
@@ -71,7 +83,8 @@ const generateSchedule = async ({ startTime, endTime, latitude, longitude }: Gen
 
     return {
       ...block,
-      placeId, // ✅ 장소 ID만 먼저 배정 (세부 정보는 나중에 fetch)
+      placeId,
+      placeDetails: placeId ? placeDetailsMap[placeId] : null,
     };
   });
 
