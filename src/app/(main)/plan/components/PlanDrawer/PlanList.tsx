@@ -1,11 +1,12 @@
 'use client';
 
-import { Flex, Box, Image } from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
+import { Flex, Box, Text, Image, VStack, HStack, Divider, Icon, Link, Avatar } from '@chakra-ui/react';
+import { FaMapMarkerAlt, FaExternalLinkAlt, FaStar, FaRoute } from 'react-icons/fa';
 import usePlanStore from '@/store/usePlanInfoStore';
 import generateSchedule from '@/utils/generateSchedule';
 import calculateTravelTimes from '@/utils/calculateTravelTimes';
 import { ScheduleBlock } from '@/types/interface';
-import { useState, useEffect } from 'react';
 
 function PlanList() {
   const { planInfo } = usePlanStore();
@@ -36,7 +37,6 @@ function PlanList() {
         };
 
         const finalResult = await calculateTravelTimes(finalParams);
-
         setPlanList(finalResult);
       } catch (error) {
         console.error('Error fetching places:', error);
@@ -47,43 +47,70 @@ function PlanList() {
     fetchPlanList();
   }, [planInfo]);
 
-  if (!planList) return null;
+  if (!planList.length) return null;
 
   return (
-    <Flex w="100%">
-      <Box>
+    <Box w="100%" maxW="600px" mx="auto" p={4} borderWidth={1} borderRadius="lg" boxShadow="md" bg="white">
+      <VStack gap={6} align="stretch">
         {planList.map((block, index) => {
           if (block.activityType === 'move') {
             return (
-              <Box key={index}>
-                {block.start} ~ {block.end}
-                <Box>{block.activityType}</Box>
-                <Box>{block.travel?.distance}</Box>
-                <Box>{block.travel?.duration}</Box>
-              </Box>
+              <HStack key={index} gap={4} p={4} bg="gray.50" borderRadius="md">
+                <Icon as={FaRoute} color="blue.500" />
+                <VStack align="start" gap={1}>
+                  <Text fontSize="sm" fontWeight="bold" color="blue.600">
+                    이동 ({block.start} ~ {block.end})
+                  </Text>
+                  <Text fontSize="sm">거리: {block.travel?.distance}</Text>
+                  <Text fontSize="sm">소요 시간: {block.travel?.duration}</Text>
+                </VStack>
+              </HStack>
             );
           }
 
           const placeDetails = block.placeDetails;
-          const imageUrl = `/api/google-maps/photo?photo_reference=${placeDetails?.photoReference}`;
+          const imageUrl = placeDetails?.photoReference
+            ? `/api/google-maps/photo?photo_reference=${placeDetails.photoReference}`
+            : 'https://via.placeholder.com/200';
 
           return (
-            <Box key={index}>
-              <Box>
-                {block.start} ~ {block.end}
-              </Box>
-              <Box>{block.activityType}</Box>
-              <Box>{placeDetails?.name}</Box>
-              <Box>{placeDetails?.address}</Box>
-              <Box>별점 : {placeDetails?.rating}</Box>
-              <Box>리뷰수 : {placeDetails?.total_reviews}</Box>
-              <Image src={imageUrl} alt="사진" />
-              <Box>홈페이지 : {placeDetails?.url}</Box>
+            <Box key={index} p={4} borderWidth={1} borderRadius="lg" boxShadow="sm">
+              <VStack align="stretch" gap={3}>
+                <HStack gap={3}>
+                  <Avatar.Root shape="square" size="lg" boxSize="80px">
+                    <Avatar.Fallback name="gap-time" />
+                    <Avatar.Image src={imageUrl} />
+                  </Avatar.Root>
+                  <VStack align="start" gap={1}>
+                    <Text fontSize="md" fontWeight="bold">
+                      {placeDetails?.name || '장소 정보 없음'}
+                    </Text>
+                    <HStack>
+                      <Icon as={FaMapMarkerAlt} color="red.400" />
+                      <Text fontSize="sm">{placeDetails?.address || '주소 정보 없음'}</Text>
+                    </HStack>
+                    <HStack>
+                      <Icon as={FaStar} color="yellow.400" />
+                      <Text fontSize="sm">
+                        {placeDetails?.rating || 'N/A'} ({placeDetails?.total_reviews || 0} 리뷰)
+                      </Text>
+                    </HStack>
+                  </VStack>
+                </HStack>
+                <Text fontSize="sm" color="gray.500">
+                  {block.start} ~ {block.end}
+                </Text>
+                {placeDetails?.url && (
+                  <Link href={placeDetails.url} fontSize="sm">
+                    자세히 보기 <Icon as={FaExternalLinkAlt} mx="1" />
+                  </Link>
+                )}
+              </VStack>
             </Box>
           );
         })}
-      </Box>
-    </Flex>
+      </VStack>
+    </Box>
   );
 }
 
