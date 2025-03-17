@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, VStack, Text } from '@chakra-ui/react';
+import { Button, VStack, Text, Box, Spinner, Icon } from '@chakra-ui/react';
+import { FaMapMarkerAlt } from 'react-icons/fa';
 import { fetchAddress } from '@/lib/api/places';
 import { PlanInfo } from '@/types/interface';
 
@@ -32,6 +33,7 @@ export default function LocationPicker({ formattedAddress, onUpdate }: LocationP
             }
           } catch (fetchError) {
             setError('주소 정보를 가져오는 중 오류가 발생했습니다.');
+            console.error(fetchError);
           }
           setLoading(false);
         },
@@ -50,22 +52,30 @@ export default function LocationPicker({ formattedAddress, onUpdate }: LocationP
   };
 
   return (
-    <VStack gap={4} width="100%">
+    <VStack gap={4} width="100%" p={4} bg="gray.50" borderRadius="lg" boxShadow="sm">
       {/* 현재 위치 가져오기 버튼 */}
-      <Button onClick={getLocation} colorScheme="blue" loading={loading}>
+      <Button
+        onClick={getLocation}
+        colorScheme="blue"
+        size="md"
+        loading={loading} // ✅ 로딩 시 스피너 표시
+        loadingText="위치 가져오는 중...">
         현재 위치 가져오기
       </Button>
 
       {/* 선택된 위치 표시 */}
       {formattedAddress && (
-        <Text mt={4}>
-          현재 위치: <strong>{formattedAddress}</strong>
-        </Text>
+        <Box p={3} bg="white" borderRadius="md" boxShadow="md" display="flex" alignItems="center" gap={2}>
+          <Icon as={FaMapMarkerAlt} color="red.400" />
+          <Text fontSize="md" fontWeight="bold" color="gray.700">
+            {formattedAddress}
+          </Text>
+        </Box>
       )}
 
       {/* 에러 메시지 */}
       {error && (
-        <Text mt={4} color="red.500">
+        <Text mt={4} color="red.500" fontSize="sm" fontWeight="bold">
           {error}
         </Text>
       )}
