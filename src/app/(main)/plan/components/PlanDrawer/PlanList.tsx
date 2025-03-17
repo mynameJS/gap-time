@@ -32,7 +32,7 @@ function PlanList() {
         const finalParams = {
           schedule: result,
           mode: 'transit',
-          routeType: '왕복',
+          routeType: planInfo.routeType,
           currentLocation: planInfo.geocode,
         };
 
@@ -50,7 +50,16 @@ function PlanList() {
   if (!planList.length) return null;
 
   return (
-    <Box w="100%" maxW="600px" mx="auto" p={4} borderWidth={1} borderRadius="lg" boxShadow="md" bg="white">
+    <Box
+      w="100%"
+      maxW="600px"
+      mx="auto"
+      p={4}
+      borderWidth={1}
+      borderRadius="lg"
+      boxShadow="md"
+      bg="white"
+      overflow={'auto'}>
       <VStack gap={6} align="stretch">
         {planList.map((block, index) => {
           if (block.activityType === 'move') {
@@ -69,9 +78,10 @@ function PlanList() {
           }
 
           const placeDetails = block.placeDetails;
-          const imageUrl = placeDetails?.photoReference
-            ? `/api/google-maps/photo?photo_reference=${placeDetails.photoReference}`
-            : 'https://via.placeholder.com/200';
+          const imageUrl = `/api/google-maps/photo?photo_reference=${placeDetails?.photoReference}`;
+          // const imageUrl = placeDetails?.photoReference
+          //   ? `/api/google-maps/photo?photo_reference=${placeDetails.photoReference}`
+          //   : 'https://via.placeholder.com/200';
 
           return (
             <Box key={index} p={4} borderWidth={1} borderRadius="lg" boxShadow="sm">
@@ -101,7 +111,7 @@ function PlanList() {
                   {block.start} ~ {block.end}
                 </Text>
                 {placeDetails?.url && (
-                  <Link href={placeDetails.url} fontSize="sm">
+                  <Link as="a" href={placeDetails.url} fontSize="sm" target="_blank" rel="noopener noreferrer">
                     자세히 보기 <Icon as={FaExternalLinkAlt} mx="1" />
                   </Link>
                 )}
