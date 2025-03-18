@@ -33,6 +33,7 @@ export async function POST(req: Request) {
       total_reviews: placeData.user_ratings_total ?? 0,
       url: placeData.url ?? null,
       photoReference: placeData.photos?.length ? placeData.photos[0].photo_reference : null,
+      icon: placeData.icon ? [placeData.icon, placeData.icon_background_color] : null,
     });
   } catch (error) {
     console.error(error);

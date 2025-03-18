@@ -28,4 +28,5 @@ export interface PlaceDetails {
   total_reviews: number;
   url: string;
   photoReference: string;
+  icon: [string, string];
 }
