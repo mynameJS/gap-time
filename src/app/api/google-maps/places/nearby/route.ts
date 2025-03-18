@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
-    const { latitude, longitude, radius = 5000, type, sortBy } = await req.json();
+    const { latitude, longitude, type, radius, sortBy } = await req.json();
 
-    if (!latitude || !longitude || !type) {
-      return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
+    // 위도, 경도 필수 체크
+    if (!latitude || !longitude) {
+      return NextResponse.json({ error: 'Missing required parameters: latitude and longitude' }, { status: 400 });
     }
 
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
@@ -13,17 +14,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'API Key is missing' }, { status: 500 });
     }
 
-    let googleMapsUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&type=${type}&language=ko&key=${apiKey}`;
+    // 기본 URL 생성
+    let googleMapsUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&language=ko&key=${apiKey}`;
 
+    // ✅ 정렬 기준 설정 (기본값: prominence)
     if (sortBy === 'distance') {
       googleMapsUrl += `&rankby=distance`;
     } else {
-      googleMapsUrl += `&radius=${radius}`;
+      googleMapsUrl += `&rankby=prominence`;
+      if (radius) {
+        googleMapsUrl += `&radius=${radius}`; // prominence일 때만 radius 적용
+      }
     }
 
+    // ✅ type이 있을 경우 적용
+    if (type) {
+      googleMapsUrl += `&type=${type}`;
+    }
+
+    // API 요청
     const response = await fetch(googleMapsUrl);
     const data = await response.json();
 
+    // 오류 처리
     if (data.status !== 'OK') {
       return NextResponse.json({ error: 'Error fetching places', details: data }, { status: 500 });
     }
