@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Flex, Input, Text, List } from '@chakra-ui/react';
-import { InputGroup } from '@/components/ui/input-group';
+import { Flex } from '@chakra-ui/react';
 import { CloseButton } from '@/components/ui/close-button';
-import { CiSearch } from 'react-icons/ci';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import usePlanStore from '@/store/usePlanInfoStore';
-import PlanInfoModal from './PlanInfoModal';
+import PlanInfoModal from '../PlanInfoModal/PlanInfoModal';
+import PlanSelector from './PlanSelector';
+import PlanList from './PlanList';
 
 function PlanDrawer() {
   const [isOpened, setIsOpened] = useState(true);
@@ -15,43 +15,26 @@ function PlanDrawer() {
 
   return (
     <>
-      {isOpened ? (
-        <Flex flexDirection={'column'} gap={1} w="50%" h="100%" position="relative" p={3}>
-          <Text>서울</Text>
-          <SearchBar />
-          <Box borderWidth={3} w="100%" h="100%">
-            <List.Root>
-              {planInfo && (
-                <>
-                  <Text>{planInfo.startTime[0]}</Text>
-                  <Text>{planInfo.endTime[0]}</Text>
-                  <Text>{planInfo.transport}</Text>
-                  <Text>{planInfo.formattedAddress}</Text>
-                  <Text>{planInfo.geocode.lat}</Text>
-                  <Text>{planInfo.geocode.lng}</Text>
-                </>
-              )}
-            </List.Root>
-          </Box>
-          {!planInfo && <PlanInfoModal />}
-          <CloseCustomButton onClick={() => setIsOpened(false)} />
-        </Flex>
-      ) : (
-        <OpenCustomButton onClick={() => setIsOpened(true)} />
-      )}
+      <Flex
+        flexDirection="column"
+        gap={1}
+        w="50rem"
+        h="100%"
+        position="relative"
+        p={4}
+        display={isOpened ? 'block' : 'none'} // ✅ 화면에서만 숨김
+      >
+        {/* <PlanList /> */}
+        <PlanSelector />
+        {!planInfo && <PlanInfoModal />}
+        <CloseCustomButton onClick={() => setIsOpened(false)} />
+      </Flex>
+      {!isOpened && <OpenCustomButton onClick={() => setIsOpened(true)} />}
     </>
   );
 }
 
 export default PlanDrawer;
-
-const SearchBar = () => {
-  return (
-    <InputGroup endElement={<CiSearch />} w="100%">
-      <Input placeholder="검색어를 입력하세요" />
-    </InputGroup>
-  );
-};
 
 const CloseCustomButton = ({ onClick }: { onClick: () => void }) => {
   return (
