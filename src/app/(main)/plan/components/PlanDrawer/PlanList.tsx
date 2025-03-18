@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Flex, Box, Text, Image, VStack, HStack, Divider, Icon, Link, Avatar } from '@chakra-ui/react';
-import { FaMapMarkerAlt, FaExternalLinkAlt, FaStar, FaRoute } from 'react-icons/fa';
+import { Box, Text, VStack, HStack, Icon, Link, Avatar } from '@chakra-ui/react';
+import { FaMapMarkerAlt, FaExternalLinkAlt, FaStar, FaRoute, FaTag } from 'react-icons/fa';
 import usePlanStore from '@/store/usePlanInfoStore';
 import generateSchedule from '@/utils/generateSchedule';
 import calculateTravelTimes from '@/utils/calculateTravelTimes';
@@ -10,10 +10,8 @@ import { ScheduleBlock } from '@/types/interface';
 
 function PlanList() {
   const { planInfo } = usePlanStore();
-  console.log(planInfo);
 
   const [planList, setPlanList] = useState<ScheduleBlock[]>([]);
-  console.log(planList);
 
   useEffect(() => {
     if (!planInfo) return;
@@ -52,14 +50,14 @@ function PlanList() {
   return (
     <Box
       w="100%"
+      h="100vh"
       maxW="600px"
       mx="auto"
-      p={4}
       borderWidth={1}
       borderRadius="lg"
       boxShadow="md"
       bg="white"
-      overflow={'auto'}>
+      overflow="auto">
       <VStack gap={6} align="stretch">
         {planList.map((block, index) => {
           if (block.activityType === 'move') {
@@ -78,19 +76,28 @@ function PlanList() {
           }
 
           const placeDetails = block.placeDetails;
-          const imageUrl = `/api/google-maps/photo?photo_reference=${placeDetails?.photoReference}`;
-          // const imageUrl = placeDetails?.photoReference
-          //   ? `/api/google-maps/photo?photo_reference=${placeDetails.photoReference}`
-          //   : 'https://via.placeholder.com/200';
+          const imageUrl = placeDetails?.photoReference
+            ? `/api/google-maps/photo?photo_reference=${placeDetails.photoReference}`
+            : placeDetails?.icon?.[0] || null; // ✅ 사진이 없으면 아이콘, 아이콘도 없으면 null
 
           return (
             <Box key={index} p={4} borderWidth={1} borderRadius="lg" boxShadow="sm">
               <VStack align="stretch" gap={3}>
+                {/* 활동 유형 추가 */}
+                <HStack>
+                  <Icon as={FaTag} color="purple.500" />
+                  <Text fontSize="sm" fontWeight="bold" color="purple.600">
+                    {block.activityType.toUpperCase()}
+                  </Text>
+                </HStack>
+
                 <HStack gap={3}>
+                  {/* 대표 이미지 (사진 > 아이콘 > fallback) */}
                   <Avatar.Root shape="square" size="lg" boxSize="80px">
                     <Avatar.Fallback name="gap-time" />
-                    <Avatar.Image src={imageUrl} />
+                    {imageUrl ? <Avatar.Image src={imageUrl} /> : null}
                   </Avatar.Root>
+
                   <VStack align="start" gap={1}>
                     <Text fontSize="md" fontWeight="bold">
                       {placeDetails?.name || '장소 정보 없음'}
@@ -107,9 +114,11 @@ function PlanList() {
                     </HStack>
                   </VStack>
                 </HStack>
+
                 <Text fontSize="sm" color="gray.500">
                   {block.start} ~ {block.end}
                 </Text>
+
                 {placeDetails?.url && (
                   <Link as="a" href={placeDetails.url} fontSize="sm" target="_blank" rel="noopener noreferrer">
                     자세히 보기 <Icon as={FaExternalLinkAlt} mx="1" />
