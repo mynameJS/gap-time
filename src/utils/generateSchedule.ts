@@ -16,7 +16,7 @@ const fetchAllNearbyPlaces = async ({ latitude, longitude, activityCounts }: Fet
   await Promise.all(
     Object.entries(activityCounts).map(async ([type, count]) => {
       try {
-        const placeList = await fetchNearbyPlaces({ latitude, longitude, type });
+        const placeList = await fetchNearbyPlaces({ latitude, longitude, type, radius: 5000 }); // ✅ 반경 5km 내 검색
 
         // ✅ 정상 영업 중인 곳만 필터링
         const filteredList = placeList.filter((place: any) => place.business_status === 'OPERATIONAL');
