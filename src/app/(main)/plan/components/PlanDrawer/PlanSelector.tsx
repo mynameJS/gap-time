@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Box, VStack, HStack, Input, Checkbox, Button, Text, Icon, List } from '@chakra-ui/react';
+import { Box, VStack, HStack, Input, Button, Text, Icon, List, Image, Badge } from '@chakra-ui/react';
 import { InputGroup } from '@/components/ui/input-group';
-import { FaTrashAlt } from 'react-icons/fa';
+import { FaCheck, FaPlus, FaTrashAlt } from 'react-icons/fa';
 import { CiSearch } from 'react-icons/ci';
 import usePlanStore from '@/store/usePlanInfoStore';
 import { fetchNearbyPlaces } from '@/lib/api/places';
-import PlaceCard from './PlaceCard';
 
 interface targetedPlaceData {
   id: string;
@@ -17,7 +16,6 @@ interface targetedPlaceData {
   total_reviews: number;
   type: string;
   icon: [string, string];
-  checked: boolean;
 }
 
 export default function PlanSelector() {
@@ -31,16 +29,12 @@ export default function PlanSelector() {
     setSearchTerm(e.target.value);
   };
 
-  // 📍 장소 선택 핸들러
-  const handleTogglePlace = (placeId: string) => {
-    setPlaceList(prev => prev.map(place => (place.id === placeId ? { ...place, checked: !place.checked } : place)));
-  };
-
-  // ➕ 선택한 장소 추가
-  const handleAddPlaces = () => {
-    const selected = placeList.filter(place => place.checked);
-    setSelectedPlaces(prev => [...prev, ...selected]);
-    setPlaceList(prev => prev.map(place => ({ ...place, checked: false }))); // 체크 초기화
+  // 📍 장소 선택 핸들러 (추가/제거)
+  const handleTogglePlace = (place: targetedPlaceData) => {
+    setSelectedPlaces(prev => {
+      const isSelected = prev.some(p => p.id === place.id);
+      return isSelected ? prev.filter(p => p.id !== place.id) : [...prev, place];
+    });
   };
 
   // ❌ 선택한 장소 삭제
@@ -70,7 +64,6 @@ export default function PlanSelector() {
           total_reviews: place.user_ratings_total,
           type: place.types[0],
           icon: [place.icon, place.icon_background_color],
-          checked: false, // 초기 선택 상태 false
         }));
         setPlaceList(targetedData);
       } catch (error) {
@@ -81,60 +74,103 @@ export default function PlanSelector() {
   }, [planInfo]);
 
   return (
-    <Box w="100%" h={'100vh'} p={4} borderWidth={1} borderRadius="md" boxShadow="sm" overflow={'auto'}>
-      <VStack gap={4} align="stretch">
+    <HStack w="100%" h="100%" p={4} borderWidth={3} borderRadius="md" boxShadow="sm">
+      {/* 좌측 장소 리스트 */}
+      <VStack gap={4} w="50%" h="100%" align="stretch">
         {/* 🔍 검색 바 */}
-        <InputGroup endElement={<CiSearch />} w="100%">
-          <Input placeholder="장소를 검색하세요..." value={searchTerm} onChange={handleSearchChange} />
-        </InputGroup>
+        <VStack>
+          <InputGroup endElement={<CiSearch />} w="100%">
+            <Input placeholder="장소를 검색하세요..." value={searchTerm} onChange={handleSearchChange} />
+          </InputGroup>
+        </VStack>
 
         {/* 📍 장소 검색 결과 리스트 */}
-        <VStack align="stretch" gap={2}>
-          {placeList.map(place => (
-            <HStack key={place.id} p={2} borderWidth={1} borderRadius="md">
-              <Checkbox.Root checked={place.checked}>
-                <Checkbox.HiddenInput />
-                <Checkbox.Control onClick={() => handleTogglePlace(place.id)} />
-              </Checkbox.Root>
-              <PlaceCard
-                name={place.name}
-                activityType={place.type}
-                icon={place.icon}
-                rating={place.rating}
-                total_reviews={place.total_reviews}
-                photo_reference={place.photo_reference}
-              />
-            </HStack>
-          ))}
-          <Button colorScheme="blue" onClick={handleAddPlaces}>
-            선택한 장소 추가
-          </Button>
-        </VStack>
-
-        {/* 📌 선택된 장소 리스트 */}
-        <VStack align="stretch" gap={2}>
-          <Text fontSize="lg" fontWeight="bold">
-            선택한 장소
-          </Text>
-          <List.Root gap={2}>
-            {selectedPlaces.map(place => (
-              <List.Item
+        <VStack align="stretch" gap={2} overflow={'auto'}>
+          {placeList.map(place => {
+            const isSelected = selectedPlaces.some(p => p.id === place.id);
+            return (
+              <HStack
                 key={place.id}
-                p={2}
+                p={3}
                 borderWidth={1}
                 borderRadius="md"
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center">
-                <Text>{place.name}</Text>
-                <Button size="sm" colorScheme="red" onClick={() => handleRemovePlace(place.id)}>
-                  <Icon as={FaTrashAlt} />
+                boxShadow="sm"
+                w="100%"
+                justify="space-between">
+                {/* 장소 정보 */}
+                <HStack>
+                  {/* 장소 이미지 */}
+                  <Image
+                    src={
+                      place.photo_reference
+                        ? `/api/google-maps/photo?photo_reference=${place.photo_reference}`
+                        : place.icon[0] || '/default-placeholder.png'
+                    }
+                    alt={place.name}
+                    boxSize="50px"
+                    borderRadius="md"
+                  />
+                  {/* 텍스트 정보 */}
+                  <VStack align="start" gap={1}>
+                    <Text fontSize="md" fontWeight="bold">
+                      {place.name}
+                    </Text>
+                    <Badge colorScheme="blue">{place.type}</Badge>
+                    <Text fontSize="sm" color="gray.500">
+                      ⭐ {place.rating.toFixed(1)} ({place.total_reviews.toLocaleString()} 리뷰)
+                    </Text>
+                  </VStack>
+                </HStack>
+
+                {/* + 또는 체크 버튼 */}
+                <Button size="sm" colorScheme={isSelected ? 'green' : 'blue'} onClick={() => handleTogglePlace(place)}>
+                  <Icon as={isSelected ? FaCheck : FaPlus} />
                 </Button>
-              </List.Item>
-            ))}
-          </List.Root>
+              </HStack>
+            );
+          })}
         </VStack>
       </VStack>
-    </Box>
+
+      {/* 📌 우측 선택된 장소 리스트 */}
+      <VStack w="50%" h="100%" align="stretch" gap={2} borderWidth={3} p={4}>
+        <Text fontSize="lg" fontWeight="bold">
+          선택한 장소
+        </Text>
+        <List.Root gap={2} overflow="auto">
+          {selectedPlaces.map((place, index) => (
+            <List.Item
+              key={place.id}
+              p={2}
+              borderWidth={1}
+              borderRadius="md"
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              w="100%">
+              {/* 번호 & 이미지 */}
+              <HStack>
+                <Badge colorScheme="blue">{index + 1}</Badge>
+                <Image
+                  src={
+                    place.photo_reference
+                      ? `/api/google-maps/photo?photo_reference=${place.photo_reference}`
+                      : place.icon[0] || '/default-placeholder.png'
+                  }
+                  alt={place.name}
+                  boxSize="40px"
+                  borderRadius="md"
+                />
+                <Text>{place.name}</Text>
+              </HStack>
+              {/* 삭제 버튼 */}
+              <Button size="sm" colorScheme="red" onClick={() => handleRemovePlace(place.id)}>
+                <Icon as={FaTrashAlt} />
+              </Button>
+            </List.Item>
+          ))}
+        </List.Root>
+      </VStack>
+    </HStack>
   );
 }
