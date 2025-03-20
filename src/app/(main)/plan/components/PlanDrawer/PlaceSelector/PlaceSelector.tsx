@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Box, VStack, HStack, Input, Button, Text, Icon, List, Image, Badge } from '@chakra-ui/react';
+import { Box, VStack, HStack, Input, Button, Text, Icon, List, Image, Badge, Tabs } from '@chakra-ui/react';
 import { InputGroup } from '@/components/ui/input-group';
-import { FaCheck, FaPlus, FaTrashAlt } from 'react-icons/fa';
-import { CiSearch } from 'react-icons/ci';
+import { FaCheck, FaPlus, FaTrashAlt, FaSearch } from 'react-icons/fa';
 import usePlanStore from '@/store/usePlanInfoStore';
 import { fetchNearbyPlaces } from '@/lib/api/places';
+import { PLACES_CATEGORY, DEFAULT_PLACES_CATEGORY } from '@/constants/place';
+import PlaceDetailModal from './PlaceDetailModal';
 
 interface targetedPlaceData {
   id: string;
@@ -16,12 +17,15 @@ interface targetedPlaceData {
   total_reviews: number;
   type: string;
   icon: [string, string];
+  vicinity: string;
 }
 
-export default function PlanSelector() {
+function PlaceSelector() {
   const [searchTerm, setSearchTerm] = useState('');
   const [placeList, setPlaceList] = useState<targetedPlaceData[]>([]);
   const [selectedPlaces, setSelectedPlaces] = useState<targetedPlaceData[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>(DEFAULT_PLACES_CATEGORY);
+  // const [currentDetailData, setCurrentDetailData] =
   const { planInfo } = usePlanStore();
 
   // 🔍 검색어 변경 핸들러
@@ -42,6 +46,35 @@ export default function PlanSelector() {
     setSelectedPlaces(prev => prev.filter(place => place.id !== placeId));
   };
 
+  // 장소 키워드 검색
+  const handleSearchPlaces = async () => {
+    if (!planInfo) return;
+
+    const fetchPlacesParams = {
+      latitude: planInfo.geocode.lat,
+      longitude: planInfo.geocode.lng,
+      sortBy: 'distance',
+      keyword: searchTerm,
+    };
+
+    try {
+      const placeList = await fetchNearbyPlaces(fetchPlacesParams);
+      const targetedData = placeList.map((place: any) => ({
+        id: place.place_id,
+        name: place.name,
+        photo_reference: place.photos?.[0]?.photo_reference || null,
+        rating: place.rating,
+        total_reviews: place.user_ratings_total,
+        type: place.types[0],
+        icon: [place.icon, place.icon_background_color],
+        vicinity: place.vicinity,
+      }));
+      setPlaceList(targetedData);
+    } catch (error) {
+      console.error('Error fetching places:', error);
+    }
+  };
+
   // 📡 Google Places API에서 장소 가져오기
   useEffect(() => {
     if (!planInfo) return;
@@ -49,13 +82,15 @@ export default function PlanSelector() {
     const fetchPlacesParams = {
       latitude: planInfo.geocode.lat,
       longitude: planInfo.geocode.lng,
-      radius: 5000,
-      type: 'tourist_attraction',
+      // radius: 50000,
+      type: selectedCategory,
+      sortBy: 'distance',
     };
 
     const fetchPlaces = async () => {
       try {
         const placeList = await fetchNearbyPlaces(fetchPlacesParams);
+        console.log(placeList);
         const targetedData = placeList.map((place: any) => ({
           id: place.place_id,
           name: place.name,
@@ -64,6 +99,7 @@ export default function PlanSelector() {
           total_reviews: place.user_ratings_total,
           type: place.types[0],
           icon: [place.icon, place.icon_background_color],
+          vicinity: place.vicinity,
         }));
         setPlaceList(targetedData);
       } catch (error) {
@@ -71,7 +107,7 @@ export default function PlanSelector() {
       }
     };
     fetchPlaces();
-  }, [planInfo]);
+  }, [planInfo, selectedCategory]);
 
   return (
     <HStack w="100%" h="100%" p={4} borderWidth={3} borderRadius="md" boxShadow="sm">
@@ -79,11 +115,37 @@ export default function PlanSelector() {
       <VStack gap={4} w="50%" h="100%" align="stretch">
         {/* 🔍 검색 바 */}
         <VStack>
-          <InputGroup endElement={<CiSearch />} w="100%">
-            <Input placeholder="장소를 검색하세요..." value={searchTerm} onChange={handleSearchChange} />
+          <InputGroup
+            endElement={
+              <Button variant="ghost" onClick={handleSearchPlaces} p={1}>
+                <FaSearch />
+              </Button>
+            }
+            w="100%">
+            <Input
+              placeholder="장소를 검색하세요..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              onKeyDown={e => e.key === 'Enter' && handleSearchPlaces()}
+            />
           </InputGroup>
         </VStack>
-
+        <VStack w="100%" align={'start'}>
+          <HStack wrap="wrap">
+            {Object.keys(PLACES_CATEGORY).map(category => (
+              <Button
+                key={category}
+                variant={
+                  selectedCategory === PLACES_CATEGORY[category as keyof typeof PLACES_CATEGORY] ? 'solid' : 'outline'
+                }
+                colorPalette="blue"
+                onClick={() => setSelectedCategory(PLACES_CATEGORY[category as keyof typeof PLACES_CATEGORY])}
+                size="md">
+                {category}
+              </Button>
+            ))}
+          </HStack>
+        </VStack>
         {/* 📍 장소 검색 결과 리스트 */}
         <VStack align="stretch" gap={2} overflow={'auto'}>
           {placeList.map(place => {
@@ -113,17 +175,24 @@ export default function PlanSelector() {
                   {/* 텍스트 정보 */}
                   <VStack align="start" gap={1}>
                     <Text fontSize="md" fontWeight="bold">
+                      <Badge colorPalette="blue">{place.type}</Badge>
                       {place.name}
                     </Text>
-                    <Badge colorScheme="blue">{place.type}</Badge>
+                    <Text fontSize="sm" color="gray.800">
+                      {place.vicinity}
+                    </Text>
                     <Text fontSize="sm" color="gray.500">
-                      ⭐ {place.rating.toFixed(1)} ({place.total_reviews.toLocaleString()} 리뷰)
+                      ⭐ {place.rating?.toFixed(1)} ({place.total_reviews?.toLocaleString()} 리뷰)
                     </Text>
                   </VStack>
                 </HStack>
 
                 {/* + 또는 체크 버튼 */}
-                <Button size="sm" colorScheme={isSelected ? 'green' : 'blue'} onClick={() => handleTogglePlace(place)}>
+                <Button
+                  size="sm"
+                  h="100%"
+                  colorPalette={isSelected ? 'green' : 'blue'}
+                  onClick={() => handleTogglePlace(place)}>
                   <Icon as={isSelected ? FaCheck : FaPlus} />
                 </Button>
               </HStack>
@@ -150,7 +219,7 @@ export default function PlanSelector() {
               w="100%">
               {/* 번호 & 이미지 */}
               <HStack>
-                <Badge colorScheme="blue">{index + 1}</Badge>
+                <Badge colorPalette="blue">{index + 1}</Badge>
                 <Image
                   src={
                     place.photo_reference
@@ -164,13 +233,16 @@ export default function PlanSelector() {
                 <Text>{place.name}</Text>
               </HStack>
               {/* 삭제 버튼 */}
-              <Button size="sm" colorScheme="red" onClick={() => handleRemovePlace(place.id)}>
+              <Button size="sm" colorPalette="red" onClick={() => handleRemovePlace(place.id)}>
                 <Icon as={FaTrashAlt} />
               </Button>
             </List.Item>
           ))}
         </List.Root>
       </VStack>
+      <PlaceDetailModal />
     </HStack>
   );
 }
+
+export default PlaceSelector;
