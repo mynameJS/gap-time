@@ -17,7 +17,7 @@ function RouteSelector({ routeType, onUpdate }: RouteSelectorProps) {
       <HStack gap={4}>
         {/* 왕복 버튼 */}
         <Button
-          colorScheme={routeType === '왕복' ? 'blue' : 'gray'}
+          colorPalette={routeType === '왕복' ? 'blue' : 'gray'}
           variant={routeType === '왕복' ? 'solid' : 'outline'}
           onClick={() => onUpdate({ routeType: '왕복' })}
           size="md"
@@ -31,7 +31,7 @@ function RouteSelector({ routeType, onUpdate }: RouteSelectorProps) {
 
         {/* 편도 버튼 */}
         <Button
-          colorScheme={routeType === '편도' ? 'green' : 'gray'}
+          colorPalette={routeType === '편도' ? 'green' : 'gray'}
           variant={routeType === '편도' ? 'solid' : 'outline'}
           onClick={() => onUpdate({ routeType: '편도' })}
           size="md"

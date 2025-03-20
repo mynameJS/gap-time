@@ -38,7 +38,7 @@ function PlaceCard({ name, activityType, icon, rating, total_reviews, photo_refe
           {/* ✅ 활동 유형 표시 */}
           <HStack>
             <Icon as={FaTag} color="purple.500" />
-            <Badge colorScheme="blue" fontSize="0.8rem">
+            <Badge colorPalette="blue" fontSize="0.8rem">
               {activityType}
             </Badge>
           </HStack>

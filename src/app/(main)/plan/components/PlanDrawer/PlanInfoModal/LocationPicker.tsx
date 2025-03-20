@@ -56,7 +56,7 @@ export default function LocationPicker({ formattedAddress, onUpdate }: LocationP
       {/* 현재 위치 가져오기 버튼 */}
       <Button
         onClick={getLocation}
-        colorScheme="blue"
+        colorPalette="blue"
         size="md"
         loading={loading} // ✅ 로딩 시 스피너 표시
         loadingText="위치 가져오는 중...">

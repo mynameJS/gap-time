@@ -98,10 +98,10 @@ function PlanInfoModal() {
 
         <DialogFooter mt={4} justifyContent="center">
           <HStack gap={4}>
-            <Button colorScheme="blue" onClick={handleSave} size="lg">
+            <Button colorPalette="blue" onClick={handleSave} size="lg">
               추천 일정 만들기
             </Button>
-            <Button variant="outline" colorScheme="gray" size="lg">
+            <Button variant="outline" colorPalette="gray" size="lg" onClick={() => setIsOpen(false)}>
               직접 장소 선택하기
             </Button>
           </HStack>
