@@ -40,14 +40,30 @@ export async function POST(req: Request) {
     // API 요청
     const response = await fetch(googleMapsUrl);
     const data = await response.json();
-    console.log(data);
+
+    // next_page_token 존재하니 나중에 pagination 고려하기
+
+    // ✅ 정상 영업 중인 곳만 필터링
+    const filteredList = data.results.filter((place: any) => place.business_status === 'OPERATIONAL');
+
+    // 데이터 필터링
+    const targetedData = filteredList.map((place: any) => ({
+      place_id: place.place_id,
+      name: place.name,
+      photo_reference: place.photos?.[0]?.photo_reference || null,
+      rating: place.rating,
+      total_reviews: place.user_ratings_total,
+      type: place.types[0],
+      icon: [place.icon, place.icon_background_color],
+      vicinity: place.vicinity,
+    }));
 
     // 오류 처리
     if (data.status !== 'OK') {
       return NextResponse.json({ error: 'Error fetching places', details: data }, { status: 500 });
     }
 
-    return NextResponse.json(data.results);
+    return NextResponse.json(targetedData);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Failed to fetch places', details: error }, { status: 500 });
