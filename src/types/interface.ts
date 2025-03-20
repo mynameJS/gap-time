@@ -30,3 +30,15 @@ export interface PlaceDetails {
   photoReference: string;
   icon: [string, string];
 }
+
+export interface TargetedPlaceData {
+  place_id: string;
+  name: string;
+  photo_reference?: string;
+  rating: number;
+  total_reviews: number;
+  type: string;
+  icon: [string, string];
+  vicinity: string;
+  photo_url: string;
+}
