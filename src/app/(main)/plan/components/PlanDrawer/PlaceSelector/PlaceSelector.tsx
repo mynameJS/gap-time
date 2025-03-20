@@ -8,24 +8,15 @@ import usePlanStore from '@/store/usePlanInfoStore';
 import { fetchNearbyPlaces } from '@/lib/api/places';
 import { PLACES_CATEGORY, DEFAULT_PLACES_CATEGORY } from '@/constants/place';
 import PlaceDetailModal from './PlaceDetailModal';
-
-interface targetedPlaceData {
-  id: string;
-  name: string;
-  photo_reference?: string;
-  rating: number;
-  total_reviews: number;
-  type: string;
-  icon: [string, string];
-  vicinity: string;
-}
+import { TargetedPlaceData } from '@/types/interface';
 
 function PlaceSelector() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [placeList, setPlaceList] = useState<targetedPlaceData[]>([]);
-  const [selectedPlaces, setSelectedPlaces] = useState<targetedPlaceData[]>([]);
+  const [placeList, setPlaceList] = useState<TargetedPlaceData[]>([]);
+  const [selectedPlaces, setSelectedPlaces] = useState<TargetedPlaceData[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>(DEFAULT_PLACES_CATEGORY);
-  // const [currentDetailData, setCurrentDetailData] =
+  const [currentDetailData, setCurrentDetailData] = useState<TargetedPlaceData>();
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
   const { planInfo } = usePlanStore();
 
   // 🔍 검색어 변경 핸들러
@@ -34,16 +25,16 @@ function PlaceSelector() {
   };
 
   // 📍 장소 선택 핸들러 (추가/제거)
-  const handleTogglePlace = (place: targetedPlaceData) => {
+  const handleTogglePlace = (place: TargetedPlaceData) => {
     setSelectedPlaces(prev => {
-      const isSelected = prev.some(p => p.id === place.id);
-      return isSelected ? prev.filter(p => p.id !== place.id) : [...prev, place];
+      const isSelected = prev.some(p => p.place_id === place.place_id);
+      return isSelected ? prev.filter(p => p.place_id !== place.place_id) : [...prev, place];
     });
   };
 
   // ❌ 선택한 장소 삭제
   const handleRemovePlace = (placeId: string) => {
-    setSelectedPlaces(prev => prev.filter(place => place.id !== placeId));
+    setSelectedPlaces(prev => prev.filter(place => place.place_id !== placeId));
   };
 
   // 장소 키워드 검색
@@ -59,20 +50,22 @@ function PlaceSelector() {
 
     try {
       const placeList = await fetchNearbyPlaces(fetchPlacesParams);
-      const targetedData = placeList.map((place: any) => ({
-        id: place.place_id,
-        name: place.name,
-        photo_reference: place.photos?.[0]?.photo_reference || null,
-        rating: place.rating,
-        total_reviews: place.user_ratings_total,
-        type: place.types[0],
-        icon: [place.icon, place.icon_background_color],
-        vicinity: place.vicinity,
-      }));
-      setPlaceList(targetedData);
+      setPlaceList(placeList);
     } catch (error) {
       console.error('Error fetching places:', error);
     }
+  };
+
+  // 상세보기 모달 온오프 토글
+  const toggleModalOpen = () => {
+    setIsDetailModalOpen(prev => !prev);
+  };
+
+  // 클릭 시 선택된 장소 데이터 저장 (currentDetailData)
+  // DetailModal Open
+  const handleClickPlaceCard = (place: TargetedPlaceData) => {
+    setCurrentDetailData(place);
+    toggleModalOpen();
   };
 
   // 📡 Google Places API에서 장소 가져오기
@@ -90,18 +83,8 @@ function PlaceSelector() {
     const fetchPlaces = async () => {
       try {
         const placeList = await fetchNearbyPlaces(fetchPlacesParams);
-        console.log(placeList);
-        const targetedData = placeList.map((place: any) => ({
-          id: place.place_id,
-          name: place.name,
-          photo_reference: place.photos?.[0]?.photo_reference || null,
-          rating: place.rating,
-          total_reviews: place.user_ratings_total,
-          type: place.types[0],
-          icon: [place.icon, place.icon_background_color],
-          vicinity: place.vicinity,
-        }));
-        setPlaceList(targetedData);
+        // console.log(placeList);
+        setPlaceList(placeList);
       } catch (error) {
         console.error('Error fetching places:', error);
       }
@@ -149,10 +132,10 @@ function PlaceSelector() {
         {/* 📍 장소 검색 결과 리스트 */}
         <VStack align="stretch" gap={2} overflow={'auto'}>
           {placeList.map(place => {
-            const isSelected = selectedPlaces.some(p => p.id === place.id);
+            const isSelected = selectedPlaces.some(p => p.place_id === place.place_id);
             return (
               <HStack
-                key={place.id}
+                key={place.place_id}
                 p={3}
                 borderWidth={1}
                 borderRadius="md"
@@ -162,18 +145,9 @@ function PlaceSelector() {
                 {/* 장소 정보 */}
                 <HStack>
                   {/* 장소 이미지 */}
-                  <Image
-                    src={
-                      place.photo_reference
-                        ? `/api/google-maps/photo?photo_reference=${place.photo_reference}`
-                        : place.icon[0] || '/default-placeholder.png'
-                    }
-                    alt={place.name}
-                    boxSize="50px"
-                    borderRadius="md"
-                  />
+                  <Image src={place.photo_url ?? place.icon[0]} alt={place.name} boxSize="50px" borderRadius="md" />
                   {/* 텍스트 정보 */}
-                  <VStack align="start" gap={1}>
+                  <VStack align="start" gap={1} onClick={() => handleClickPlaceCard(place)} cursor={'pointer'}>
                     <Text fontSize="md" fontWeight="bold">
                       <Badge colorPalette="blue">{place.type}</Badge>
                       {place.name}
@@ -209,7 +183,7 @@ function PlaceSelector() {
         <List.Root gap={2} overflow="auto">
           {selectedPlaces.map((place, index) => (
             <List.Item
-              key={place.id}
+              key={place.place_id}
               p={2}
               borderWidth={1}
               borderRadius="md"
@@ -224,7 +198,7 @@ function PlaceSelector() {
                   src={
                     place.photo_reference
                       ? `/api/google-maps/photo?photo_reference=${place.photo_reference}`
-                      : place.icon[0] || '/default-placeholder.png'
+                      : place.icon[0]
                   }
                   alt={place.name}
                   boxSize="40px"
@@ -233,14 +207,20 @@ function PlaceSelector() {
                 <Text>{place.name}</Text>
               </HStack>
               {/* 삭제 버튼 */}
-              <Button size="sm" colorPalette="red" onClick={() => handleRemovePlace(place.id)}>
+              <Button size="sm" colorPalette="red" onClick={() => handleRemovePlace(place.place_id)}>
                 <Icon as={FaTrashAlt} />
               </Button>
             </List.Item>
           ))}
         </List.Root>
       </VStack>
-      <PlaceDetailModal />
+      {isDetailModalOpen && (
+        <PlaceDetailModal
+          currentDetailData={currentDetailData}
+          isDetailModalOpen={isDetailModalOpen}
+          onToggle={toggleModalOpen}
+        />
+      )}
     </HStack>
   );
 }
