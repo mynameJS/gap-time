@@ -18,12 +18,9 @@ const fetchAllNearbyPlaces = async ({ latitude, longitude, activityCounts }: Fet
       try {
         const placeList = await fetchNearbyPlaces({ latitude, longitude, type, radius: 5000 }); // ✅ 반경 5km 내 검색
 
-        // ✅ 정상 영업 중인 곳만 필터링
-        const filteredList = placeList.filter((place: any) => place.business_status === 'OPERATIONAL');
-
         // ✅ 랜덤한 인덱스 선택 후 해당 인덱스의 place_id만 추출
-        const randomIndexes = getRandomIndexes(filteredList.length, count);
-        placesMap[type] = randomIndexes.map(index => filteredList[index].place_id);
+        const randomIndexes = getRandomIndexes(placeList.length, count);
+        placesMap[type] = randomIndexes.map(index => placeList[index].place_id);
       } catch (error) {
         console.error(`Error fetching places for type: ${type}`, error);
         placesMap[type] = []; // 에러 발생 시 빈 배열 처리
