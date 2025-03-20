@@ -2,8 +2,9 @@ interface NearbyPlacesParams {
   latitude: number;
   longitude: number;
   radius?: number;
-  type: string;
+  type?: string;
   sortBy?: string;
+  keyword?: string;
 }
 
 // 위도,경도, 반경, 타입, 정렬 매개변수를 받아서 장소를 가져오는 함수
@@ -23,9 +24,16 @@ export const fetchNearbyPlaces = async (params: NearbyPlacesParams) => {
 
     const places = await response.json();
 
+    // if (params.sortBy === 'rating') {
+    //   places.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    // } else if (params.sortBy === 'reviews') {
+    //   places.sort((a, b) => (b.user_ratings_total || 0) - (a.user_ratings_total || 0));
+    // }
+
+    // distance 로 검색할 시 reviews 많은 순으로 정렬(임시)
     if (params.sortBy === 'rating') {
       places.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    } else if (params.sortBy === 'reviews') {
+    } else if (params.sortBy === 'distance') {
       places.sort((a, b) => (b.user_ratings_total || 0) - (a.user_ratings_total || 0));
     }
 
@@ -35,15 +43,6 @@ export const fetchNearbyPlaces = async (params: NearbyPlacesParams) => {
     return null;
   }
 };
-
-const testParams = {
-  latitude: 37.5662952,
-  longitude: 126.9779451,
-  radius: 10000,
-  type: 'amusement_park',
-};
-
-fetchNearbyPlaces(testParams).then(console.log);
 
 interface AddressParams {
   latitude: number;
