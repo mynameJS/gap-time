@@ -22,19 +22,30 @@ export const fetchNearbyPlaces = async (params: NearbyPlacesParams) => {
       throw new Error('Failed to fetch places');
     }
 
-    const places = await response.json();
+    let places = await response.json();
 
-    // if (params.sortBy === 'rating') {
-    //   places.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    // } else if (params.sortBy === 'reviews') {
-    //   places.sort((a, b) => (b.user_ratings_total || 0) - (a.user_ratings_total || 0));
-    // }
+    // 반환된 장소 이미지 url 추가
+    places = await Promise.all(
+      places.map(async (place: any) => {
+        if (place.photo_reference) {
+          try {
+            const photoResponse = await fetch(`/api/google-maps/photo?photo_reference=${place.photo_reference}`);
+            if (photoResponse.ok) {
+              return { ...place, photo_url: photoResponse.url };
+            }
+          } catch (error) {
+            console.error('Error fetching photo URL:', error);
+          }
+        }
+        return { ...place, photo_url: null };
+      })
+    );
 
     // distance 로 검색할 시 reviews 많은 순으로 정렬(임시)
     if (params.sortBy === 'rating') {
       places.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     } else if (params.sortBy === 'distance') {
-      places.sort((a, b) => (b.user_ratings_total || 0) - (a.user_ratings_total || 0));
+      places.sort((a, b) => (b.total_reviews || 0) - (a.total_reviews || 0));
     }
 
     return places;
