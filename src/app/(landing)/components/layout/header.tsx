@@ -11,10 +11,10 @@ export default function Header() {
         </Text>
         {/* 버튼 영역: Stack으로 수평 정렬 */}
         <HStack gap={8}>
-          <Button colorScheme="teal" variant="outline">
+          <Button colorPalette="teal" variant="outline">
             회원가입
           </Button>
-          <Button colorScheme="teal">로그인</Button>
+          <Button colorPalette="teal">로그인</Button>
         </HStack>
       </Flex>
     </Box>
