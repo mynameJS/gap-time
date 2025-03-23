@@ -5,6 +5,7 @@ import { Box, VStack, HStack, Input, Button, Text, Icon, List, Image, Badge, Tab
 import { InputGroup } from '@/components/ui/input-group';
 import { FaCheck, FaPlus, FaTrashAlt, FaSearch } from 'react-icons/fa';
 import usePlanStore from '@/store/usePlanInfoStore';
+import useGeocodeListStore from '@/store/useGeocodeListStore';
 import { fetchNearbyPlaces } from '@/lib/api/places';
 import { PLACES_CATEGORY, DEFAULT_PLACES_CATEGORY } from '@/constants/place';
 import PlaceDetailModal from './PlaceDetailModal';
@@ -18,6 +19,7 @@ function PlaceSelector() {
   const [currentDetailData, setCurrentDetailData] = useState<TargetedPlaceData>();
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
   const { planInfo } = usePlanStore();
+  const { addGeocode, removeGeocodeById } = useGeocodeListStore();
 
   // 🔍 검색어 변경 핸들러
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,15 +28,23 @@ function PlaceSelector() {
 
   // 📍 장소 선택 핸들러 (추가/제거)
   const handleTogglePlace = (place: TargetedPlaceData) => {
-    setSelectedPlaces(prev => {
-      const isSelected = prev.some(p => p.place_id === place.place_id);
-      return isSelected ? prev.filter(p => p.place_id !== place.place_id) : [...prev, place];
-    });
+    const isSelected = selectedPlaces.some(p => p.place_id === place.place_id);
+
+    if (isSelected) {
+      setSelectedPlaces(prev => prev.filter(p => p.place_id !== place.place_id));
+      removeGeocodeById(place.place_id); // zustand
+    } else {
+      setSelectedPlaces(prev => [...prev, place]);
+      if (place.geocode) {
+        addGeocode({ place_id: place.place_id, geocode: place.geocode }); // zustand
+      }
+    }
   };
 
   // ❌ 선택한 장소 삭제
   const handleRemovePlace = (placeId: string) => {
     setSelectedPlaces(prev => prev.filter(place => place.place_id !== placeId));
+    removeGeocodeById(placeId); // zustand
   };
 
   // 장소 키워드 검색
