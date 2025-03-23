@@ -41,4 +41,5 @@ export interface TargetedPlaceData {
   icon: [string, string];
   vicinity: string;
   photo_url: string;
+  geocode: google.maps.LatLngLiteral;
 }

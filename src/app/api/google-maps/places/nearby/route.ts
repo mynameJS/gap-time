@@ -56,6 +56,7 @@ export async function POST(req: Request) {
       type: place.types[0],
       icon: [place.icon, place.icon_background_color],
       vicinity: place.vicinity,
+      geocode: place.geometry.location,
     }));
 
     // 오류 처리
