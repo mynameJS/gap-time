@@ -1,5 +1,5 @@
 'use client';
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { GoogleMap, LoadScript, OverlayView } from '@react-google-maps/api';
 import { Box, Spinner, VStack, Text } from '@chakra-ui/react';
 import usePlanStore from '@/store/usePlanInfoStore';
@@ -34,6 +34,14 @@ function GoogleMaps() {
     setMap(null); // 맵 객체 초기화
   }, []);
 
+  // 장소 클릭 시 해당 지역으로 부드럽게 이동 로직
+  useEffect(() => {
+    if (!map || geocodeList.length === 0) return;
+
+    const latestLocation = geocodeList[geocodeList.length - 1].geocode;
+    map.panTo(latestLocation); // 부드럽게 이동
+  }, [geocodeList, map]);
+
   if (!planInfo) return null;
 
   return (
@@ -42,7 +50,7 @@ function GoogleMaps() {
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={planInfo?.geocode}
-          zoom={16}
+          zoom={14}
           options={mapOptions}
           onLoad={onLoad}
           onUnmount={onUnmount}>
