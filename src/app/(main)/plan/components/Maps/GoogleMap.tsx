@@ -54,7 +54,6 @@ function GoogleMaps() {
           options={mapOptions}
           onLoad={onLoad}
           onUnmount={onUnmount}>
-          {/* <Marker position={currentLocation} label={'현재 위치'} /> */}
           <OverlayView position={planInfo.geocode} mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}>
             <VStack align="center">
               <Text
