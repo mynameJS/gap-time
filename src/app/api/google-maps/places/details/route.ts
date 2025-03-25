@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       rating: placeData.rating ?? null,
       total_reviews: placeData.user_ratings_total ?? 0,
       url: placeData.url ?? null,
-      photoReference: placeData.photos?.length ? placeData.photos[0].photo_reference : null,
+      photo_reference: placeData.photos?.length ? placeData.photos[0].photo_reference : null,
       icon: placeData.icon ? [placeData.icon, placeData.icon_background_color] : null,
       phone_number: placeData.formatted_phone_number ?? null,
       website: placeData.website ?? null,

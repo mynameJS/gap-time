@@ -45,4 +45,14 @@ export interface TargetedPlaceData {
   vicinity: string;
   photo_url: string;
   geocode: google.maps.LatLngLiteral;
+  open_hours: {
+    open_now: boolean;
+    periods?: { close: { day: number; time: string }; open: { day: number; time: string } }[];
+    weekday_text: string[];
+  };
+  url: string;
+  phone_number: string;
+  website: string;
+  summary: string;
+  address: string;
 }
