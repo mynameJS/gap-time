@@ -1,10 +1,7 @@
-import { useState, useEffect } from 'react';
 import { Button, VStack, HStack, Text, Icon, Image, Badge, Collapsible, Box } from '@chakra-ui/react';
 import { DialogBody, DialogContent, DialogFooter, DialogHeader, DialogRoot } from '@/components/ui/dialog';
 import { FaMapMarkerAlt, FaPhone, FaClock } from 'react-icons/fa';
 import { TargetedPlaceData } from '@/types/interface';
-import { fetchPlaceDetails } from '@/lib/api/places';
-import { PlaceDetails } from '@/types/interface';
 
 interface PlaceDetailModalProps {
   currentDetailData: TargetedPlaceData | undefined;
@@ -13,20 +10,6 @@ interface PlaceDetailModalProps {
 }
 
 function PlaceDetailModal({ currentDetailData, isDetailModalOpen, onToggle }: PlaceDetailModalProps) {
-  const [additionalData, setAdditionalData] = useState<PlaceDetails>();
-
-  useEffect(() => {
-    const fetchDetail = async () => {
-      if (!currentDetailData) return;
-      const result = await fetchPlaceDetails(currentDetailData?.place_id);
-      setAdditionalData(result);
-    };
-
-    fetchDetail();
-  }, [currentDetailData]);
-
-  if (!additionalData) return null;
-
   return (
     <DialogRoot open={isDetailModalOpen}>
       <DialogContent width="700px" maxW="80vw" maxH="90vh" borderRadius={12} boxShadow="xl" p={6} overflow={'auto'}>
@@ -55,11 +38,7 @@ function PlaceDetailModal({ currentDetailData, isDetailModalOpen, onToggle }: Pl
         <DialogBody>
           {/* 대표 이미지 */}
           <Image
-            src={
-              currentDetailData?.photo_reference
-                ? `/api/google-maps/photo?photo_reference=${currentDetailData?.photo_reference}`
-                : currentDetailData?.icon[0]
-            }
+            src={currentDetailData?.photo_url ?? currentDetailData?.icon[0]}
             alt={currentDetailData?.name}
             borderRadius="md"
             w="100%"
@@ -68,18 +47,18 @@ function PlaceDetailModal({ currentDetailData, isDetailModalOpen, onToggle }: Pl
 
           {/* 설명 */}
           <Text mt={4} mb={4} fontSize="md" color="gray.700">
-            {additionalData?.summary}
+            {currentDetailData?.summary}
           </Text>
 
           {/* 주소, 연락처, 영업시간 */}
           <VStack align="start" gap={3}>
             <HStack>
               <Icon as={FaMapMarkerAlt} color="red.400" />
-              <Text fontSize="sm">{additionalData?.address || '주소 정보 없음'}</Text>
+              <Text fontSize="sm">{currentDetailData?.address || '주소 정보 없음'}</Text>
             </HStack>
             <HStack>
               <Icon as={FaPhone} color="blue.400" />
-              <Text fontSize="sm">{additionalData?.phone_number || '전화번호 정보 없음'}</Text>
+              <Text fontSize="sm">{currentDetailData?.phone_number || '전화번호 정보 없음'}</Text>
             </HStack>
             <HStack w="100%" h="100%">
               <Collapsible.Root unmountOnExit>
@@ -96,7 +75,7 @@ function PlaceDetailModal({ currentDetailData, isDetailModalOpen, onToggle }: Pl
                     borderRadius="md"
                     gap={2}
                     align="center">
-                    {additionalData.open_hours?.weekday_text?.map((text, idx) => (
+                    {currentDetailData?.open_hours?.weekday_text?.map((text, idx) => (
                       <Box key={idx} w="100%" textAlign="center">
                         <Text fontSize="sm" fontWeight="medium" color="gray.700">
                           {text}
