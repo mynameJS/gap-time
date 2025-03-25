@@ -86,6 +86,43 @@ export const fetchPlaceDetails = async (placeId: string) => {
   }
 };
 
+// 기존 details 함수 + photo url 추가 후 리턴
+export const fetchPlaceDetailsWithPhoto = async (placeId: string) => {
+  try {
+    const response = await fetch('/api/google-maps/places/details', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ placeId }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch Place Details');
+    }
+
+    const detail = await response.json();
+
+    // ✅ 사진 URL 변환
+    let photo_url = null;
+    if (detail.photo_reference) {
+      try {
+        const photoRes = await fetch(`/api/google-maps/photo?photo_reference=${detail.photo_reference}`);
+        if (photoRes.ok) {
+          photo_url = photoRes.url;
+        }
+      } catch (err) {
+        console.error(`Failed to fetch photo for place_id: ${placeId}`, err);
+      }
+    }
+
+    return { ...detail, photo_url };
+  } catch (error) {
+    console.error('Error fetching Place Details:', error);
+    return null;
+  }
+};
+
 // nearby, photo, detail api를 이용하여 원하는 데이터 필터링 및 추출 함수
 export const fetchNearbyPlacesDetail = async (params: NearbyPlacesParams) => {
   try {
