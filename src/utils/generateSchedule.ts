@@ -1,4 +1,4 @@
-import { fetchNearbyPlaces, fetchPlaceDetails } from '@/lib/api/places';
+import { fetchNearbyPlaces, fetchPlaceDetailsWithPhoto } from '@/lib/api/places';
 import getTimeBlocks from './getTimeBlocks';
 import getActivityByTimes from './getActivityByTimes';
 import getRandomIndexes from './getRandomIndexes';
@@ -16,7 +16,8 @@ const fetchAllNearbyPlaces = async ({ latitude, longitude, activityCounts }: Fet
   await Promise.all(
     Object.entries(activityCounts).map(async ([type, count]) => {
       try {
-        const placeList = await fetchNearbyPlaces({ latitude, longitude, type, radius: 5000 }); // ✅ 반경 5km 내 검색
+        // ✅ 반경 대신 거리순( 그 중에서도 리뷰 많은순으로 정렬되있음
+        const placeList = await fetchNearbyPlaces({ latitude, longitude, type, sortBy: 'distance' });
 
         // ✅ 랜덤한 인덱스 선택 후 해당 인덱스의 place_id만 추출
         const randomIndexes = getRandomIndexes(placeList.length, count);
@@ -63,7 +64,7 @@ const generateSchedule = async ({ startTime, endTime, latitude, longitude }: Gen
     Object.values(placesMap)
       .flat()
       .map(async placeId => {
-        const details = await fetchPlaceDetails(placeId);
+        const details = await fetchPlaceDetailsWithPhoto(placeId);
         if (details) placeDetailsMap[placeId] = details;
       })
   );

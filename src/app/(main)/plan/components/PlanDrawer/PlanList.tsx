@@ -26,7 +26,7 @@ function PlanList() {
 
       try {
         const result = await generateSchedule(scheduleParams);
-
+        console.log(result);
         const finalParams = {
           schedule: result,
           mode: 'transit',
@@ -76,10 +76,9 @@ function PlanList() {
           }
 
           const placeDetails = block.placeDetails;
-          const imageUrl = placeDetails?.photoReference
-            ? `/api/google-maps/photo?photo_reference=${placeDetails.photoReference}`
-            : placeDetails?.icon?.[0] || null; // ✅ 사진이 없으면 아이콘, 아이콘도 없으면 null
-
+          const imageUrl = placeDetails?.photo_url ?? (placeDetails?.icon[0] || null); // ✅ 사진이 없으면 아이콘, 아이콘도 없으면 null
+          {
+          }
           return (
             <Box key={index} p={4} borderWidth={1} borderRadius="lg" boxShadow="sm">
               <VStack align="stretch" gap={3}>
