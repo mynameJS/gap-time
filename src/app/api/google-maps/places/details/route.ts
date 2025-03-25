@@ -28,12 +28,15 @@ export async function POST(req: Request) {
     return NextResponse.json({
       name: placeData.name,
       address: placeData.formatted_address,
-      open_hours: placeData.opening_hours,
+      open_hours: placeData.opening_hours ?? null,
       rating: placeData.rating ?? null,
       total_reviews: placeData.user_ratings_total ?? 0,
       url: placeData.url ?? null,
       photoReference: placeData.photos?.length ? placeData.photos[0].photo_reference : null,
       icon: placeData.icon ? [placeData.icon, placeData.icon_background_color] : null,
+      phone_number: placeData.formatted_phone_number ?? null,
+      website: placeData.website ?? null,
+      summary: placeData.editorial_summary?.overview ?? null,
     });
   } catch (error) {
     console.error(error);

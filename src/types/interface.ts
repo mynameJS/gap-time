@@ -19,7 +19,7 @@ export interface ScheduleBlock {
 export interface PlaceDetails {
   name: string;
   address: string;
-  opening_hours: {
+  open_hours: {
     open_now: boolean;
     periods?: { close: { day: number; time: string }; open: { day: number; time: string } }[];
     weekday_text: string[];
@@ -29,6 +29,9 @@ export interface PlaceDetails {
   url: string;
   photoReference: string;
   icon: [string, string];
+  phone_number: string;
+  website: string;
+  summary: string;
 }
 
 export interface TargetedPlaceData {
