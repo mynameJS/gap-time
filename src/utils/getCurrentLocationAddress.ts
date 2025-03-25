@@ -1,0 +1,43 @@
+import { fetchAddress } from '@/lib/api/places';
+
+interface LocationResult {
+  geocode: { lat: number; lng: number };
+  formattedAddress: string;
+}
+
+const getCurrentLocationAddress = (): Promise<LocationResult> => {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('Geolocation API를 지원하지 않는 브라우저입니다.'));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async position => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const address = await fetchAddress({ latitude, longitude });
+          if (address && address[0]) {
+            resolve({
+              geocode: { lat: latitude, lng: longitude },
+              formattedAddress: address[0].formatted_address,
+            });
+          } else {
+            reject(new Error('주소를 찾을 수 없습니다.'));
+          }
+        } catch (error) {
+          reject(new Error('주소 정보를 가져오는 중 오류가 발생했습니다.'));
+        }
+      },
+      err => {
+        if (err.code === 1) {
+          reject(new Error('위치 권한이 거부되었습니다.'));
+        } else {
+          reject(new Error('위치 정보를 가져오는 중 오류가 발생했습니다.'));
+        }
+      }
+    );
+  });
+};
+
+export default getCurrentLocationAddress;
