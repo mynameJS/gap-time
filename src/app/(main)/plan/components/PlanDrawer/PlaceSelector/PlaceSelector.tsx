@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { VStack, HStack, Input, Button, Text, Icon, List, Image, Badge } from '@chakra-ui/react';
 import { InputGroup } from '@/components/ui/input-group';
 import { FaCheck, FaPlus, FaTrashAlt, FaSearch, FaSyncAlt, FaClock, FaRoute } from 'react-icons/fa';
@@ -10,10 +11,11 @@ import useGeocodeListStore from '@/store/useGeocodeListStore';
 import getCurrentLocationAddress from '@/utils/getCurrentLocationAddress';
 import { PLACES_CATEGORY, DEFAULT_PLACES_CATEGORY } from '@/constants/place';
 import PlaceDetailModal from './PlaceDetailModal';
-import { TargetedPlaceData } from '@/types/interface';
+import { ScheduleBlock, TargetedPlaceData } from '@/types/interface';
 import getTimeBlocks from '@/utils/getTimeBlocks';
 import getDurationFromTimeString from '@/utils/getDurationFromTimeString';
 import { fetchNearbyPlacesDetail } from '@/lib/api/places';
+import useCustomPlaceList from '@/store/useCustomPlaceList';
 
 function PlaceSelector() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,6 +26,8 @@ function PlaceSelector() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
   const { planInfo, updatePlanInfo } = usePlanStore();
   const { addGeocode, removeGeocodeById } = useGeocodeListStore();
+  const { setCustomPlaceList } = useCustomPlaceList();
+  const router = useRouter();
 
   const count = planInfo ? getTimeBlocks(planInfo?.startTime[0], planInfo?.endTime[0]).length : 0;
 
@@ -105,6 +109,40 @@ function PlaceSelector() {
     }
   };
 
+  // 선택된 장소로 이루어진 스케쥴블럭 업데이트 함수
+  const handleUpdateCustomPlaceList = () => {
+    if (!planInfo) return;
+
+    const newCustomPlaceList: ScheduleBlock[] = [];
+    const timeBlocks = getTimeBlocks(planInfo.startTime[0], planInfo.endTime[0]);
+    selectedPlaces.forEach((place, index) => {
+      const { place_id, ...rest } = place;
+      const scheduleBlock = {
+        activityType: place.type,
+        start: timeBlocks[index].start,
+        end: timeBlocks[index].end,
+        placeId: place_id,
+        placeDetails: rest,
+      };
+      newCustomPlaceList.push(scheduleBlock);
+    });
+
+    // 설정한 일정 시간보다 장소가 적게 선택되었으면
+    // 생성된 일정의 끝시간이 원래 선택한 일정보다 일찍 끝날 수있다는 경고알림
+    if (count > selectedPlaces.length) {
+      const confirmed = window.confirm(
+        '선택한 장소 수가 적어 전체 일정보다 일찍 끝날 수 있습니다. 그래도 계속하시겠습니까?'
+      );
+      if (confirmed) {
+        setCustomPlaceList(newCustomPlaceList);
+        router.push('/plan?mode=result');
+        return;
+      }
+    }
+    setCustomPlaceList(newCustomPlaceList);
+    router.push('/plan?mode=result');
+  };
+
   // 📡 Google Places API에서 장소 가져오기
   useEffect(() => {
     if (!planInfo) return;
@@ -112,7 +150,6 @@ function PlaceSelector() {
     const fetchPlacesParams = {
       latitude: planInfo.geocode.lat,
       longitude: planInfo.geocode.lng,
-      // radius: 50000,
       type: selectedCategory,
       sortBy: 'distance',
     };
@@ -286,7 +323,9 @@ function PlaceSelector() {
             ))}
           </List.Root>
         </VStack>
-        <Button>일정 만들기</Button>
+        <Button disabled={selectedPlaces.length === 0} onClick={handleUpdateCustomPlaceList}>
+          일정 만들기
+        </Button>
       </VStack>
       {isDetailModalOpen && (
         <PlaceDetailModal
