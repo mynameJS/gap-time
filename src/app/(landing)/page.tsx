@@ -1,5 +1,5 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
-import CustomButton from './components/CustomButton';
+import PlanModalController from './components/PlanModalController';
 
 export default async function Page() {
   return (
@@ -13,7 +13,7 @@ export default async function Page() {
             </Text>
             <Text>자투리 시간에 뭐할까 고민하지말고 틈새시간을 이용해보세요.</Text>
           </Box>
-          <CustomButton path="/plan">틈새시간 이용하기</CustomButton>
+          <PlanModalController />
         </Flex>
         <Box borderWidth="3px" width="50%" height="100%">
           비디오 영역
