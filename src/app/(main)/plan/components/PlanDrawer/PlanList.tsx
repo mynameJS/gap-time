@@ -7,28 +7,39 @@ import usePlanStore from '@/store/usePlanInfoStore';
 import generateSchedule from '@/utils/generateSchedule';
 import calculateTravelTimes from '@/utils/calculateTravelTimes';
 import { ScheduleBlock } from '@/types/interface';
+import useCustomPlaceList from '@/store/useCustomPlaceList';
 
 function PlanList() {
   const { planInfo } = usePlanStore();
+  const { customPlaceList } = useCustomPlaceList();
 
   const [planList, setPlanList] = useState<ScheduleBlock[]>([]);
 
   useEffect(() => {
     if (!planInfo) return;
 
-    const fetchPlanList = async () => {
-      const scheduleParams = {
-        startTime: planInfo.startTime[0],
-        endTime: planInfo.endTime[0],
-        latitude: planInfo.geocode.lat,
-        longitude: planInfo.geocode.lng,
-      };
-
+    const fetch = async () => {
       try {
-        const result = await generateSchedule(scheduleParams);
-        console.log(result);
+        let schedule: ScheduleBlock[];
+
+        if (customPlaceList.length > 0) {
+          // ✅ 사용자가 직접 선택한 커스텀 일정이 있는 경우
+          schedule = customPlaceList;
+        } else {
+          // ✅ 커스텀 없으면 추천 일정 생성
+          const scheduleParams = {
+            startTime: planInfo.startTime[0],
+            endTime: planInfo.endTime[0],
+            latitude: planInfo.geocode.lat,
+            longitude: planInfo.geocode.lng,
+          };
+
+          schedule = await generateSchedule(scheduleParams);
+        }
+
+        // 공통적으로 calculateTravelTimes 실행
         const finalParams = {
-          schedule: result,
+          schedule,
           mode: 'transit',
           routeType: planInfo.routeType,
           currentLocation: planInfo.geocode,
@@ -37,13 +48,12 @@ function PlanList() {
         const finalResult = await calculateTravelTimes(finalParams);
         setPlanList(finalResult);
       } catch (error) {
-        console.error('Error fetching places:', error);
-        return null;
+        console.error('Error generating plan:', error);
       }
     };
 
-    fetchPlanList();
-  }, [planInfo]);
+    fetch();
+  }, [planInfo, customPlaceList]);
 
   if (!planList.length) return null;
 
