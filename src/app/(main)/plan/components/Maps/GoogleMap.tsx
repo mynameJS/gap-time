@@ -1,9 +1,10 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { GoogleMap, LoadScript, OverlayView } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, OverlayView, Polyline, Polygon } from '@react-google-maps/api';
 import { Box, Spinner, VStack, Text } from '@chakra-ui/react';
 import usePlanStore from '@/store/usePlanInfoStore';
 import useGeocodeListStore from '@/store/useGeocodeListStore';
+import getConvexHull from '@/utils/getConvexHull';
 
 // 타입 정의
 const containerStyle: React.CSSProperties = {
@@ -41,6 +42,8 @@ function GoogleMaps() {
     const latestLocation = geocodeList[geocodeList.length - 1].geocode;
     map.panTo(latestLocation); // 부드럽게 이동
   }, [geocodeList, map]);
+
+  const polylineList = geocodeList.map(item => item.geocode);
 
   if (!planInfo) return null;
 
@@ -88,6 +91,16 @@ function GoogleMaps() {
               </Box>
             </OverlayView>
           ))}
+          <Polygon
+            path={getConvexHull(polylineList)}
+            options={{
+              strokeColor: '#4285F4',
+              strokeOpacity: 0.8,
+              strokeWeight: 4,
+              geodesic: true,
+              fillOpacity: 0,
+            }}
+          />
         </GoogleMap>
       </LoadScript>
     </Box>
