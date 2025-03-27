@@ -27,7 +27,7 @@ export interface PlaceDetails {
   rating: number;
   total_reviews: number;
   url: string;
-  photo_reference: string;
+  photo_reference?: string;
   photo_url: string;
   icon: [string, string];
   phone_number: string;
