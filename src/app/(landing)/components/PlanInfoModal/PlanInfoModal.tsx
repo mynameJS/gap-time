@@ -6,13 +6,17 @@ import { DialogBody, DialogContent, DialogFooter, DialogHeader, DialogRoot, Dial
 import { FaClock, FaMapMarkerAlt, FaRoute } from 'react-icons/fa';
 import usePlanStore from '@/store/usePlanInfoStore';
 import TimeSelector from './TimeSelector';
-// import TransportPicker from './TransportPicker';
 import LocationPicker from './LocationPicker';
 import RouteSelector from './RouteSelector';
 import { PlanInfo } from '@/types/interface';
+import { useRouter } from 'next/navigation';
 
-function PlanInfoModal() {
-  const [isOpen, setIsOpen] = useState<boolean>(true);
+interface PlanInfoModalProps {
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+function PlanInfoModal({ isOpen, onToggle }: PlanInfoModalProps) {
   const [planInfo, setPlanInfo] = useState<PlanInfo>({
     startTime: [],
     endTime: [],
@@ -22,15 +26,18 @@ function PlanInfoModal() {
     routeType: '',
   });
 
+  const router = useRouter();
+
   const { setPlanInfo: setGlobalPlanInfo } = usePlanStore();
   const handleUpdatePlanInfo = (updates: Partial<PlanInfo>) => {
     setPlanInfo(prevInfo => ({ ...prevInfo, ...updates }));
   };
 
-  // 저장 버튼 클릭 시 전역 상태 업데이트
-  const handleSave = () => {
+  // mode value 값 받아서 plan 페이지로 이동
+  const handleRouterClick = (mode: string) => {
     setGlobalPlanInfo(planInfo);
-    setIsOpen(false);
+    onToggle();
+    router.push(`plan?mode=${mode}`);
   };
 
   return (
@@ -62,16 +69,6 @@ function PlanInfoModal() {
               </HStack>
               <TimeSelector startTime={planInfo.startTime} endTime={planInfo.endTime} onUpdate={handleUpdatePlanInfo} />
             </Flex>
-
-            {/* 이동 수단 선택 */}
-            {/* <Box>
-              <HStack>
-                <Icon as={FaRoute} color="green.400" />
-                <Text fontSize="md" fontWeight="bold">이동 수단 선택</Text>
-              </HStack>
-              <TransportPicker transport={planInfo.transport} onUpdate={handleUpdatePlanInfo} />
-            </Box> */}
-
             {/* 루트 타입 선택 */}
             <Flex direction="column" gap={4}>
               <HStack>
@@ -98,10 +95,10 @@ function PlanInfoModal() {
 
         <DialogFooter mt={4} justifyContent="center">
           <HStack gap={4}>
-            <Button colorPalette="blue" onClick={handleSave} size="lg">
+            <Button colorPalette="blue" onClick={() => handleRouterClick('result')} size="lg">
               추천 일정 만들기
             </Button>
-            <Button variant="outline" colorPalette="gray" size="lg" onClick={() => setIsOpen(false)}>
+            <Button variant="outline" colorPalette="gray" size="lg" onClick={() => handleRouterClick('select')}>
               직접 장소 선택하기
             </Button>
           </HStack>
