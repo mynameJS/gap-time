@@ -15,7 +15,7 @@ import { ScheduleBlock, TargetedPlaceData } from '@/types/interface';
 import getTimeBlocks from '@/utils/plan/getTimeBlocks';
 import getDurationFromTimeString from '@/utils/format/getDurationFromTimeString';
 import { fetchNearbyPlacesDetail } from '@/lib/api/places';
-import useCustomPlaceList from '@/store/useCustomPlaceList';
+import useCustomPlaceListStore from '@/store/useCustomPlaceListStore';
 
 function PlaceSelector() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,7 +26,7 @@ function PlaceSelector() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
   const { planInfo, updatePlanInfo } = usePlanStore();
   const { addGeocode, removeGeocodeById } = useGeocodeListStore();
-  const { setCustomPlaceList } = useCustomPlaceList();
+  const { setCustomPlaceList } = useCustomPlaceListStore();
   const router = useRouter();
 
   const count = planInfo ? getTimeBlocks(planInfo?.startTime[0], planInfo?.endTime[0]).length : 0;
