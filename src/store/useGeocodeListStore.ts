@@ -1,9 +1,5 @@
 import { create } from 'zustand';
-
-interface GeocodeItem {
-  place_id: string;
-  geocode: google.maps.LatLngLiteral;
-}
+import { GeocodeItem } from '@/types/interface';
 
 interface GeocodeListState {
   geocodeList: GeocodeItem[];
