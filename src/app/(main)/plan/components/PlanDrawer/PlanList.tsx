@@ -7,12 +7,18 @@ import usePlanStore from '@/store/usePlanInfoStore';
 import generateSchedule from '@/utils/plan/generateSchedule';
 import calculateTravelTimes from '@/utils/plan/calculateTravelTimes';
 import { ScheduleBlock } from '@/types/interface';
-import useCustomPlaceList from '@/store/useCustomPlaceList';
+import useCustomPlaceListStore from '@/store/useCustomPlaceListStore';
+import formatDistance from '@/utils/format/formatDistance';
+import formatDurationFromSeconds from '@/utils/format/formatDurationFromSeconds';
+import useGeocodeListStore from '@/store/useGeocodeListStore';
+import usePolylineListStore from '@/store/usePolylineListStore';
+import { GeocodeItem } from '@/types/interface';
 
 function PlanList() {
   const { planInfo } = usePlanStore();
-  const { customPlaceList } = useCustomPlaceList();
-
+  const { customPlaceList } = useCustomPlaceListStore();
+  const { setGeocodeList } = useGeocodeListStore();
+  const { setPolylineList } = usePolylineListStore();
   const [planList, setPlanList] = useState<ScheduleBlock[]>([]);
 
   useEffect(() => {
@@ -40,20 +46,38 @@ function PlanList() {
         // 공통적으로 calculateTravelTimes 실행
         const finalParams = {
           schedule,
-          mode: 'transit',
+          mode: 'TRANSIT',
           routeType: planInfo.routeType,
           currentLocation: planInfo.geocode,
         };
 
         const finalResult = await calculateTravelTimes(finalParams);
         setPlanList(finalResult);
+
+        // 마커 표시용 geocodeList 와 경료 표시용 list 업데이트
+        const geocodeList: GeocodeItem[] = [];
+        const polylineList: string[] = [];
+        finalResult.forEach(item => {
+          if (item.placeDetails && item.placeId) {
+            const geocodeItem: GeocodeItem = {
+              place_id: item.placeId,
+              geocode: item.placeDetails.geocode,
+            };
+            geocodeList.push(geocodeItem);
+          } else if (item.travel) {
+            polylineList.push(item.travel.polyline);
+          }
+        });
+
+        setGeocodeList(geocodeList);
+        setPolylineList(polylineList);
       } catch (error) {
         console.error('Error generating plan:', error);
       }
     };
 
     fetch();
-  }, [planInfo, customPlaceList]);
+  }, [planInfo, customPlaceList, setGeocodeList, setPolylineList]);
 
   if (!planList.length) return null;
 
@@ -78,8 +102,8 @@ function PlanList() {
                   <Text fontSize="sm" fontWeight="bold" color="blue.600">
                     이동 ({block.start} ~ {block.end})
                   </Text>
-                  <Text fontSize="sm">거리: {block.travel?.distance}</Text>
-                  <Text fontSize="sm">소요 시간: {block.travel?.duration}</Text>
+                  <Text fontSize="sm">거리: {formatDistance(block.travel?.distance)}</Text>
+                  <Text fontSize="sm">소요 시간: {formatDurationFromSeconds(block.travel?.duration)}</Text>
                 </VStack>
               </HStack>
             );
