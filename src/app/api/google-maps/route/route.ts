@@ -4,7 +4,6 @@ import formatGeocode from '@/utils/format/formatGeocode';
 export async function POST(req: NextRequest) {
   try {
     const { origin, destination, mode } = await req.json();
-    console.log(origin, destination);
 
     if (!origin || !destination) {
       return NextResponse.json({ error: 'origin과 destination이 필요합니다.' }, { status: 400 });

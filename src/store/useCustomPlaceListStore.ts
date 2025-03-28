@@ -6,9 +6,9 @@ interface CustomPlaceListState {
   setCustomPlaceList: (list: ScheduleBlock[]) => void;
 }
 
-const useCustomPlaceList = create<CustomPlaceListState>(set => ({
+const useCustomPlaceListStore = create<CustomPlaceListState>(set => ({
   customPlaceList: [],
   setCustomPlaceList: list => set({ customPlaceList: list }),
 }));
 
-export default useCustomPlaceList;
+export default useCustomPlaceListStore;

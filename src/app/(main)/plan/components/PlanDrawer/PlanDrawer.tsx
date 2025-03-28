@@ -24,7 +24,6 @@ function PlanDrawer() {
         display={isOpened ? 'block' : 'none'} // ✅ 화면에서만 숨김
       >
         {mode === 'select' ? <PlaceSelector /> : <PlanList />}
-        {/* <PlaceSelector /> */}
         <CloseCustomButton onClick={() => setIsOpened(false)} />
       </Flex>
       {!isOpened && <OpenCustomButton onClick={() => setIsOpened(true)} />}
