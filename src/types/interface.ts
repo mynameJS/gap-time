@@ -12,7 +12,7 @@ export interface ScheduleBlock {
   end: string;
   activityType: string;
   placeId?: string | null;
-  travel?: { distance: string; duration: string } | null;
+  travel?: { distance: number; duration: string; polyline: string } | null;
   placeDetails?: PlaceDetails | null;
 }
 
@@ -33,6 +33,7 @@ export interface PlaceDetails {
   phone_number: string;
   website: string;
   summary: string;
+  geocode: google.maps.LatLngLiteral;
 }
 
 export interface TargetedPlaceData {
@@ -56,4 +57,9 @@ export interface TargetedPlaceData {
   website: string;
   summary: string;
   address: string;
+}
+
+export interface GeocodeItem {
+  place_id: string;
+  geocode: google.maps.LatLngLiteral;
 }
