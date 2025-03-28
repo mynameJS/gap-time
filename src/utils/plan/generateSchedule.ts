@@ -1,7 +1,7 @@
 import { fetchNearbyPlaces, fetchPlaceDetailsWithPhoto } from '@/lib/api/places';
 import getTimeBlocks from './getTimeBlocks';
 import getActivityByTimes from './getActivityByTimes';
-import getRandomIndexes from './getRandomIndexes';
+import getRandomIndexes from '../getRandomIndexes';
 import { PlaceDetails } from '@/types/interface';
 
 interface FetchAllNearbyPlacesParams {

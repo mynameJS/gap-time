@@ -1,3 +1,5 @@
+// place marker 간 외곽선 계산 함수
+
 function getConvexHull(points: google.maps.LatLngLiteral[]): google.maps.LatLngLiteral[] {
   const sorted = [...points].sort((a, b) => a.lng - b.lng || a.lat - b.lat);
 

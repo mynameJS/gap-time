@@ -8,12 +8,12 @@ import { FaCheck, FaPlus, FaTrashAlt, FaSearch, FaSyncAlt, FaClock, FaRoute } fr
 import { FaMapLocationDot, FaLocationDot } from 'react-icons/fa6';
 import usePlanStore from '@/store/usePlanInfoStore';
 import useGeocodeListStore from '@/store/useGeocodeListStore';
-import getCurrentLocationAddress from '@/utils/getCurrentLocationAddress';
+import getCurrentLocationAddress from '@/utils/location/getCurrentLocationAddress';
 import { PLACES_CATEGORY, DEFAULT_PLACES_CATEGORY } from '@/constants/place';
 import PlaceDetailModal from './PlaceDetailModal';
 import { ScheduleBlock, TargetedPlaceData } from '@/types/interface';
-import getTimeBlocks from '@/utils/getTimeBlocks';
-import getDurationFromTimeString from '@/utils/getDurationFromTimeString';
+import getTimeBlocks from '@/utils/plan/getTimeBlocks';
+import getDurationFromTimeString from '@/utils/format/getDurationFromTimeString';
 import { fetchNearbyPlacesDetail } from '@/lib/api/places';
 import useCustomPlaceList from '@/store/useCustomPlaceList';
 

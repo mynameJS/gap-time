@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { Box, Text, VStack, HStack, Icon, Link, Avatar } from '@chakra-ui/react';
 import { FaMapMarkerAlt, FaExternalLinkAlt, FaStar, FaRoute, FaTag } from 'react-icons/fa';
 import usePlanStore from '@/store/usePlanInfoStore';
-import generateSchedule from '@/utils/generateSchedule';
-import calculateTravelTimes from '@/utils/calculateTravelTimes';
+import generateSchedule from '@/utils/plan/generateSchedule';
+import calculateTravelTimes from '@/utils/plan/calculateTravelTimes';
 import { ScheduleBlock } from '@/types/interface';
 import useCustomPlaceList from '@/store/useCustomPlaceList';
 
