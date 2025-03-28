@@ -1,10 +1,13 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { GoogleMap, LoadScript, OverlayView, Polyline, Polygon } from '@react-google-maps/api';
 import { Box, Spinner, VStack, Text } from '@chakra-ui/react';
 import usePlanStore from '@/store/usePlanInfoStore';
 import useGeocodeListStore from '@/store/useGeocodeListStore';
-import getConvexHull from '@/utils/getConvexHull';
+import getConvexHull from '@/utils/format/getConvexHull';
+import usePolylineListStore from '@/store/usePolylineListStore';
+import decodePolyline from '@/utils/format/decodePolyline';
 
 // 타입 정의
 const containerStyle: React.CSSProperties = {
@@ -24,6 +27,11 @@ function GoogleMaps() {
   const [map, setMap] = useState<google.maps.Map | null>(null); // 맵 객체 타입 정의
   const { planInfo } = usePlanStore();
   const { geocodeList } = useGeocodeListStore();
+  const { polylineList } = usePolylineListStore();
+  const searchParams = useSearchParams();
+  const mode = searchParams.get('mode');
+
+  const decodingPolylineList = polylineList.map(polyline => decodePolyline(polyline));
 
   // onLoad 콜백
   const onLoad = useCallback((map: google.maps.Map) => {
@@ -43,7 +51,7 @@ function GoogleMaps() {
     map.panTo(latestLocation); // 부드럽게 이동
   }, [geocodeList, map]);
 
-  const polylineList = geocodeList.map(item => item.geocode);
+  const calculatedPolygon = geocodeList.map(item => item.geocode);
 
   if (!planInfo) return null;
 
@@ -91,16 +99,30 @@ function GoogleMaps() {
               </Box>
             </OverlayView>
           ))}
-          <Polygon
-            path={getConvexHull(polylineList)}
-            options={{
-              strokeColor: '#4285F4',
-              strokeOpacity: 0.8,
-              strokeWeight: 4,
-              geodesic: true,
-              fillOpacity: 0,
-            }}
-          />
+          {mode === 'result' ? (
+            decodingPolylineList.map((polyline, index) => (
+              <Polyline
+                key={index}
+                path={polyline}
+                options={{
+                  strokeColor: '#4285F4',
+                  strokeOpacity: 0.8,
+                  strokeWeight: 4,
+                }}
+              />
+            ))
+          ) : mode === 'select' ? (
+            <Polygon
+              path={getConvexHull(calculatedPolygon)}
+              options={{
+                strokeColor: '#4285F4',
+                strokeOpacity: 0.8,
+                strokeWeight: 4,
+                geodesic: true,
+                fillOpacity: 0,
+              }}
+            />
+          ) : null}
         </GoogleMap>
       </LoadScript>
     </Box>
