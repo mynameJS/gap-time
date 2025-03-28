@@ -37,6 +37,7 @@ export async function POST(req: Request) {
       phone_number: placeData.formatted_phone_number ?? null,
       website: placeData.website ?? null,
       summary: placeData.editorial_summary?.overview ?? null,
+      geocode: placeData.geometry.location ?? null,
     });
   } catch (error) {
     console.error(error);
