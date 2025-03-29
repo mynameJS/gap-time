@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, VStack, Text, Box, Icon } from '@chakra-ui/react';
+import { Flex, HStack, Button, VStack, Text, Box, Icon } from '@chakra-ui/react';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 import getCurrentLocationAddress from '@/utils/location/getCurrentLocationAddress';
 import { PlanInfo } from '@/types/interface';
@@ -29,33 +29,41 @@ export default function LocationPicker({ formattedAddress, onUpdate }: LocationP
   };
 
   return (
-    <VStack gap={4} width="100%" p={4} bg="gray.50" borderRadius="lg" boxShadow="sm">
-      {/* 현재 위치 가져오기 버튼 */}
-      <Button
-        onClick={handleGetLocation}
-        colorPalette="blue"
-        size="md"
-        loading={loading} // ✅ 로딩 시 스피너 표시
-        loadingText="위치 가져오는 중...">
-        현재 위치 가져오기
-      </Button>
-
-      {/* 선택된 위치 표시 */}
-      {formattedAddress && (
-        <Box p={3} bg="white" borderRadius="md" boxShadow="md" display="flex" alignItems="center" gap={2}>
-          <Icon as={FaMapMarkerAlt} color="red.400" />
-          <Text fontSize="md" fontWeight="bold" color="gray.700">
-            {formattedAddress}
-          </Text>
-        </Box>
-      )}
-
-      {/* 에러 메시지 */}
-      {error && (
-        <Text mt={4} color="red.500" fontSize="sm" fontWeight="bold">
-          {error}
+    <Flex direction="column" gap={4}>
+      <HStack>
+        <Icon as={FaMapMarkerAlt} color="red.400" />
+        <Text fontSize="md" fontWeight="bold">
+          출발 위치 설정
         </Text>
-      )}
-    </VStack>
+      </HStack>
+      <VStack gap={4} width="100%" p={4} bg="gray.50" borderRadius="lg" boxShadow="sm">
+        {/* 현재 위치 가져오기 버튼 */}
+        <Button
+          onClick={handleGetLocation}
+          colorPalette="blue"
+          size="md"
+          loading={loading} // ✅ 로딩 시 스피너 표시
+          loadingText="위치 가져오는 중...">
+          현재 위치 가져오기
+        </Button>
+
+        {/* 선택된 위치 표시 */}
+        {formattedAddress && (
+          <Box p={3} bg="white" borderRadius="md" boxShadow="md" display="flex" alignItems="center" gap={2}>
+            <Icon as={FaMapMarkerAlt} color="red.400" />
+            <Text fontSize="md" fontWeight="bold" color="gray.700">
+              {formattedAddress}
+            </Text>
+          </Box>
+        )}
+
+        {/* 에러 메시지 */}
+        {error && (
+          <Text mt={4} color="red.500" fontSize="sm" fontWeight="bold">
+            {error}
+          </Text>
+        )}
+      </VStack>
+    </Flex>
   );
 }
