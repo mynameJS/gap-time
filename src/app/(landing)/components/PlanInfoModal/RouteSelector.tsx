@@ -5,56 +5,60 @@ import { PlanInfo } from '@/types/interface';
 interface RouteSelectorProps {
   routeType: string;
   onUpdate: (updates: Partial<PlanInfo>) => void;
+  isInvalid: boolean;
 }
 
-function RouteSelector({ routeType, onUpdate }: RouteSelectorProps) {
+function RouteSelector({ routeType, onUpdate, isInvalid }: RouteSelectorProps) {
   return (
     <Flex direction="column" gap={4}>
+      {/* 상단 라벨 */}
       <HStack>
-        <Icon as={FaRoute} color="purple.400" />
+        <Icon as={FaRoute} color="teal.500" />
         <Text fontSize="md" fontWeight="bold">
-          이동 방식 선택
+          이동 경로 선택
         </Text>
+        {isInvalid && (
+          <Text fontSize="xs" color="red.400" ml={2}>
+            (필수 항목입니다)
+          </Text>
+        )}
       </HStack>
-      <VStack align="center" gap={3} w="100%" p={4} bg="gray.50" borderRadius="lg" boxShadow="sm">
-        <Text fontSize="lg" fontWeight="bold" color="gray.700">
+
+      {/* 선택 카드 */}
+      <VStack align="center" gap={5} w="100%" p={6} bg="gray.50" borderRadius="xl" boxShadow="sm">
+        <Text fontSize="lg" fontWeight="semibold" color="gray.700">
           이동 경로를 선택하세요
         </Text>
 
-        <HStack gap={4}>
-          {/* 왕복 버튼 */}
+        {/* 버튼 그룹 (반응형 Stack) */}
+        <Flex gap={4} w="100%" justify="center" align="center">
           <Button
-            colorPalette={routeType === '왕복' ? 'blue' : 'gray'}
+            colorPalette={routeType === '왕복' ? 'teal' : 'gray'}
             variant={routeType === '왕복' ? 'solid' : 'outline'}
             onClick={() => onUpdate({ routeType: '왕복' })}
             size="md"
-            w="100px"
-            display="flex"
-            alignItems="center"
-            gap={2}>
+            w={{ base: '100%', sm: '120px' }}
+            borderRadius="md">
             <Icon as={FaExchangeAlt} />
             왕복
           </Button>
 
-          {/* 편도 버튼 */}
           <Button
-            colorPalette={routeType === '편도' ? 'green' : 'gray'}
+            colorPalette={routeType === '편도' ? 'teal' : 'gray'}
             variant={routeType === '편도' ? 'solid' : 'outline'}
             onClick={() => onUpdate({ routeType: '편도' })}
             size="md"
-            w="100px"
-            display="flex"
-            alignItems="center"
-            gap={2}>
+            w={{ base: '100%', sm: '120px' }}
+            borderRadius="md">
             <Icon as={FaArrowRight} />
             편도
           </Button>
-        </HStack>
+        </Flex>
 
-        {/* 선택된 값 표시 */}
+        {/* 선택 결과 */}
         {routeType && (
-          <Text fontSize="md" fontWeight="medium" color="blue.500">
-            선택된 이동 방식: {routeType}
+          <Text fontSize="sm" fontWeight="medium" color="teal.600">
+            선택된 이동 방식: <strong>{routeType}</strong>
           </Text>
         )}
       </VStack>

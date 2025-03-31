@@ -1,6 +1,6 @@
 'use client';
 
-import { HStack, Flex, Text, VStack, Box, Icon, createListCollection } from '@chakra-ui/react';
+import { HStack, Flex, Text, VStack, Icon, createListCollection } from '@chakra-ui/react';
 import { SelectRoot, SelectTrigger, SelectContent, SelectItem, SelectValueText } from '@/components/ui/select';
 import { FaClock } from 'react-icons/fa';
 import { PlanInfo } from '@/types/interface';
@@ -17,14 +17,15 @@ interface TimeSelectorProps {
   startTime: string[];
   endTime: string[];
   onUpdate: (updates: Partial<PlanInfo>) => void;
+  isInvalid: boolean;
 }
 
-export default function TimeSelector({ startTime, endTime, onUpdate }: TimeSelectorProps) {
+export default function TimeSelector({ startTime, endTime, onUpdate, isInvalid }: TimeSelectorProps) {
   // 오늘 날짜 (MM/DD 포맷)
   const today = new Date();
   const month = today.getMonth() + 1;
   const day = today.getDate();
-  const formattedDate = `${month}/${day}`;
+  const formattedDate = `${month} / ${day}`;
 
   // endTime 리스트 필터링 (startTime 이후 시간만)
   const filteredEndTimeCollection = createListCollection({
@@ -38,31 +39,48 @@ export default function TimeSelector({ startTime, endTime, onUpdate }: TimeSelec
 
   return (
     <Flex direction="column" gap={4}>
+      {/* 상단 타이틀 */}
       <HStack>
-        <Icon as={FaClock} color="blue.400" />
+        <Icon as={FaClock} color="teal.500" />
         <Text fontSize="md" fontWeight="bold">
-          여행 시간 선택
+          일정 시간 선택
         </Text>
+        {isInvalid && (
+          <Text fontSize="xs" color="red.400" ml={2}>
+            (필수 항목입니다)
+          </Text>
+        )}
       </HStack>
-      <Flex gap={6} w="100%" align="center" justify="space-between" p={4} bg="gray.50" borderRadius="lg" boxShadow="sm">
-        {/* 오늘 날짜 */}
-        <VStack gap={1} align="center">
-          <Text fontSize="sm" color="gray.600">
+
+      {/* 시간 선택 카드 */}
+      <Flex
+        direction={{ base: 'column', md: 'row' }}
+        gap={{ base: 6, md: 8 }}
+        w="100%"
+        align="center"
+        justify="space-between"
+        p={6}
+        bg="gray.50"
+        borderRadius="xl"
+        boxShadow="sm">
+        {/* 날짜 */}
+        <VStack gap={1} align="center" w={{ base: '100%', md: '20%' }}>
+          <Text fontSize="sm" color="gray.500">
             오늘 날짜
           </Text>
-          <Text fontSize="lg" fontWeight="bold" color="blue.500">
+          <Text fontSize="lg" fontWeight="bold" color="teal.600">
             {formattedDate}
           </Text>
         </VStack>
 
-        {/* 시작 시간 선택 */}
-        <VStack gap={1} align="center" w="30%">
-          <Box display="flex" alignItems="center" gap={2}>
+        {/* 시작 시간 */}
+        <VStack gap={1} align="center" w={{ base: '100%', md: '30%' }}>
+          <HStack>
             <Icon as={FaClock} color="blue.400" />
-            <Text fontSize="md" fontWeight="bold">
+            <Text fontSize="md" fontWeight="semibold">
               시작 시간
             </Text>
-          </Box>
+          </HStack>
           <SelectRoot
             collection={timeCollection}
             value={startTime}
@@ -70,9 +88,10 @@ export default function TimeSelector({ startTime, endTime, onUpdate }: TimeSelec
             <SelectTrigger
               bg="white"
               borderRadius="md"
-              boxShadow="xs"
+              boxShadow="sm"
               _hover={{ bg: 'gray.100' }}
-              _focus={{ ring: 2, ringColor: 'blue.300' }}>
+              _focus={{ ring: 2, ringColor: 'blue.300' }}
+              w="100%">
               <SelectValueText placeholder="시간 선택" />
             </SelectTrigger>
             <SelectContent zIndex={9999}>
@@ -85,14 +104,14 @@ export default function TimeSelector({ startTime, endTime, onUpdate }: TimeSelec
           </SelectRoot>
         </VStack>
 
-        {/* 종료 시간 선택 */}
-        <VStack gap={1} align="center" w="30%">
-          <Box display="flex" alignItems="center" gap={2}>
+        {/* 종료 시간 */}
+        <VStack gap={1} align="center" w={{ base: '100%', md: '30%' }}>
+          <HStack>
             <Icon as={FaClock} color="red.400" />
-            <Text fontSize="md" fontWeight="bold">
+            <Text fontSize="md" fontWeight="semibold">
               종료 시간
             </Text>
-          </Box>
+          </HStack>
           <SelectRoot
             collection={filteredEndTimeCollection}
             value={endTime}
@@ -101,9 +120,10 @@ export default function TimeSelector({ startTime, endTime, onUpdate }: TimeSelec
             <SelectTrigger
               bg="white"
               borderRadius="md"
-              boxShadow="xs"
+              boxShadow="sm"
               _hover={{ bg: 'gray.100' }}
-              _focus={{ ring: 2, ringColor: 'red.300' }}>
+              _focus={{ ring: 2, ringColor: 'red.300' }}
+              w="100%">
               <SelectValueText placeholder="시간 선택" />
             </SelectTrigger>
             <SelectContent zIndex={9999}>

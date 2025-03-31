@@ -9,13 +9,13 @@ import { PlanInfo } from '@/types/interface';
 interface LocationPickerProps {
   formattedAddress: string;
   onUpdate: (updates: Partial<PlanInfo>) => void;
+  isInvalid: boolean;
 }
 
-export default function LocationPicker({ formattedAddress, onUpdate }: LocationPickerProps) {
+export default function LocationPicker({ formattedAddress, onUpdate, isInvalid }: LocationPickerProps) {
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
-  // 현재 위치 가져오기
   const handleGetLocation = async () => {
     setLoading(true);
     setError('');
@@ -30,28 +30,38 @@ export default function LocationPicker({ formattedAddress, onUpdate }: LocationP
 
   return (
     <Flex direction="column" gap={4}>
+      {/* 타이틀 */}
       <HStack>
-        <Icon as={FaMapMarkerAlt} color="red.400" />
+        <Icon as={FaMapMarkerAlt} color="teal.500" />
         <Text fontSize="md" fontWeight="bold">
           출발 위치 설정
         </Text>
+        {isInvalid && (
+          <Text fontSize="xs" color="red.400" ml={2}>
+            (필수 항목입니다)
+          </Text>
+        )}
       </HStack>
-      <VStack gap={4} width="100%" p={4} bg="gray.50" borderRadius="lg" boxShadow="sm">
-        {/* 현재 위치 가져오기 버튼 */}
+
+      {/* 카드 */}
+      <VStack gap={4} width="100%" p={6} bg="gray.50" borderRadius="xl" boxShadow="sm" align="center">
+        {/* 현재 위치 버튼 */}
         <Button
           onClick={handleGetLocation}
-          colorPalette="blue"
+          colorPalette="teal"
+          w="10rem"
           size="md"
-          loading={loading} // ✅ 로딩 시 스피너 표시
-          loadingText="위치 가져오는 중...">
+          loading={loading}
+          loadingText="위치 가져오는 중..."
+          borderRadius="md">
           현재 위치 가져오기
         </Button>
 
-        {/* 선택된 위치 표시 */}
+        {/* 선택된 위치 */}
         {formattedAddress && (
-          <Box p={3} bg="white" borderRadius="md" boxShadow="md" display="flex" alignItems="center" gap={2}>
-            <Icon as={FaMapMarkerAlt} color="red.400" />
-            <Text fontSize="md" fontWeight="bold" color="gray.700">
+          <Box p={4} bg="white" borderRadius="md" boxShadow="md" display="flex" alignItems="center" gap={3}>
+            <Icon as={FaMapMarkerAlt} color="teal.500" />
+            <Text fontSize="sm" fontWeight="medium" color="gray.700">
               {formattedAddress}
             </Text>
           </Box>
@@ -59,7 +69,7 @@ export default function LocationPicker({ formattedAddress, onUpdate }: LocationP
 
         {/* 에러 메시지 */}
         {error && (
-          <Text mt={4} color="red.500" fontSize="sm" fontWeight="bold">
+          <Text mt={2} color="red.500" fontSize="sm" fontWeight="medium">
             {error}
           </Text>
         )}
