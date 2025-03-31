@@ -3,13 +3,13 @@
 import { VStack, HStack, Input, Button, Text, Icon, Image, Badge } from '@chakra-ui/react';
 import { InputGroup } from '@/components/ui/input-group';
 import { FaCheck, FaPlus, FaSearch, FaSyncAlt } from 'react-icons/fa';
-import { FaMapLocationDot } from 'react-icons/fa6';
+// import { FaMapLocationDot } from 'react-icons/fa6';
 import { TargetedPlaceData, PlanInfo } from '@/types/interface';
-import { PLACES_CATEGORY, DEFAULT_PLACES_CATEGORY } from '@/constants/place';
-import getCurrentLocationAddress from '@/utils/location/getCurrentLocationAddress';
+import { PRIMARY_PLACES_CATEGORY, DEFAULT_PLACES_CATEGORY, PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
+// import getCurrentLocationAddress from '@/utils/location/getCurrentLocationAddress';
 import { fetchNearbyPlacesDetail } from '@/lib/api/places';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import usePlanStore from '@/store/usePlanInfoStore';
+// import usePlanStore from '@/store/usePlanInfoStore';
 
 interface PlaceSearchPanelProps {
   planInfo: PlanInfo | null;
@@ -32,7 +32,7 @@ function PlaceSearchPanel({
 }: PlaceSearchPanelProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>(DEFAULT_PLACES_CATEGORY);
-  const { updatePlanInfo } = usePlanStore();
+  // const { updatePlanInfo } = usePlanStore();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value);
 
@@ -54,19 +54,19 @@ function PlaceSearchPanel({
     }
   };
 
-  const handleRefreshLocation = async () => {
-    try {
-      const { geocode, formattedAddress } = await getCurrentLocationAddress();
-      updatePlanInfo({
-        geocode,
-        formattedAddress,
-      });
-      alert('위치 데이터가 업데이트 되었습니다.');
-    } catch (err: any) {
-      console.error(err.message);
-      alert(err.message);
-    }
-  };
+  // const handleRefreshLocation = async () => {
+  //   try {
+  //     const { geocode, formattedAddress } = await getCurrentLocationAddress();
+  //     updatePlanInfo({
+  //       geocode,
+  //       formattedAddress,
+  //     });
+  //     alert('위치 데이터가 업데이트 되었습니다.');
+  //   } catch (err: any) {
+  //     console.error(err.message);
+  //     alert(err.message);
+  //   }
+  // };
 
   useEffect(() => {
     if (!planInfo) return;
@@ -90,33 +90,40 @@ function PlaceSearchPanel({
   }, [planInfo, selectedCategory, setPlaceList]);
 
   return (
-    <VStack gap={2} w="50%" h="100%" align="stretch">
-      <HStack w="100%" px={1}>
-        <HStack gap={2}>
-          <Icon as={FaMapLocationDot} boxSize={4} />
-          <Text fontSize="sm" color="gray.800" fontWeight="semibold">
+    <VStack
+      gap={4}
+      w={{ base: '100%', md: '50%' }}
+      h={{ base: '20rem', md: '100%' }}
+      p={{ base: '1', md: '3' }}
+      // borderWidth={3}
+      align="stretch">
+      {/* 현재 위치 */}
+      {/* <HStack justify="space-between">
+        <HStack>
+          <Icon as={FaMapLocationDot} color="teal.500" />
+          <Text fontSize="lg" fontWeight="bold" color="gray.700">
             {planInfo?.formattedAddress ?? '위치를 불러오는 중...'}
           </Text>
         </HStack>
         <Button
           onClick={handleRefreshLocation}
-          size="sm"
+          size="xs"
           variant="ghost"
-          colorScheme="gray"
-          p={1}
-          minW="auto"
-          aria-label="현재 위치 새로고침">
+          colorPalette="gray"
+          aria-label="위치 새로고침">
           <Icon as={FaSyncAlt} boxSize={3} />
         </Button>
-      </HStack>
+      </HStack> */}
 
+      {/* 검색창 */}
       <InputGroup
+        borderRadius="md"
+        boxShadow="sm"
         endElement={
-          <Button variant="ghost" onClick={handleSearchPlaces} p={1}>
-            <FaSearch />
+          <Button variant="ghost" onClick={handleSearchPlaces} minW="auto" p={0} aria-label="검색">
+            <Icon as={FaSearch} boxSize={4} />
           </Button>
-        }
-        w="100%">
+        }>
         <Input
           placeholder="장소를 검색하세요..."
           value={searchTerm}
@@ -125,60 +132,106 @@ function PlaceSearchPanel({
         />
       </InputGroup>
 
+      {/* 카테고리 */}
       <HStack wrap="wrap">
-        {Object.keys(PLACES_CATEGORY).map(category => (
+        {Object.entries(PRIMARY_PLACES_CATEGORY).map(([key, label]) => (
           <Button
-            key={category}
-            variant={
-              selectedCategory === PLACES_CATEGORY[category as keyof typeof PLACES_CATEGORY] ? 'solid' : 'outline'
-            }
+            key={key}
+            variant={selectedCategory === key ? 'solid' : 'outline'}
             colorPalette="blue"
-            onClick={() => setSelectedCategory(PLACES_CATEGORY[category as keyof typeof PLACES_CATEGORY])}
-            size="md">
-            {category}
+            size="sm"
+            onClick={() => setSelectedCategory(key)}>
+            {label}
           </Button>
         ))}
       </HStack>
 
-      <VStack align="stretch" gap={2} overflow={'auto'}>
+      {/* 장소 리스트 */}
+      <VStack align="stretch" p={1} gap={3} overflowY="auto" w="100%" h={{ base: '300px', md: '100%' }}>
         {placeList.map(place => {
           const isSelected = selectedPlaces.some(p => p.place_id === place.place_id);
           return (
             <HStack
               key={place.place_id}
               p={3}
-              borderWidth={1}
+              bg="white"
               borderRadius="md"
               boxShadow="sm"
-              w="100%"
-              justify="space-between">
-              <HStack>
-                <Image src={place.photo_url ?? place.icon[0]} alt={place.name} boxSize="50px" borderRadius="md" />
-                <VStack
-                  align="start"
-                  gap={1}
-                  onClick={() => {
-                    setCurrentDetailData(place);
-                    toggleModalOpen();
-                  }}
-                  cursor={'pointer'}>
-                  <Text fontSize="md" fontWeight="bold">
-                    <Badge colorPalette="blue">{place.type}</Badge> {place.name}
-                  </Text>
-                  <Text fontSize="sm" color="gray.800">
+              justify="space-between"
+              align="flex-start"
+              gap={4}>
+              <HStack
+                gap={3}
+                align="flex-start"
+                flex="1"
+                minW={0}
+                cursor="pointer"
+                onClick={() => {
+                  setCurrentDetailData(place);
+                  toggleModalOpen();
+                }}>
+                <Image
+                  src={place.photo_url ?? place.icon[0]}
+                  alt={place.name}
+                  boxSize="4.6rem"
+                  flexShrink={0}
+                  borderRadius="md"
+                />
+                <VStack gap={1} align="start" w="100%" minW={0}>
+                  {/* 장소명 + 타입 */}
+                  <HStack gap={1} w="100%" minW={0}>
+                    {(() => {
+                      const categoryInfo = (
+                        PLACES_CATEGORY_COLOR_SET as Record<string, { ko: string; color: string }>
+                      )?.[place.type] ?? {
+                        ko: place.type,
+                        color: 'gray',
+                      };
+                      return (
+                        <>
+                          <Badge colorPalette={categoryInfo.color} flexShrink={0} whiteSpace="nowrap">
+                            {categoryInfo.ko}
+                          </Badge>
+                          <Text
+                            fontSize="md"
+                            fontWeight="semibold"
+                            whiteSpace="nowrap"
+                            overflow="hidden"
+                            textOverflow="ellipsis">
+                            {place.name}
+                          </Text>
+                        </>
+                      );
+                    })()}
+                  </HStack>
+
+                  {/* 주소 */}
+                  <Text
+                    fontSize="small"
+                    color="gray.600"
+                    whiteSpace="nowrap"
+                    overflow="hidden"
+                    textOverflow="ellipsis"
+                    maxW="100%">
                     {place.address}
                   </Text>
+
+                  {/* 평점 */}
                   <Text fontSize="sm" color="gray.500">
                     ⭐ {place.rating?.toFixed(1)} ({place.total_reviews?.toLocaleString()} 리뷰)
                   </Text>
                 </VStack>
               </HStack>
+
+              {/* 버튼 */}
               <Button
                 size="sm"
-                h="100%"
-                colorPalette={isSelected ? 'green' : 'blue'}
-                onClick={() => handleTogglePlace(place)}>
-                <Icon as={isSelected ? FaCheck : FaPlus} />
+                bg={isSelected ? 'green.500' : 'gray.200'}
+                onClick={() => handleTogglePlace(place)}
+                flexShrink={0}
+                minW="36px"
+                h="100%">
+                <Icon as={isSelected ? FaCheck : FaPlus} color={isSelected ? 'white' : 'gray.400'} />
               </Button>
             </HStack>
           );

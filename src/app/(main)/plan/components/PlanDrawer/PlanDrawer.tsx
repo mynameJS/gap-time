@@ -15,12 +15,9 @@ function PlanDrawer() {
   return (
     <>
       <Flex
-        flexDirection="column"
-        gap={1}
-        w="60%"
-        h="100%"
+        w="100%"
+        h={{ base: '70%', md: '100%' }}
         position="relative"
-        p={4}
         display={isOpened ? 'block' : 'none'} // ✅ 화면에서만 숨김
       >
         {mode === 'select' ? <PlaceSelector /> : <PlanList />}
@@ -46,7 +43,8 @@ const CloseCustomButton = ({ onClick }: { onClick: () => void }) => {
       right="-20px"
       transform="translateY(-50%)"
       zIndex="100"
-      onClick={onClick}>
+      onClick={onClick}
+      display={{ base: 'none', md: 'flex' }}>
       <MdKeyboardArrowLeft />
     </CloseButton>
   );
@@ -65,7 +63,8 @@ const OpenCustomButton = ({ onClick }: { onClick: () => void }) => {
       left="0"
       transform="translateY(-50%)"
       zIndex="100"
-      onClick={onClick}>
+      onClick={onClick}
+      display={{ base: 'none', md: 'flex' }}>
       <MdKeyboardArrowRight />
     </CloseButton>
   );

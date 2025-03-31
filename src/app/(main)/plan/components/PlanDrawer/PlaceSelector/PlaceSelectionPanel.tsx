@@ -16,6 +16,7 @@ interface Props {
   setSelectedPlaces: Dispatch<SetStateAction<TargetedPlaceData[]>>;
   setCustomPlaceList: (list: ScheduleBlock[]) => void;
   removeGeocodeById: (placeId: string) => void;
+  count: number;
 }
 
 function PlaceSelectionPanel({
@@ -24,9 +25,9 @@ function PlaceSelectionPanel({
   setSelectedPlaces,
   setCustomPlaceList,
   removeGeocodeById,
+  count,
 }: Props) {
   const router = useRouter();
-  const count = planInfo ? getTimeBlocks(planInfo.startTime[0], planInfo.endTime[0]).length : 0;
 
   const handleRemovePlace = (placeId: string) => {
     setSelectedPlaces(prev => prev.filter(p => p.place_id !== placeId));
@@ -60,21 +61,24 @@ function PlaceSelectionPanel({
   };
 
   return (
-    <VStack w="50%" h="100%" align="stretch" gap={2} borderWidth={3} p={4}>
-      <HStack w="100%" justify="space-between" p={3} bg="gray.50" borderRadius="md" boxShadow="sm">
-        <HStack>
+    <VStack w={{ base: '100%', md: '50%' }} h="100%" p={2} gap={4} align="stretch" overflow="auto">
+      {/* 상단 정보 바 */}
+      <HStack wrap="wrap" gap={4} justify="space-between" p={3} borderRadius="md" boxShadow="sm">
+        <HStack gap={2}>
           <Icon as={FaClock} color="gray.600" />
           <Text fontSize="sm" fontWeight="medium" color="gray.700">
             {getDurationFromTimeString(planInfo?.startTime[0], planInfo?.endTime[0])} 시간
           </Text>
         </HStack>
-        <HStack>
+
+        <HStack gap={2}>
           <Icon as={FaLocationDot} color="red.500" />
           <Text fontSize="sm" fontWeight="medium" color="gray.700">
             {selectedPlaces.length} / {count} 장소
           </Text>
         </HStack>
-        <HStack>
+
+        <HStack gap={2}>
           <Icon as={FaRoute} color="blue.500" />
           <Text fontSize="sm" fontWeight="medium" color="gray.700">
             {planInfo?.routeType}
@@ -82,32 +86,64 @@ function PlaceSelectionPanel({
         </HStack>
       </HStack>
 
-      <VStack w="100%" h="95%" align="stretch" gap={2} borderWidth={3}>
-        <List.Root gap={2} overflow="auto">
-          {selectedPlaces.map((place, index) => (
-            <List.Item
+      {/* 장소 리스트 */}
+      <VStack gap={3} align="stretch" overflowY="auto" h="100%" flex="1">
+        {selectedPlaces.length === 0 ? (
+          <VStack py={{ base: '0', md: '20' }} gap={3} align="center" justify="center" color="gray.500">
+            <Icon as={FaLocationDot} boxSize={6} />
+            <Text fontSize="sm" textAlign="center">
+              선택된 장소가 없습니다. <br />
+              장소를 먼저 추가해 주세요!
+            </Text>
+          </VStack>
+        ) : (
+          selectedPlaces.map((place, index) => (
+            <HStack
               key={place.place_id}
-              p={2}
-              borderWidth={1}
+              p={3}
+              bg="white"
               borderRadius="md"
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              w="100%">
-              <HStack>
-                <Badge colorPalette="blue">{index + 1}</Badge>
-                <Image src={place.photo_url ?? place.icon[0]} alt={place.name} boxSize="40px" borderRadius="md" />
-                <Text>{place.name}</Text>
+              boxShadow="sm"
+              justify="space-between"
+              align="center">
+              <HStack gap={3} minW={0} overflow="hidden">
+                <Badge colorPalette="blue" flexShrink={0}>
+                  {index + 1}
+                </Badge>
+                <Image
+                  src={place.photo_url ?? place.icon[0]}
+                  alt={place.name}
+                  boxSize="40px"
+                  borderRadius="md"
+                  objectFit="cover"
+                  flexShrink={0}
+                />
+                <Text
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="gray.800"
+                  whiteSpace="nowrap"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                  maxW="120px">
+                  {place.name}
+                </Text>
               </HStack>
-              <Button size="sm" colorPalette="red" onClick={() => handleRemovePlace(place.place_id)}>
+
+              <Button size="sm" onClick={() => handleRemovePlace(place.place_id)} flexShrink={0}>
                 <Icon as={FaTrashAlt} />
               </Button>
-            </List.Item>
-          ))}
-        </List.Root>
+            </HStack>
+          ))
+        )}
       </VStack>
 
-      <Button disabled={selectedPlaces.length === 0} onClick={handleUpdateCustomPlaceList}>
+      {/* 하단 버튼 */}
+      <Button
+        size="md"
+        colorPalette="teal"
+        onClick={handleUpdateCustomPlaceList}
+        disabled={selectedPlaces.length === 0}>
         일정 만들기
       </Button>
     </VStack>
