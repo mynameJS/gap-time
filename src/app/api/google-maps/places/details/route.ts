@@ -26,6 +26,7 @@ export async function POST(req: Request) {
     const placeData = data.result;
 
     return NextResponse.json({
+      place_id: placeData.place_id,
       name: placeData.name,
       address: placeData.formatted_address,
       open_hours: placeData.opening_hours ?? null,
@@ -38,6 +39,8 @@ export async function POST(req: Request) {
       website: placeData.website ?? null,
       summary: placeData.editorial_summary?.overview ?? null,
       geocode: placeData.geometry.location ?? null,
+      type: placeData.types[0] ?? null,
+      vicinity: placeData.vicinity,
     });
   } catch (error) {
     console.error(error);

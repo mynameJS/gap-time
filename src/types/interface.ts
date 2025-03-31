@@ -16,6 +16,7 @@ export interface ScheduleBlock {
 }
 
 export interface PlaceDetails {
+  place_id: string;
   name: string;
   address: string;
   open_hours: {
@@ -33,6 +34,8 @@ export interface PlaceDetails {
   website: string;
   summary: string;
   geocode: google.maps.LatLngLiteral;
+  type: string;
+  vicinity: string;
 }
 
 export interface TargetedPlaceData {
