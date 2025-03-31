@@ -1,24 +1,43 @@
-import { Box, Flex, Text } from '@chakra-ui/react';
+'use client';
+
+import { Box, Flex, Text, Image } from '@chakra-ui/react';
 import PlanModalController from './components/PlanModalController';
 
-export default async function Page() {
+export default function Page() {
   return (
-    <Box borderWidth="3px" height="90%" borderColor="black">
-      <Flex align="center" borderWidth="3px" height="100%" width="100%">
-        <Flex flexDirection="column" borderWidth={3} gap={10} width="50%" height="100%" justifyContent="center">
-          <Box>
-            <Text textStyle="6xl" fontWeight="bold" lineHeight="100px">
-              하루 중 틈새시간을 <br />
-              이용하는 일정 플래너
-            </Text>
-            <Text>자투리 시간에 뭐할까 고민하지말고 틈새시간을 이용해보세요.</Text>
-          </Box>
+    <Flex
+      direction={{ base: 'column', lg: 'row' }}
+      align="center"
+      justify={{ base: 'center', lg: 'space-between' }}
+      w="100%"
+      h="100%"
+      gap={{ base: 12, lg: 4 }}
+      py={{ base: 12, lg: 0 }}>
+      {/* Left Side */}
+      <Box w={{ base: '100%', lg: '50%' }} textAlign={{ base: 'center', lg: 'left' }}>
+        <Text
+          fontSize={{ base: '2xl', md: '3xl', xl: '5xl', '2xl': '6xl' }}
+          fontWeight="extrabold"
+          lineHeight="1.4"
+          mb={6}>
+          당신의 하루를 더 알차게, <br />
+          틈새시간을 계획하는 <br />
+          새로운 방법
+        </Text>
+
+        <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.600" mb={8}>
+          자투리 시간을 고민하지 말고, 지금 바로 계획해보세요.
+        </Text>
+
+        <Box display="flex" justifyContent={{ base: 'center', lg: 'flex-start' }}>
           <PlanModalController />
-        </Flex>
-        <Box borderWidth="3px" width="50%" height="100%">
-          비디오 영역
         </Box>
-      </Flex>
-    </Box>
+      </Box>
+
+      {/* Right Side */}
+      <Box w={{ base: '100%', lg: '50%' }} maxW="600px" mx="auto">
+        <Image src="/image/landing.png" alt="틈새시간 계획 일러스트" width="100%" objectFit="contain" />
+      </Box>
+    </Flex>
   );
 }

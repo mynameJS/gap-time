@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <Flex height="100vh" direction="column" px={40}>
+      <Flex height="100vh" direction="column" px={{ xl: '15rem', lg: '10rem', base: '3rem' }}>
         <Header />
         <Box flex={1}>{children}</Box>
       </Flex>

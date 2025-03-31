@@ -13,12 +13,7 @@ function PlanModalController() {
 
   return (
     <>
-      <Button
-        onClick={toggleModalOpen}
-        width="
-          30%"
-        height="10%"
-        textStyle="md">
+      <Button onClick={toggleModalOpen} width="50%" height="60px" textStyle="md" fontSize="20px" cursor="pointer">
         틈새시간 이용하기
       </Button>
       <PlanInfoModal isOpen={isOpen} onToggle={toggleModalOpen} />
