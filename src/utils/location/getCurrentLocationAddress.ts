@@ -30,11 +30,25 @@ const getCurrentLocationAddress = (): Promise<LocationResult> => {
         }
       },
       err => {
-        if (err.code === 1) {
-          reject(new Error('위치 권한이 거부되었습니다.'));
-        } else {
-          reject(new Error('위치 정보를 가져오는 중 오류가 발생했습니다.'));
+        console.error('Geolocation error:', err);
+        switch (err.code) {
+          case 1:
+            reject(new Error('위치 권한이 거부되었습니다.'));
+            break;
+          case 2:
+            reject(new Error('위치 정보를 사용할 수 없습니다 (POSITION_UNAVAILABLE).'));
+            break;
+          case 3:
+            reject(new Error('위치 정보 요청이 시간 초과되었습니다.'));
+            break;
+          default:
+            reject(new Error('알 수 없는 위치 오류가 발생했습니다.'));
         }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
       }
     );
   });
