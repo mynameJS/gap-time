@@ -1,20 +1,25 @@
-import { Box, Flex, HStack, Text, Button } from '@chakra-ui/react';
+import { Box, Flex, HStack, Text, Button, Image } from '@chakra-ui/react';
 
 export default function Header() {
   return (
-    <Box as="header" py={4}>
-      {/* Flex: 헤더의 전체 레이아웃 구성 */}
+    <Box w="100%" as="header" bg="white" py={6}>
       <Flex justify="space-between" align="center">
         {/* 로고 영역 */}
-        <Text fontSize="xl" fontWeight="bold" color="teal.500">
-          틈새시간
-        </Text>
-        {/* 버튼 영역: Stack으로 수평 정렬 */}
-        <HStack gap={8}>
-          <Button colorPalette="teal" variant="outline">
+        <HStack>
+          <Image src="/image/hourglass.png" alt="로고 이미지" w="24px" />
+          <Text fontSize="2xl" fontWeight="bold" color="teal.600" letterSpacing="-0.5px" userSelect="none">
+            틈새시간
+          </Text>
+        </HStack>
+
+        {/* 버튼 영역 */}
+        <HStack gap={4}>
+          <Button colorPalette="teal" variant="ghost" borderRadius="md" px={6} _hover={{ bg: 'teal.50' }}>
             회원가입
           </Button>
-          <Button colorPalette="teal">로그인</Button>
+          <Button colorPalette="teal" borderRadius="md" px={6}>
+            로그인
+          </Button>
         </HStack>
       </Flex>
     </Box>
