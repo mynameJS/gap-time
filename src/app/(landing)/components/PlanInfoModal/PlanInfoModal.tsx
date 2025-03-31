@@ -24,7 +24,6 @@ function PlanInfoModal({ isOpen, onToggle }: PlanInfoModalProps) {
     routeType: '',
   });
 
-  const [errorMessage, setErrorMessage] = useState('');
   const [missing, setMissing] = useState({
     startTime: false,
     endTime: false,
@@ -56,11 +55,7 @@ function PlanInfoModal({ isOpen, onToggle }: PlanInfoModalProps) {
     setMissing(newMissing);
 
     const isValid = !Object.values(newMissing).includes(true);
-    if (!isValid) {
-      setErrorMessage('모든 항목을 입력해주세요.');
-    } else {
-      setErrorMessage('');
-    }
+
     return isValid;
   };
 
