@@ -3,7 +3,7 @@
 import { VStack, HStack, Text, Icon, Image, Button, Badge, List } from '@chakra-ui/react';
 import { FaTrashAlt } from 'react-icons/fa';
 import { FaClock, FaLocationDot, FaRoute } from 'react-icons/fa6';
-import { PlanInfo, TargetedPlaceData } from '@/types/interface';
+import { PlanInfo, PlaceDetails } from '@/types/interface';
 import getDurationFromTimeString from '@/utils/format/getDurationFromTimeString';
 import getTimeBlocks from '@/utils/plan/getTimeBlocks';
 import { useRouter } from 'next/navigation';
@@ -12,8 +12,8 @@ import { ScheduleBlock } from '@/types/interface';
 
 interface Props {
   planInfo: PlanInfo | null;
-  selectedPlaces: TargetedPlaceData[];
-  setSelectedPlaces: Dispatch<SetStateAction<TargetedPlaceData[]>>;
+  selectedPlaces: PlaceDetails[];
+  setSelectedPlaces: Dispatch<SetStateAction<PlaceDetails[]>>;
   setCustomPlaceList: (list: ScheduleBlock[]) => void;
   removeGeocodeById: (placeId: string) => void;
   count: number;

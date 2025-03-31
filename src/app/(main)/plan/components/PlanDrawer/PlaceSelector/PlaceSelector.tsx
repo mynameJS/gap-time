@@ -6,25 +6,29 @@ import { Flex } from '@chakra-ui/react';
 import usePlanStore from '@/store/usePlanInfoStore';
 import useGeocodeListStore from '@/store/useGeocodeListStore';
 import useCustomPlaceListStore from '@/store/useCustomPlaceListStore';
-import { TargetedPlaceData } from '@/types/interface';
+import { PlaceDetails } from '@/types/interface';
 import PlaceSearchPanel from './PlaceSearchPanel';
 import PlaceSelectionPanel from './PlaceSelectionPanel';
-import PlaceDetailModal from './PlaceDetailModal';
+import PlaceDetailModal from '../PlaceDetailModal';
 import getTimeBlocks from '@/utils/plan/getTimeBlocks';
 
-function PlaceSelector() {
+interface PlaceSelectorProps {
+  currentDetailData: PlaceDetails | undefined | null;
+  isDetailModalOpen: boolean;
+  setCurrentDetailData: (place: PlaceDetails) => void;
+  onToggle: () => void;
+}
+
+function PlaceSelector({ currentDetailData, isDetailModalOpen, setCurrentDetailData, onToggle }: PlaceSelectorProps) {
   const { planInfo } = usePlanStore();
   const { addGeocode, removeGeocodeById } = useGeocodeListStore();
   const { setCustomPlaceList } = useCustomPlaceListStore();
-
-  const [placeList, setPlaceList] = useState<TargetedPlaceData[]>([]);
-  const [selectedPlaces, setSelectedPlaces] = useState<TargetedPlaceData[]>([]);
-  const [currentDetailData, setCurrentDetailData] = useState<TargetedPlaceData>();
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [placeList, setPlaceList] = useState<PlaceDetails[]>([]);
+  const [selectedPlaces, setSelectedPlaces] = useState<PlaceDetails[]>([]);
 
   const count = planInfo ? getTimeBlocks(planInfo.startTime[0], planInfo.endTime[0]).length : 0;
 
-  const handleTogglePlace = (place: TargetedPlaceData) => {
+  const handleTogglePlace = (place: PlaceDetails) => {
     const isSelected = selectedPlaces.some(p => p.place_id === place.place_id);
     if (isSelected) {
       setSelectedPlaces(prev => prev.filter(p => p.place_id !== place.place_id));
@@ -38,8 +42,6 @@ function PlaceSelector() {
     }
   };
 
-  const toggleModalOpen = () => setIsDetailModalOpen(prev => !prev);
-
   return (
     <Flex flexDir={{ base: 'column', md: 'row' }} w="100%" h="100%" p={4}>
       <PlaceSearchPanel
@@ -49,7 +51,7 @@ function PlaceSelector() {
         selectedPlaces={selectedPlaces}
         handleTogglePlace={handleTogglePlace}
         setCurrentDetailData={setCurrentDetailData}
-        toggleModalOpen={toggleModalOpen}
+        onToggle={onToggle}
       />
       <PlaceSelectionPanel
         planInfo={planInfo}
@@ -63,7 +65,7 @@ function PlaceSelector() {
         <PlaceDetailModal
           currentDetailData={currentDetailData}
           isDetailModalOpen={isDetailModalOpen}
-          onToggle={toggleModalOpen}
+          onToggle={onToggle}
         />
       )}
     </Flex>

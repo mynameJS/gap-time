@@ -2,9 +2,9 @@
 
 import { VStack, HStack, Input, Button, Text, Icon, Image, Badge } from '@chakra-ui/react';
 import { InputGroup } from '@/components/ui/input-group';
-import { FaCheck, FaPlus, FaSearch, FaSyncAlt } from 'react-icons/fa';
+import { FaCheck, FaPlus, FaSearch } from 'react-icons/fa';
 // import { FaMapLocationDot } from 'react-icons/fa6';
-import { TargetedPlaceData, PlanInfo } from '@/types/interface';
+import { PlaceDetails, PlanInfo } from '@/types/interface';
 import { PRIMARY_PLACES_CATEGORY, DEFAULT_PLACES_CATEGORY, PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
 // import getCurrentLocationAddress from '@/utils/location/getCurrentLocationAddress';
 import { fetchNearbyPlacesDetail } from '@/lib/api/places';
@@ -13,12 +13,12 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 interface PlaceSearchPanelProps {
   planInfo: PlanInfo | null;
-  placeList: TargetedPlaceData[];
-  setPlaceList: Dispatch<SetStateAction<TargetedPlaceData[]>>;
-  selectedPlaces: TargetedPlaceData[];
-  handleTogglePlace: (place: TargetedPlaceData) => void;
-  setCurrentDetailData: (place: TargetedPlaceData) => void;
-  toggleModalOpen: () => void;
+  placeList: PlaceDetails[];
+  setPlaceList: Dispatch<SetStateAction<PlaceDetails[]>>;
+  selectedPlaces: PlaceDetails[];
+  handleTogglePlace: (place: PlaceDetails) => void;
+  setCurrentDetailData: (place: PlaceDetails) => void;
+  onToggle: () => void;
 }
 
 function PlaceSearchPanel({
@@ -28,7 +28,7 @@ function PlaceSearchPanel({
   selectedPlaces,
   handleTogglePlace,
   setCurrentDetailData,
-  toggleModalOpen,
+  onToggle,
 }: PlaceSearchPanelProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>(DEFAULT_PLACES_CATEGORY);
@@ -168,7 +168,7 @@ function PlaceSearchPanel({
                 cursor="pointer"
                 onClick={() => {
                   setCurrentDetailData(place);
-                  toggleModalOpen();
+                  onToggle();
                 }}>
                 <Image
                   src={place.photo_url ?? place.icon[0]}
