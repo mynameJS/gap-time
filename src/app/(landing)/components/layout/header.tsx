@@ -6,8 +6,8 @@ export default function Header() {
       <Flex justify="space-between" align="center">
         {/* 로고 영역 */}
         <HStack>
-          <Image src="/image/hourglass.png" alt="로고 이미지" w="24px" />
-          <Text fontSize="2xl" fontWeight="bold" color="teal.600" letterSpacing="-0.5px" userSelect="none">
+          <Image src="/image/logo_2.png" alt="로고 이미지" w="28px" />
+          <Text fontSize="xl" fontWeight="bold" color="teal.600" letterSpacing="-0.5px" userSelect="none">
             틈새시간
           </Text>
         </HStack>
