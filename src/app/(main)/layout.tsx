@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-
 import { Box } from '@chakra-ui/react';
 
 export const metadata: Metadata = {

@@ -95,7 +95,7 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
   let placeIndex = 1;
 
   return (
-    <Box w={{ base: '100%', md: '600px' }} h="100vh" overflowY="auto" bg="white" px={{ base: 3, md: 6 }} py={4}>
+    <Box w={{ base: '100%', md: '600px' }} h="100%" overflow="auto" bg="white" px={{ base: 3, md: 6 }} py={4}>
       <VStack gap={6} align="stretch">
         {/* 현재 위치 (출발지) */}
         {renderCurrentLocationCard('현재 위치 (출발지)')}
