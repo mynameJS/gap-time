@@ -46,7 +46,7 @@ export default function TimeSelector({ startTime, endTime, onUpdate, isInvalid }
           일정 시간 선택
         </Text>
         {isInvalid && (
-          <Text fontSize="xs" color="red.400" ml={2}>
+          <Text fontSize="xs" color="red.400">
             (필수 항목입니다)
           </Text>
         )}

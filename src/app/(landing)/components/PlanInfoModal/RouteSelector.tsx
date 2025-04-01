@@ -18,7 +18,7 @@ function RouteSelector({ routeType, onUpdate, isInvalid }: RouteSelectorProps) {
           이동 경로 선택
         </Text>
         {isInvalid && (
-          <Text fontSize="xs" color="red.400" ml={2}>
+          <Text fontSize="xs" color="red.400">
             (필수 항목입니다)
           </Text>
         )}
