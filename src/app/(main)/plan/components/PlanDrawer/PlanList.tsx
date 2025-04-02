@@ -1,11 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Box, Text, VStack, HStack, Icon, Badge, Image, Circle } from '@chakra-ui/react';
+import { Box, Text, VStack, HStack, Icon, Badge, Image, Circle, Spinner } from '@chakra-ui/react';
 import { FaMapMarkerAlt, FaStar, FaRoute, FaClock } from 'react-icons/fa';
 import PlaceDetailModal from './PlaceDetailModal';
 import usePlanStore from '@/store/usePlanInfoStore';
-import generateSchedule from '@/utils/plan/generateSchedule';
 import calculateTravelTimes from '@/utils/plan/calculateTravelTimes';
 import { ScheduleBlock, GeocodeItem, PlaceDetails } from '@/types/interface';
 import useCustomPlaceListStore from '@/store/useCustomPlaceListStore';
@@ -14,6 +12,8 @@ import usePolylineListStore from '@/store/usePolylineListStore';
 import formatDistance from '@/utils/format/formatDistance';
 import formatDurationFromSeconds from '@/utils/format/formatDurationFromSeconds';
 import { PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
+import { useQuery } from '@tanstack/react-query';
+import generateSchedule from '@/utils/plan/generateSchedule';
 
 interface PlanListProps {
   currentDetailData: PlaceDetails | undefined | null;
@@ -27,54 +27,68 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
   const { customPlaceList } = useCustomPlaceListStore();
   const { setGeocodeList } = useGeocodeListStore();
   const { setPolylineList } = usePolylineListStore();
-  const [planList, setPlanList] = useState<ScheduleBlock[]>([]);
 
-  useEffect(() => {
-    if (!planInfo) return;
+  const { data: planList, isLoading } = useQuery<ScheduleBlock[]>({
+    queryKey: ['planList', planInfo, customPlaceList],
+    enabled: !!planInfo,
+    queryFn: async () => {
+      const schedule: ScheduleBlock[] =
+        customPlaceList.length > 0
+          ? customPlaceList
+          : await generateSchedule({
+              startTime: planInfo!.startTime[0],
+              endTime: planInfo!.endTime[0],
+              latitude: planInfo!.geocode.lat,
+              longitude: planInfo!.geocode.lng,
+            });
 
-    const fetch = async () => {
-      try {
-        const schedule: ScheduleBlock[] =
-          customPlaceList.length > 0
-            ? customPlaceList
-            : await generateSchedule({
-                startTime: planInfo.startTime[0],
-                endTime: planInfo.endTime[0],
-                latitude: planInfo.geocode.lat,
-                longitude: planInfo.geocode.lng,
-              });
+      const result = await calculateTravelTimes({
+        schedule,
+        mode: 'TRANSIT',
+        routeType: planInfo!.routeType,
+        currentLocation: planInfo!.geocode,
+      });
 
-        const finalResult = await calculateTravelTimes({
-          schedule,
-          mode: 'TRANSIT',
-          routeType: planInfo.routeType,
-          currentLocation: planInfo.geocode,
-        });
+      const geocodeList: GeocodeItem[] = [];
+      const polylineList: string[] = [];
 
-        setPlanList(finalResult);
+      result.forEach(item => {
+        if (item.placeDetails && item.placeId) {
+          geocodeList.push({ place_id: item.placeId, geocode: item.placeDetails.geocode });
+        } else if (item.travel) {
+          polylineList.push(item.travel.polyline);
+        }
+      });
 
-        const geocodeList: GeocodeItem[] = [];
-        const polylineList: string[] = [];
+      setGeocodeList(geocodeList);
+      setPolylineList(polylineList);
 
-        finalResult.forEach(item => {
-          if (item.placeDetails && item.placeId) {
-            geocodeList.push({ place_id: item.placeId, geocode: item.placeDetails.geocode });
-          } else if (item.travel) {
-            polylineList.push(item.travel.polyline);
-          }
-        });
+      return result;
+    },
+  });
 
-        setGeocodeList(geocodeList);
-        setPolylineList(polylineList);
-      } catch (error) {
-        console.error('Error generating plan:', error);
-      }
-    };
+  if (!planInfo) return null;
 
-    fetch();
-  }, [planInfo, customPlaceList, setGeocodeList, setPolylineList]);
+  if (isLoading) {
+    return (
+      <Box w={{ base: '100%', md: '600px' }} h="100%" display="flex" justifyContent="center" alignItems="center">
+        <VStack gap={3} color="gray.500">
+          <Spinner color="teal.500" size="lg" />
+          <Text fontSize="sm">일정을 생성하는 중입니다...</Text>
+        </VStack>
+      </Box>
+    );
+  }
 
-  if (!planList.length || !planInfo) return null;
+  if (!planList || planList.length === 0) {
+    return (
+      <Box w={{ base: '100%', md: '600px' }} h="100%" display="flex" justifyContent="center" alignItems="center">
+        <Text color="gray.500" fontSize="sm">
+          불러올 수 있는 일정이 없습니다.
+        </Text>
+      </Box>
+    );
+  }
 
   const renderCurrentLocationCard = (label: string) => (
     <Box p={4} borderRadius="lg" bg="gray.50" borderWidth={1}>
@@ -97,7 +111,6 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
   return (
     <Box w={{ base: '100%', md: '600px' }} h="100%" overflow="auto" bg="white" px={{ base: 3, md: 6 }} py={4}>
       <VStack gap={6} align="stretch">
-        {/* 현재 위치 (출발지) */}
         {renderCurrentLocationCard('현재 위치 (출발지)')}
 
         {planList.map((block, index) => {
@@ -144,7 +157,6 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
               cursor="pointer">
               <VStack align="stretch" gap={4}>
                 <HStack gap={2}>
-                  {/* ✅ 숫자 원형 아이콘 */}
                   <Circle
                     size="24px"
                     bg="gray.700"
@@ -155,7 +167,6 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
                     textAlign="center">
                     {currentIndex}
                   </Circle>
-
                   <Text fontWeight="bold" fontSize="lg">
                     {place?.name || '장소 없음'}
                   </Text>
@@ -196,27 +207,14 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
                     </HStack>
                   </VStack>
                 </HStack>
-
-                {/* {place?.url && (
-                  <Link
-                    href={place.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    fontSize="sm"
-                    color="teal.600"
-                    fontWeight="semibold"
-                    _hover={{ textDecoration: 'underline' }}>
-                    구글 상세 보기 <Icon as={FaExternalLinkAlt} ml={1} boxSize={3} />
-                  </Link>
-                )} */}
               </VStack>
             </Box>
           );
         })}
 
-        {/* 현재 위치 (도착지) */}
         {planInfo.routeType === '왕복' && renderCurrentLocationCard('현재 위치 (도착지)')}
       </VStack>
+
       {isDetailModalOpen && currentDetailData && (
         <PlaceDetailModal
           currentDetailData={currentDetailData}
