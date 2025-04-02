@@ -1,4 +1,5 @@
-import ChakraProvider from '@/components/chakraUI/ChakraProvider';
+import ChakraProvider from '@/components/providers/ChakraProvider';
+import QueryProvider from '@/components/providers/QueryProvider';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body>
-        <ChakraProvider>{children}</ChakraProvider>
+        <ChakraProvider>
+          <QueryProvider>{children}</QueryProvider>
+        </ChakraProvider>
       </body>
     </html>
   );
