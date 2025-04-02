@@ -1,6 +1,6 @@
 import { Box, Flex, HStack, Text, Button, Image } from '@chakra-ui/react';
 
-export default function Header() {
+export default function LandingHeader() {
   return (
     <Box w="100%" as="header" bg="white" py={6}>
       <Flex justify="space-between" align="center">

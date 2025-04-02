@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Header from './components/layout/Header';
+import LandingHeader from './components/layout/LandingHeader';
 import { Box, Flex } from '@chakra-ui/react';
 
 export const metadata: Metadata = {
@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <>
       <Flex height="100vh" direction="column" px={{ xl: '15rem', lg: '10rem', base: '3rem' }}>
-        <Header />
+        <LandingHeader />
         <Box flex={1}>{children}</Box>
       </Flex>
     </>
