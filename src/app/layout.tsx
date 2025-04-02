@@ -5,6 +5,9 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Time-Gap',
   description: 'Time-Gap Developing',
+  icons: {
+    icon: '/image/logo.png',
+  },
 };
 
 export default function RootLayout({
