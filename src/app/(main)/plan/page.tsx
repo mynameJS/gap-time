@@ -1,7 +1,8 @@
-import { Box, Flex } from '@chakra-ui/react';
+import { Suspense } from 'react';
+import { Box, Flex, Spinner } from '@chakra-ui/react';
+import PlanRouteGuard from './components/PlanRouteGuard';
 import PlanDrawer from './components/PlanDrawer/PlanDrawer';
 import GoogleMaps from './components/Maps/GoogleMap';
-import PlanRouteGuard from './components/PlanRouteGuard';
 
 export default async function Page() {
   return (
@@ -9,8 +10,12 @@ export default async function Page() {
       <PlanRouteGuard />
       <Box height="100%" width="100%">
         <Flex flexDir={{ base: 'column-reverse', md: 'row' }} height="100%" width="100%" position="relative">
-          <PlanDrawer />
-          <GoogleMaps />
+          <Suspense fallback={<Spinner />}>
+            <PlanDrawer />
+          </Suspense>
+          <Suspense fallback={<Spinner />}>
+            <GoogleMaps />
+          </Suspense>
         </Flex>
       </Box>
     </>
