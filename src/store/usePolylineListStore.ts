@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-// import { ScheduleBlock } from '@/types/interface';
 
 interface PolylineListState {
   polylineList: string[];

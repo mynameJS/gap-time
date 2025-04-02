@@ -22,8 +22,14 @@ export default function LocationPicker({ formattedAddress, onUpdate, isInvalid }
     try {
       const { geocode, formattedAddress } = await getCurrentLocationAddress();
       onUpdate({ geocode, formattedAddress });
-    } catch (err: any) {
-      setError(err.message || '알 수 없는 오류가 발생했습니다.');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else if (typeof err === 'string') {
+        setError(err);
+      } else {
+        setError('알 수 없는 오류가 발생했습니다.');
+      }
     }
     setLoading(false);
   };
@@ -37,7 +43,7 @@ export default function LocationPicker({ formattedAddress, onUpdate, isInvalid }
           출발 위치 설정
         </Text>
         {isInvalid && (
-          <Text fontSize="xs" color="red.400" ml={2}>
+          <Text fontSize="xs" color="red.400">
             (필수 항목입니다)
           </Text>
         )}

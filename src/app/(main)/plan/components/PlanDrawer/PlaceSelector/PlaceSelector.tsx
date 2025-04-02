@@ -23,7 +23,6 @@ function PlaceSelector({ currentDetailData, isDetailModalOpen, setCurrentDetailD
   const { planInfo } = usePlanStore();
   const { addGeocode, removeGeocodeById } = useGeocodeListStore();
   const { setCustomPlaceList } = useCustomPlaceListStore();
-  const [placeList, setPlaceList] = useState<PlaceDetails[]>([]);
   const [selectedPlaces, setSelectedPlaces] = useState<PlaceDetails[]>([]);
 
   const count = planInfo ? getTimeBlocks(planInfo.startTime[0], planInfo.endTime[0]).length : 0;
@@ -42,12 +41,12 @@ function PlaceSelector({ currentDetailData, isDetailModalOpen, setCurrentDetailD
     }
   };
 
+  if (!planInfo) return null;
+
   return (
     <Flex flexDir={{ base: 'column', md: 'row' }} w="100%" h="100%" p={4}>
       <PlaceSearchPanel
         planInfo={planInfo}
-        placeList={placeList}
-        setPlaceList={setPlaceList}
         selectedPlaces={selectedPlaces}
         handleTogglePlace={handleTogglePlace}
         setCurrentDetailData={setCurrentDetailData}

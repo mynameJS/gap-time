@@ -1,6 +1,6 @@
 'use client';
 
-import { VStack, HStack, Text, Icon, Image, Button, Badge, List } from '@chakra-ui/react';
+import { VStack, HStack, Text, Icon, Image, Button, Badge } from '@chakra-ui/react';
 import { FaTrashAlt } from 'react-icons/fa';
 import { FaClock, FaLocationDot, FaRoute } from 'react-icons/fa6';
 import { PlanInfo, PlaceDetails } from '@/types/interface';
@@ -39,13 +39,12 @@ function PlaceSelectionPanel({
 
     const timeBlocks = getTimeBlocks(planInfo.startTime[0], planInfo.endTime[0]);
     const newCustomPlaceList: ScheduleBlock[] = selectedPlaces.map((place, index) => {
-      const { place_id, ...rest } = place;
       return {
         activityType: place.type,
         start: timeBlocks[index].start,
         end: timeBlocks[index].end,
-        placeId: place_id,
-        placeDetails: rest,
+        placeId: place.place_id,
+        placeDetails: place,
       };
     });
 

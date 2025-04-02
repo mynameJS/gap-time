@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, VStack, HStack, Text, Box, useToast } from '@chakra-ui/react';
+import { Button, VStack, HStack, Text } from '@chakra-ui/react';
 import { DialogBody, DialogContent, DialogFooter, DialogHeader, DialogRoot, DialogTitle } from '@/components/ui/dialog';
 import usePlanStore from '@/store/usePlanInfoStore';
 import TimeSelector from './TimeSelector';
@@ -41,7 +41,7 @@ function PlanInfoModal({ isOpen, onToggle }: PlanInfoModalProps) {
       ...Object.keys(updates).reduce((acc, key) => {
         acc[key as keyof PlanInfo] = false;
         return acc;
-      }, {} as any),
+      }, {} as Record<keyof PlanInfo, boolean>),
     }));
   };
 

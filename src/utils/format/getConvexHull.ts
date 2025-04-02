@@ -1,9 +1,8 @@
-// place marker 간 외곽선 계산 함수
-
 function getConvexHull(points: google.maps.LatLngLiteral[]): google.maps.LatLngLiteral[] {
   const sorted = [...points].sort((a, b) => a.lng - b.lng || a.lat - b.lat);
 
-  const cross = (o: any, a: any, b: any) => (a.lng - o.lng) * (b.lat - o.lat) - (a.lat - o.lat) * (b.lng - o.lng);
+  const cross = (o: google.maps.LatLngLiteral, a: google.maps.LatLngLiteral, b: google.maps.LatLngLiteral) =>
+    (a.lng - o.lng) * (b.lat - o.lat) - (a.lat - o.lat) * (b.lng - o.lng);
 
   const lower: google.maps.LatLngLiteral[] = [];
   for (const p of sorted) {

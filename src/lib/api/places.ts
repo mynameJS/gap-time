@@ -8,6 +8,7 @@ interface NearbyPlacesParams {
 }
 
 // 위도,경도, 반경, 타입, 정렬 매개변수를 받아서 장소를 가져오는 함수
+
 export const fetchNearbyPlaces = async (params: NearbyPlacesParams) => {
   try {
     const response = await fetch('/api/google-maps/places/nearby', {
@@ -18,17 +19,16 @@ export const fetchNearbyPlaces = async (params: NearbyPlacesParams) => {
       body: JSON.stringify(params),
     });
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch places');
-    }
+    if (!response.ok) throw new Error('Failed to fetch places');
 
     const places = await response.json();
 
     if (params.sortBy === 'rating') {
-      places.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-      // distance 로 검색할 시 reviews 많은 순으로 정렬(임시)
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      places.sort((a: any, b: any) => (b.rating || 0) - (a.rating || 0));
     } else if (params.sortBy === 'distance') {
-      places.sort((a, b) => (b.total_reviews || 0) - (a.total_reviews || 0));
+      places.sort((a: any, b: any) => (b.total_reviews || 0) - (a.total_reviews || 0));
+      /* eslint-disable @typescript-eslint/no-explicit-any */
     }
 
     return places;

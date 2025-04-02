@@ -13,7 +13,7 @@ const getCurrentLocationAddress = (): Promise<LocationResult> => {
     }
 
     navigator.geolocation.getCurrentPosition(
-      async position => {
+      async (position: GeolocationPosition) => {
         const { latitude, longitude } = position.coords;
         try {
           const address = await fetchAddress({ latitude, longitude });
@@ -25,11 +25,15 @@ const getCurrentLocationAddress = (): Promise<LocationResult> => {
           } else {
             reject(new Error('주소를 찾을 수 없습니다.'));
           }
-        } catch (error) {
-          reject(new Error('주소 정보를 가져오는 중 오류가 발생했습니다.'));
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            reject(new Error(`주소 정보를 가져오는 중 오류가 발생했습니다: ${error.message}`));
+          } else {
+            reject(new Error('주소 정보를 가져오는 중 알 수 없는 오류가 발생했습니다.'));
+          }
         }
       },
-      err => {
+      (err: GeolocationPositionError) => {
         console.error('Geolocation error:', err);
         switch (err.code) {
           case 1:
