@@ -88,7 +88,7 @@ function PlaceSearchPanel({
         />
       </InputGroup>
       <Text fontSize="smaller" color="blue.600" fontWeight="600" pl={2}>
-        현재 위치 기준: {planInfo?.formattedAddress ?? '알 수 없음'}
+        현재 위치: {planInfo?.formattedAddress ?? '알 수 없음'}
       </Text>
 
       {/* 카테고리 */}
