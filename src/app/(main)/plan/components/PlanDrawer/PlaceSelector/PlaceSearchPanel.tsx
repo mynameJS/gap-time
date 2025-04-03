@@ -1,6 +1,6 @@
 'use client';
 
-import { VStack, HStack, Input, Button, Text, Icon, Image, Badge, Spinner } from '@chakra-ui/react';
+import { VStack, HStack, Input, Button, Text, Icon, Image, Badge, Spinner, Box } from '@chakra-ui/react';
 import { InputGroup } from '@/components/ui/input-group';
 import { FaCheck, FaPlus, FaSearch } from 'react-icons/fa';
 import { PRIMARY_PLACES_CATEGORY, DEFAULT_PLACES_CATEGORY, PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
@@ -66,7 +66,7 @@ function PlaceSearchPanel({
 
   return (
     <VStack
-      gap={4}
+      gap={3}
       w={{ base: '100%', md: '50%' }}
       h={{ base: '20rem', md: '100%' }}
       p={{ base: '1', md: '3' }}
@@ -87,6 +87,9 @@ function PlaceSearchPanel({
           onKeyDown={e => e.key === 'Enter' && searchPlaces()}
         />
       </InputGroup>
+      <Text fontSize="smaller" color="blue.600" fontWeight="600" pl={2}>
+        현재 위치 기준: {planInfo?.formattedAddress ?? '알 수 없음'}
+      </Text>
 
       {/* 카테고리 */}
       <HStack wrap="wrap">
@@ -96,7 +99,10 @@ function PlaceSearchPanel({
             variant={selectedCategory === key ? 'solid' : 'outline'}
             colorPalette="blue"
             size="sm"
-            onClick={() => setSelectedCategory(key)}>
+            onClick={() => {
+              setSelectedCategory(key);
+              setSearchTerm('');
+            }}>
             {label}
           </Button>
         ))}
@@ -132,6 +138,7 @@ function PlaceSearchPanel({
               <HStack
                 key={place.place_id}
                 p={3}
+                maxW="30rem"
                 bg="white"
                 borderRadius="md"
                 boxShadow="sm"
@@ -155,23 +162,20 @@ function PlaceSearchPanel({
                     flexShrink={0}
                     borderRadius="md"
                   />
-                  <VStack gap={1} align="start" w="100%" minW={0}>
+                  <VStack gap={1} align="start" flex="1" minW={0}>
+                    {' '}
+                    {/* 수정된 부분 */}
                     <HStack gap={1} w="100%" minW={0}>
                       <Badge colorPalette={categoryInfo.color} flexShrink={0} whiteSpace="nowrap">
                         {categoryInfo.ko}
                       </Badge>
-                      <Text
-                        fontSize="md"
-                        fontWeight="semibold"
-                        whiteSpace="nowrap"
-                        overflow="hidden"
-                        textOverflow="ellipsis">
+                      <Text fontSize="md" fontWeight="semibold" truncate w="100%" minW={0}>
                         {place.name}
                       </Text>
                     </HStack>
-                    <Text fontSize="small" color="gray.600">
+                    <Box as="p" fontSize="small" color="gray.600" truncate w="100%" minW={0}>
                       {place.address}
-                    </Text>
+                    </Box>
                     <Text fontSize="sm" color="gray.500">
                       ⭐ {place.rating?.toFixed(1)} ({place.total_reviews?.toLocaleString()} 리뷰)
                     </Text>
