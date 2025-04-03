@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, VStack, HStack, Text } from '@chakra-ui/react';
 import { DialogBody, DialogContent, DialogFooter, DialogHeader, DialogRoot, DialogTitle } from '@/components/ui/dialog';
 import usePlanStore from '@/store/usePlanInfoStore';
@@ -32,7 +32,7 @@ function PlanInfoModal({ isOpen, onToggle }: PlanInfoModalProps) {
   });
 
   const router = useRouter();
-  const { setPlanInfo: setGlobalPlanInfo } = usePlanStore();
+  const { planInfo: globalPlanInfo, setPlanInfo: setGlobalPlanInfo } = usePlanStore();
 
   const handleUpdatePlanInfo = (updates: Partial<PlanInfo>) => {
     setPlanInfo(prev => ({ ...prev, ...updates }));
@@ -65,6 +65,12 @@ function PlanInfoModal({ isOpen, onToggle }: PlanInfoModalProps) {
     onToggle();
     router.push(`plan?mode=${mode}`);
   };
+
+  // plan select 페이지에서 기본 유저입력 변경을 위해 modal open 시 기본 값 표시
+  useEffect(() => {
+    if (!globalPlanInfo) return;
+    setPlanInfo(globalPlanInfo);
+  }, [globalPlanInfo]);
 
   return (
     <DialogRoot open={isOpen} onEscapeKeyDown={onToggle}>
