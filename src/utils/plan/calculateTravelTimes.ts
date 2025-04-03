@@ -28,6 +28,8 @@ const calculateTravelTimes = async ({ schedule, mode, routeType, currentLocation
           distance: firstTravel.distance,
           duration: firstTravel.duration,
           polyline: firstTravel.polyline,
+          origin: currentLocation,
+          destination: schedule[0]?.placeDetails?.geocode,
         }
       : null,
   };
@@ -62,6 +64,8 @@ const calculateTravelTimes = async ({ schedule, mode, routeType, currentLocation
               distance: travelData.distance,
               duration: travelData.duration,
               polyline: travelData.polyline,
+              origin: schedule[index].placeDetails?.geocode,
+              destination: schedule[index + 1].placeDetails?.geocode,
             }
           : null,
       };
@@ -84,6 +88,8 @@ const calculateTravelTimes = async ({ schedule, mode, routeType, currentLocation
             distance: returnTravel.distance,
             duration: returnTravel.duration,
             polyline: returnTravel.polyline,
+            origin: schedule[places.length - 1].placeDetails?.geocode,
+            destination: currentLocation,
           }
         : null,
     };

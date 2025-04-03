@@ -56,7 +56,7 @@ function GoogleMaps() {
   if (!planInfo) return null;
 
   return (
-    <Box w="100%" h="100%" position="relative">
+    <Box w="100%" h={{ base: '30%', md: '100%' }} position="relative">
       <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!} loadingElement={<Spinner />}>
         <GoogleMap
           mapContainerStyle={containerStyle}

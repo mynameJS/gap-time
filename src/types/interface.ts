@@ -11,7 +11,13 @@ export interface ScheduleBlock {
   end: string;
   activityType: string;
   placeId?: string | null;
-  travel?: { distance: number; duration: string; polyline: string } | null;
+  travel?: {
+    distance: number;
+    duration: string;
+    polyline: string;
+    origin: google.maps.LatLngLiteral | undefined;
+    destination: google.maps.LatLngLiteral | undefined;
+  } | null;
   placeDetails?: PlaceDetails | null;
 }
 
