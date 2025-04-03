@@ -67,7 +67,6 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
       return result;
     },
   });
-  console.log(planList);
 
   if (!planInfo) return null;
 
