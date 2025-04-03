@@ -1,7 +1,7 @@
 'use client';
 
-import { Box, Text, VStack, HStack, Icon, Badge, Image, Circle, Spinner } from '@chakra-ui/react';
-import { FaMapMarkerAlt, FaStar, FaRoute, FaClock } from 'react-icons/fa';
+import { Box, Text, VStack, HStack, Icon, Badge, Image, Circle, Spinner, Link } from '@chakra-ui/react';
+import { FaMapMarkerAlt, FaStar, FaRoute, FaClock, FaExternalLinkAlt } from 'react-icons/fa';
 import PlaceDetailModal from './PlaceDetailModal';
 import usePlanStore from '@/store/usePlanInfoStore';
 import calculateTravelTimes from '@/utils/plan/calculateTravelTimes';
@@ -14,6 +14,7 @@ import formatDurationFromSeconds from '@/utils/format/formatDurationFromSeconds'
 import { PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
 import { useQuery } from '@tanstack/react-query';
 import generateSchedule from '@/utils/plan/generateSchedule';
+import getGoogleMapsDirectionUrl from '@/utils/location/getGoogleMapsDirectionUrl';
 
 interface PlanListProps {
   currentDetailData: PlaceDetails | undefined | null;
@@ -66,6 +67,7 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
       return result;
     },
   });
+  console.log(planList);
 
   if (!planInfo) return null;
 
@@ -128,6 +130,25 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
                   <Text fontSize="sm" color="gray.700">
                     소요 시간: {formatDurationFromSeconds(block.travel?.duration)}
                   </Text>
+
+                  {/* ✅ 구글 길찾기 링크 */}
+                  {block.travel?.origin && block.travel?.destination && (
+                    <Link
+                      href={getGoogleMapsDirectionUrl(block.travel.origin, block.travel.destination)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      display="inline-flex"
+                      alignItems="center"
+                      fontSize="sm"
+                      color="blue.500"
+                      fontWeight="medium"
+                      _hover={{ textDecoration: 'underline', color: 'blue.600' }}
+                      gap={1}
+                      pt={1}>
+                      <Icon as={FaExternalLinkAlt} boxSize={3.5} />
+                      길찾기
+                    </Link>
+                  )}
                 </VStack>
               </HStack>
             );
