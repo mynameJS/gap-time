@@ -41,8 +41,17 @@ export const PLACES_CATEGORY_COLOR_SET = {
   monument: { ko: '기념물', color: 'gray' },
   stadium: { ko: '경기장', color: 'yellow' },
   tourist_attraction: { ko: '관광지', color: 'purple' },
-
+  point_of_interest: { ko: '명소', color: 'orange' },
+  parking: { ko: '주차장', color: 'gray' },
+  grocery_or_supermarket: { ko: '식료품', color: 'gray' },
+  bus_station: { ko: '버스정류장', color: 'gray' },
+  home_goods_store: { ko: '수제품', color: 'gray' },
+  clothing_store: { ko: '의류점', color: 'gray' },
   // 나머지 모든 타입은 기본 gray
+  university: { ko: '대학교', color: 'gray' },
+  secondary_school: { ko: '학교', color: 'gray' },
+  store: { ko: '가게', color: 'gray' },
+  transit_station: { ko: '환승역', color: 'gray' },
   gas_station: { ko: '주유소', color: 'gray' },
   police: { ko: '경찰서', color: 'gray' },
   post_office: { ko: '우체국', color: 'gray' },
