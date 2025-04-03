@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@chakra-ui/react';
-import PlanInfoModal from './PlanInfoModal/PlanInfoModal';
+import PlanInfoModal from '../../../components/modal/PlanInfoModal/PlanInfoModal';
 
 function PlanModalController() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
