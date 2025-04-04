@@ -7,7 +7,7 @@ import { PRIMARY_PLACES_CATEGORY, DEFAULT_PLACES_CATEGORY, PLACES_CATEGORY_COLOR
 import { PlaceDetails, PlanInfo } from '@/types/interface';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchNearbyPlacesDetail } from '@/lib/api/places';
+import { fetchNearbyPlacesDetail } from '@/lib/api/google/places';
 
 interface PlaceSearchPanelProps {
   planInfo: PlanInfo | null;

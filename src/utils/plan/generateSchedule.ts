@@ -1,4 +1,4 @@
-import { fetchNearbyPlaces, fetchPlaceDetailsWithPhoto } from '@/lib/api/places';
+import { fetchNearbyPlaces, fetchPlaceDetailsWithPhoto } from '@/lib/api/google/places';
 import getTimeBlocks from './getTimeBlocks';
 import getActivityByTimes from './getActivityByTimes';
 import getRandomIndexes from '../getRandomIndexes';

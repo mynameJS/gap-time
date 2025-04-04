@@ -1,4 +1,4 @@
-import { fetchAddress } from '@/lib/api/places';
+import { fetchAddress } from '@/lib/api/google/places';
 
 interface LocationResult {
   geocode: { lat: number; lng: number };
