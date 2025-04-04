@@ -3,7 +3,7 @@ import { Box } from '@chakra-ui/react';
 
 export const metadata: Metadata = {
   title: 'Time-Gap',
-  description: 'Time-Gap LandingPage',
+  description: 'Time-Gap MainPage',
 };
 
 export default function RootLayout({
