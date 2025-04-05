@@ -18,7 +18,7 @@ function MyInfo({ userInfo }: MyInfoProps) {
   if (!userInfo) return null;
 
   return (
-    <Box borderWidth={3}>
+    <Box>
       <VStack>
         <Avatar.Root variant="solid" colorPalette="teal" size="2xl">
           <Avatar.Fallback name={userInfo.nickname} />

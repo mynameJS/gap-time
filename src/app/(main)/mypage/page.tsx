@@ -6,7 +6,7 @@ export default async function Page() {
   return (
     <Flex h="100vh" direction="column" px={{ xl: '15rem', lg: '10rem', base: '3rem' }}>
       <Header />
-      <Box flex={1} borderWidth={3}>
+      <Box flex={1}>
         <MyPageContent />
       </Box>
     </Flex>
