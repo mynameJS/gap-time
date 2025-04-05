@@ -231,7 +231,8 @@ function SignUpRegister() {
                 minW="auto"
                 p={0}
                 onClick={() => setShowPw(prev => !prev)}
-                aria-label={showPw ? '비밀번호 숨기기' : '비밀번호 보기'}>
+                aria-label={showPw ? '비밀번호 숨기기' : '비밀번호 보기'}
+                tabIndex={-1}>
                 <Icon as={showPw ? IoIosEyeOff : IoMdEye} boxSize={5} />
               </Button>
             }>
@@ -265,7 +266,8 @@ function SignUpRegister() {
                 minW="auto"
                 p={0}
                 onClick={() => setShowPw(prev => !prev)}
-                aria-label={showPw ? '비밀번호 숨기기' : '비밀번호 보기'}>
+                aria-label={showPw ? '비밀번호 숨기기' : '비밀번호 보기'}
+                tabIndex={-1}>
                 <Icon as={showPw ? IoIosEyeOff : IoMdEye} boxSize={5} />
               </Button>
             }>
