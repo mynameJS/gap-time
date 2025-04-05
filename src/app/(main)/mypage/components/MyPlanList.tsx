@@ -1,9 +1,15 @@
 'use client';
 
 import { Box, Text, Heading, Flex, Image, Badge, VStack, Icon, Spinner, Stack } from '@chakra-ui/react';
+import { useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import usePlanStore from '@/store/usePlanInfoStore';
+import useSelectedPlanStore from '@/store/useSelectedPlanStore';
+import useGeocodeListStore from '@/store/useGeocodeListStore';
+import usePolylineListStore from '@/store/usePolylineListStore';
 import { FiMapPin } from 'react-icons/fi';
 import { useQuery } from '@tanstack/react-query';
-import { PlanWithSchedule } from '@/types/interface';
+import { PlanWithSchedule, ScheduleBlock } from '@/types/interface';
 import { getUserPlansWithSchedule } from '@/lib/api/firebase/plan';
 import { PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
 
@@ -20,6 +26,46 @@ function MyPlanList({ userId }: MyPlanListProps) {
     queryKey: ['userPlans', userId],
     queryFn: () => getUserPlansWithSchedule(userId),
   });
+
+  const { setPlanInfo } = usePlanStore();
+  const { setSelectedPlan, clearSelectedPlan } = useSelectedPlanStore();
+  const { clearGeocodeList } = useGeocodeListStore();
+  const { clearPolylineList } = usePolylineListStore();
+
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleCardClick = (plan: ScheduleBlock[]) => {
+    setSelectedPlan(plan);
+
+    const firstPlan = plan[0];
+
+    if (firstPlan?.travel?.origin) {
+      setPlanInfo({
+        geocode: firstPlan.travel.origin,
+        formattedAddress: '',
+        routeType: '',
+        startTime: [plan[0].start],
+        endTime: [plan.at(-1)?.end ?? plan[0].end],
+      });
+    }
+    router.push('/plan?mode=result');
+  };
+
+  // ✅ 새로 입장 시 planInfo 초기화
+  useEffect(() => {
+    setPlanInfo(null);
+  }, [setPlanInfo]);
+
+  // ✅ 브라우저 뒤로가기로 마이페이지 재진입 시 selectedPlan 초기화
+  useEffect(() => {
+    if (pathname === '/mypage') {
+      console.log('mypage');
+      clearSelectedPlan();
+      clearGeocodeList();
+      clearPolylineList();
+    }
+  }, [pathname, clearSelectedPlan, clearGeocodeList, clearPolylineList]);
 
   return (
     <Box mt="8">
@@ -59,18 +105,17 @@ function MyPlanList({ userId }: MyPlanListProps) {
                 bg="white"
                 boxShadow="xs"
                 _hover={{ boxShadow: 'md' }}
-                transition="all 0.2s">
-                {/* 대표 이미지 */}
+                transition="all 0.2s"
+                onClick={() => handleCardClick(plan.schedule)}
+                cursor="pointer">
                 <Image
-                  src={place?.photo_url || '/default-image.jpg'}
+                  src={place?.photo_url || place?.icon[0]}
                   alt="대표 이미지"
                   w={{ base: '100%', md: '160px' }}
-                  h={{ base: '100%', md: '160px' }}
+                  h={{ base: '300px', md: '160px' }}
                   borderRadius="xl"
                   objectFit="cover"
                 />
-
-                {/* 일정 정보 */}
                 <VStack align="start" gap="1" flex="1" w="full" justify="center">
                   <Flex align="center" gap="2">
                     <Badge variant="subtle" colorScheme={categoryInfo.color}>
@@ -93,8 +138,6 @@ function MyPlanList({ userId }: MyPlanListProps) {
                     </Text>
                   </Flex>
                 </VStack>
-
-                {/* 생성일 */}
                 <Text
                   fontSize="xs"
                   color="gray.400"
