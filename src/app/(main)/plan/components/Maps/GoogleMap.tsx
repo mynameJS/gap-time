@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { GoogleMap, LoadScript, OverlayView, Polyline, Polygon } from '@react-google-maps/api';
+import { GoogleMap, OverlayView, Polyline, Polygon, LoadScriptNext } from '@react-google-maps/api';
 import { Box, Spinner, VStack, Text } from '@chakra-ui/react';
 import usePlanStore from '@/store/usePlanInfoStore';
 import useGeocodeListStore from '@/store/useGeocodeListStore';
@@ -57,7 +57,7 @@ function GoogleMaps() {
 
   return (
     <Box w="100%" h={{ base: '30%', md: '100%' }} position="relative">
-      <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!} loadingElement={<Spinner />}>
+      <LoadScriptNext googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!} loadingElement={<Spinner />}>
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={planInfo?.geocode}
@@ -124,7 +124,7 @@ function GoogleMaps() {
             />
           ) : null}
         </GoogleMap>
-      </LoadScript>
+      </LoadScriptNext>
     </Box>
   );
 }
