@@ -7,7 +7,7 @@ import { Toaster, toaster } from '@/components/ui/toaster';
 import { updateUserNickname } from '@/lib/api/firebase/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { UserInfo } from '@/types/interface';
-import DeleteAccountModal from '../DeleteAccountModal';
+import DeleteAccountModal from './DeleteAccountModal';
 
 interface MyInfoModalProps {
   isOpen: boolean;
