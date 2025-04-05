@@ -50,7 +50,10 @@ function LoginRegister() {
       borderWidth={1}
       borderRadius="xl"
       boxShadow="md"
-      bg="white">
+      bg="white"
+      onKeyDown={e => {
+        if (e.key === 'Enter') handleLogin();
+      }}>
       <VStack gap={5} align="stretch">
         {/* 로고 영역 */}
         <Text
