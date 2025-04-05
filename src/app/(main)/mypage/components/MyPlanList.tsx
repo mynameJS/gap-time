@@ -60,7 +60,6 @@ function MyPlanList({ userId }: MyPlanListProps) {
   // ✅ 브라우저 뒤로가기로 마이페이지 재진입 시 selectedPlan 초기화
   useEffect(() => {
     if (pathname === '/mypage') {
-      console.log('mypage');
       clearSelectedPlan();
       clearGeocodeList();
       clearPolylineList();
