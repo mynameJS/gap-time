@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Text, VStack, HStack, Icon, Badge, Image, Circle, Spinner, Link } from '@chakra-ui/react';
+import { Box, Text, VStack, HStack, Icon, Badge, Image, Circle, Spinner, Link, Button } from '@chakra-ui/react';
 import { FaMapMarkerAlt, FaStar, FaRoute, FaClock, FaExternalLinkAlt } from 'react-icons/fa';
 import PlaceDetailModal from './PlaceDetailModal';
 import usePlanStore from '@/store/usePlanInfoStore';
@@ -15,6 +15,8 @@ import { PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
 import { useQuery } from '@tanstack/react-query';
 import generateSchedule from '@/utils/plan/generateSchedule';
 import getGoogleMapsDirectionUrl from '@/utils/location/getGoogleMapsDirectionUrl';
+import { addPlanToUser } from '@/lib/api/firebase/plan';
+import { useRouter } from 'next/navigation';
 
 interface PlanListProps {
   currentDetailData: PlaceDetails | undefined | null;
@@ -28,6 +30,8 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
   const { customPlaceList } = useCustomPlaceListStore();
   const { setGeocodeList } = useGeocodeListStore();
   const { setPolylineList } = usePolylineListStore();
+
+  const router = useRouter();
 
   const { data: planList, isLoading } = useQuery<ScheduleBlock[]>({
     queryKey: ['planList', planInfo, customPlaceList],
@@ -67,6 +71,18 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
       return result;
     },
   });
+
+  const handlePlanSave = async () => {
+    const userData = sessionStorage.getItem('user');
+    const uid = JSON.parse(userData!).uid;
+    if (planList) {
+      await addPlanToUser(uid, planList);
+      const result = confirm('일정이 저장되었습니다. 마이페이지로 이동하시겠습니까?');
+      if (result) {
+        router.replace('/mypage');
+      }
+    }
+  };
 
   if (!planInfo) return null;
 
@@ -108,7 +124,7 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
   );
 
   let placeIndex = 1;
-
+  console.log('planList', planList);
   return (
     <Box w={{ base: '100%', md: '600px' }} h="100%" overflow="auto" bg="white" px={{ base: 3, md: 6 }} py={4}>
       <VStack gap={6} align="stretch">
@@ -242,6 +258,11 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
           onToggle={onToggle}
         />
       )}
+      <Box mt={6} textAlign="right">
+        <Button colorPalette="teal" onClick={handlePlanSave}>
+          일정 저장하기
+        </Button>
+      </Box>
     </Box>
   );
 }
