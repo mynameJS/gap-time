@@ -3,7 +3,7 @@ import { create } from 'zustand';
 
 interface PlanInfoState {
   planInfo: PlanInfo | null;
-  setPlanInfo: (info: PlanInfo) => void;
+  setPlanInfo: (info: PlanInfo | null) => void;
   updatePlanInfo: (updates: Partial<PlanInfo>) => void;
 }
 

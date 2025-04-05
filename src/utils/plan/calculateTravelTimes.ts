@@ -1,5 +1,5 @@
 // import { fetchDistanceMatrix } from '@/lib/api/distance';
-import { fetchRoute } from '@/lib/api/route';
+import { fetchRoute } from '@/lib/api/google/route';
 import { ScheduleBlock } from '@/types/interface';
 
 interface CalculateTravelTimesParams {

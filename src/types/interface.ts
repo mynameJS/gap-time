@@ -71,3 +71,15 @@ export interface GeocodeItem {
   place_id: string;
   geocode: google.maps.LatLngLiteral;
 }
+
+export interface UserInfo {
+  uid: string;
+  email: string;
+  nickname: string;
+  provider?: string;
+}
+
+export interface PlanWithSchedule {
+  createdAt: string;
+  schedule: ScheduleBlock[];
+}
