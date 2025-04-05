@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Box, Flex, HStack, Text, Button, Image, Avatar, Menu, Portal, Spinner } from '@chakra-ui/react';
 import MyInfoModal from '../modal/MyInfoModal/MyInfoModal';
@@ -9,21 +9,28 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [uid, setUid] = useState<string | null>(null); // ✅ 상태로 분리
   const handleToggle = () => setIsOpen(prev => !prev);
 
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const uid = JSON.parse(sessionStorage.getItem('user') || '{}')?.uid;
+  // ✅ 클라이언트에서만 실행되도록 useEffect 사용
+  useEffect(() => {
+    const user = sessionStorage.getItem('user');
+    const parsed = user ? JSON.parse(user) : null;
+    if (parsed?.uid) {
+      setUid(parsed.uid);
+    }
+  }, []);
 
   const { data: user, isLoading } = useQuery({
     queryKey: ['userInfo', uid],
-    queryFn: () => getUserInfo(uid),
+    queryFn: () => getUserInfo(uid!),
     enabled: !!uid,
     staleTime: 1000 * 60 * 5,
   });
 
-  // ✅ 메뉴 선택 핸들러
   const handleMenuSelect = async (details: { value: string }) => {
     const selected = details.value;
 
@@ -35,14 +42,13 @@ export default function Header() {
       router.push('/');
       router.refresh();
     } else if (selected === 'myinfo') {
-      setIsOpen(true); // ✅ 모달 열기
+      setIsOpen(true);
     }
   };
 
   return (
     <Box w="100%" as="header" bg="white" py={6}>
       <Flex justify="space-between" align="center">
-        {/* 로고 */}
         <HStack>
           <Image src="/image/logo_2.png" alt="로고 이미지" w="28px" />
           <Text
@@ -57,7 +63,6 @@ export default function Header() {
           </Text>
         </HStack>
 
-        {/* 로그인 상태에 따른 렌더링 */}
         {isLoading ? (
           <Spinner color="teal.500" size="sm" />
         ) : user ? (
@@ -76,7 +81,7 @@ export default function Header() {
               <Portal>
                 <Menu.Positioner>
                   <Menu.Content>
-                    <Menu.Item value="myinfo">내 정보</Menu.Item> {/* ✅ */}
+                    <Menu.Item value="myinfo">내 정보</Menu.Item>
                     <Menu.Item value="mypage">마이페이지</Menu.Item>
                     <Menu.Item value="logout">로그아웃</Menu.Item>
                   </Menu.Content>
@@ -102,7 +107,6 @@ export default function Header() {
         )}
       </Flex>
 
-      {/* ✅ 모달 렌더링 */}
       {user && <MyInfoModal isOpen={isOpen} onToggle={handleToggle} userInfo={user} />}
     </Box>
   );
