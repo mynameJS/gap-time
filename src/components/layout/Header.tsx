@@ -32,7 +32,8 @@ export default function Header() {
     } else if (selected === 'logout') {
       await logoutUser();
       queryClient.removeQueries({ queryKey: ['userInfo', uid] });
-      router.replace('/');
+      router.push('/');
+      router.refresh();
     } else if (selected === 'myinfo') {
       setIsOpen(true); // ✅ 모달 열기
     }
