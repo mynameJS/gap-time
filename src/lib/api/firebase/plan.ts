@@ -1,5 +1,5 @@
 import { db } from './init';
-import { addDoc, collection, serverTimestamp, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, getDocs, query, orderBy, Timestamp, where } from 'firebase/firestore';
 import { ScheduleBlock, PlanWithSchedule } from '@/types/interface';
 
 // 생성 일정 데이터 추가
@@ -16,6 +16,8 @@ export async function addPlanToUser(uid: string, newPlan: ScheduleBlock[]) {
   }
 }
 
+// 사용자 일정 데이터 가져오기
+// 🔥 최신순 정렬
 export async function getUserPlansWithSchedule(uid: string): Promise<PlanWithSchedule[]> {
   try {
     const plansRef = collection(db, 'users', uid, 'plans');
@@ -43,3 +45,27 @@ export async function getUserPlansWithSchedule(uid: string): Promise<PlanWithSch
     return [];
   }
 }
+
+// 사용자 일정 데이터 가져오기 (createdAt 기준);
+export const getPlanByCreatedAt = async (uid: string, createdAt: number): Promise<PlanWithSchedule | null> => {
+  try {
+    const plansRef = collection(db, 'users', uid, 'plans');
+    const q = query(plansRef, where('createdAt', '==', createdAt));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return null;
+    }
+
+    const doc = querySnapshot.docs[0];
+    const data = doc.data();
+
+    return {
+      schedule: data.schedule,
+      createdAt: data.createdAt,
+    };
+  } catch (error) {
+    console.error('🔥 getPlanByCreatedAt 오류:', error);
+    return null;
+  }
+};
