@@ -4,7 +4,7 @@ import { Box, Button, Input, Text, VStack, Field, Link, Flex, IconButton } from 
 import { FcGoogle } from 'react-icons/fc';
 import { Toaster, toaster } from '@/components/ui/toaster';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { loginUser, loginWithGoogle } from '@/lib/api/firebase/auth';
 
 function LoginRegister() {
@@ -12,14 +12,21 @@ function LoginRegister() {
   const [password, setPassword] = useState('');
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect'); // ✅ redirect 쿼리 추출
 
   const handleLogin = async () => {
     try {
       await loginUser({ email, password });
       toaster.create({ description: '로그인에 성공하였습니다.', type: 'success' });
+
       setTimeout(() => {
-        router.push('/');
-      }, 2000);
+        if (redirect) {
+          router.replace(redirect); // ✅ 쿼리 경로로 이동
+        } else {
+          router.push('/');
+        }
+      }, 1000);
     } catch (err: any) {
       console.error('로그인 실패:', err);
       toaster.create({ description: '로그인에 실패하였습니다.', type: 'error' });
@@ -30,11 +37,16 @@ function LoginRegister() {
     try {
       await loginWithGoogle();
       toaster.create({ description: '로그인에 성공하였습니다.', type: 'success' });
+
       setTimeout(() => {
-        router.push('/');
-      }, 2000);
+        if (redirect) {
+          router.replace(redirect); // ✅ 쿼리 경로로 이동
+        } else {
+          router.push('/');
+        }
+      }, 1000);
     } catch (err: any) {
-      console.error('로그인 실패:', err);
+      console.error('구글 로그인 실패:', err);
       toaster.create({ description: '로그인에 실패하였습니다.', type: 'error' });
     }
   };
@@ -55,7 +67,6 @@ function LoginRegister() {
         if (e.key === 'Enter') handleLogin();
       }}>
       <VStack gap={5} align="stretch">
-        {/* 로고 영역 */}
         <Text
           fontSize="2xl"
           fontWeight="bold"
@@ -66,13 +77,13 @@ function LoginRegister() {
           틈새시간
         </Text>
 
-        {/* 이메일 로그인 */}
         <Field.Root required>
           <Field.Label>
             이메일 <Field.RequiredIndicator />
           </Field.Label>
           <Input type="email" placeholder="example@email.com" value={email} onChange={e => setEmail(e.target.value)} />
         </Field.Root>
+
         <Field.Root required>
           <Field.Label>
             비밀번호 <Field.RequiredIndicator />
@@ -84,7 +95,7 @@ function LoginRegister() {
             onChange={e => setPassword(e.target.value)}
           />
         </Field.Root>
-        {/* 비밀번호 찾기 */}
+
         <Box w="fit-content" ml="auto">
           <Text
             fontSize="sm"
@@ -101,7 +112,6 @@ function LoginRegister() {
           로그인
         </Button>
 
-        {/* 이메일 회원가입 */}
         <Text fontSize="sm" color="gray.500" textAlign="center">
           아직 회원이 아니세요?{' '}
           <Link color="teal.500" fontWeight="semibold" onClick={() => router.push('/signup')}>
@@ -109,7 +119,6 @@ function LoginRegister() {
           </Link>
         </Text>
 
-        {/* 소셜 로그인 */}
         <VStack gap={3}>
           <Text fontSize="sm" color="gray.600" textAlign="center">
             SNS 간편 로그인
@@ -125,8 +134,6 @@ function LoginRegister() {
               _hover={{ bg: 'gray.50' }}>
               <FcGoogle />
             </IconButton>
-            {/* 향후 추가 가능한 SNS 로그인 버튼 (카카오, 애플 등) */}
-            {/* <IconButton icon={<YourIcon />} /> */}
           </Flex>
         </VStack>
       </VStack>

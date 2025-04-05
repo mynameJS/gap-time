@@ -2,23 +2,26 @@
 
 import { Box, Text, VStack, HStack, Icon, Badge, Image, Circle, Link, Button, Spinner } from '@chakra-ui/react';
 import { FaMapMarkerAlt, FaStar, FaRoute, FaClock, FaExternalLinkAlt } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+
 import PlaceDetailModal from './PlaceDetailModal';
 import usePlanStore from '@/store/usePlanInfoStore';
 import useSelectedPlanStore from '@/store/useSelectedPlanStore';
-import calculateTravelTimes from '@/utils/plan/calculateTravelTimes';
-import { ScheduleBlock, GeocodeItem, PlaceDetails } from '@/types/interface';
 import useCustomPlaceListStore from '@/store/useCustomPlaceListStore';
 import useGeocodeListStore from '@/store/useGeocodeListStore';
 import usePolylineListStore from '@/store/usePolylineListStore';
-import formatDistance from '@/utils/format/formatDistance';
-import formatDurationFromSeconds from '@/utils/format/formatDurationFromSeconds';
-import { PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
-import { useQuery } from '@tanstack/react-query';
+
+import calculateTravelTimes from '@/utils/plan/calculateTravelTimes';
 import generateSchedule from '@/utils/plan/generateSchedule';
 import getGoogleMapsDirectionUrl from '@/utils/location/getGoogleMapsDirectionUrl';
+import formatDistance from '@/utils/format/formatDistance';
+import formatDurationFromSeconds from '@/utils/format/formatDurationFromSeconds';
 import { addPlanToUser } from '@/lib/api/firebase/plan';
-import { useRouter } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
+
+import { ScheduleBlock, GeocodeItem, PlaceDetails } from '@/types/interface';
+import { PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
 
 interface PlanListProps {
   currentDetailData: PlaceDetails | undefined | null;
@@ -34,12 +37,13 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
   const { setGeocodeList } = useGeocodeListStore();
   const { setPolylineList } = usePolylineListStore();
   const router = useRouter();
+  const [hasSaved, setHasSaved] = useState(false);
 
   const { data: planList, isLoading } = useQuery<ScheduleBlock[]>({
     queryKey: ['planList', planInfo, customPlaceList],
     enabled: !!planInfo && !selectedPlan,
     queryFn: async () => {
-      const schedule: ScheduleBlock[] =
+      const schedule =
         customPlaceList.length > 0
           ? customPlaceList
           : await generateSchedule({
@@ -94,9 +98,37 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
     }
   }, [selectedPlan, setGeocodeList, setPolylineList]);
 
+  useEffect(() => {
+    const pending = sessionStorage.getItem('savePending');
+    const userData = sessionStorage.getItem('user');
+    const uid = userData ? JSON.parse(userData).uid : null;
+
+    if (pending && uid && finalPlanList && !hasSaved) {
+      sessionStorage.removeItem('savePending');
+      setHasSaved(true);
+
+      const saveAfterLogin = async () => {
+        await addPlanToUser(uid, finalPlanList);
+        const result = confirm('일정이 저장되었습니다. 마이페이지로 이동하시겠습니까?');
+        if (result) {
+          router.replace('/mypage');
+        }
+      };
+
+      saveAfterLogin();
+    }
+  }, [finalPlanList, hasSaved, router]);
+
   const handlePlanSave = async () => {
     const userData = sessionStorage.getItem('user');
-    const uid = JSON.parse(userData!).uid;
+    const uid = userData ? JSON.parse(userData).uid : null;
+
+    if (!uid) {
+      sessionStorage.setItem('savePending', 'true');
+      router.push('/login?redirect=/plan?mode=result');
+      return;
+    }
+
     if (finalPlanList) {
       await addPlanToUser(uid, finalPlanList);
       const result = confirm('일정이 저장되었습니다. 마이페이지로 이동하시겠습니까?');
@@ -127,6 +159,7 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
       </Box>
     );
   }
+
   if (!finalPlanList || finalPlanList.length === 0) {
     return (
       <Box w={{ base: '100%', md: '600px' }} h="100%" display="flex" justifyContent="center" alignItems="center">
