@@ -117,7 +117,7 @@ function MyPlanList({ userId }: MyPlanListProps) {
                 />
                 <VStack align="start" gap="1" flex="1" w="full" justify="center">
                   <Flex align="center" gap="2">
-                    <Badge variant="subtle" colorScheme={categoryInfo.color}>
+                    <Badge variant="subtle" colorPalette={categoryInfo.color}>
                       {categoryInfo.ko}
                     </Badge>
                     <Text fontWeight="semibold" fontSize="lg" color="gray.700">
