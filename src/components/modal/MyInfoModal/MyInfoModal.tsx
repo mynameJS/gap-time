@@ -17,10 +17,16 @@ interface MyInfoModalProps {
 
 function MyInfoModal({ isOpen, onToggle, userInfo }: MyInfoModalProps) {
   const [nickname, setNickname] = useState('');
+  const [uid, setUid] = useState<string | null>(null);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  const uid = JSON.parse(sessionStorage.getItem('user') || '{}')?.uid;
+  // ✅ 클라이언트에서만 sessionStorage 접근
+  useEffect(() => {
+    const stored = sessionStorage.getItem('user');
+    const parsed = stored ? JSON.parse(stored) : null;
+    setUid(parsed?.uid ?? null);
+  }, []);
 
   // ✅ 모달 열릴 때 닉네임 초기화
   useEffect(() => {
@@ -114,7 +120,7 @@ function MyInfoModal({ isOpen, onToggle, userInfo }: MyInfoModalProps) {
               <Button variant="outline" onClick={onToggle}>
                 취소
               </Button>
-              <Button colorPalette="teal" onClick={handleSave}>
+              <Button colorPalette="teal" onClick={handleSave} disabled={!uid}>
                 저장
               </Button>
             </HStack>
@@ -123,12 +129,12 @@ function MyInfoModal({ isOpen, onToggle, userInfo }: MyInfoModalProps) {
         <Toaster />
       </DialogRoot>
 
-      {/* 🔥 탈퇴 모달 - provider가 undefined인 경우를 대비해 기본값 처리 */}
+      {/* 🔥 탈퇴 모달 */}
       <DeleteAccountModal
         isOpen={isDeleteModalOpen}
         onToggle={handleDeleteModalToggle}
         email={userInfo.email}
-        uid={uid}
+        uid={uid ?? ''}
         provider={userInfo.provider === 'google' ? 'google' : 'password'}
       />
     </>
