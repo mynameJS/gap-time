@@ -88,7 +88,12 @@ function MyInfoModal({ isOpen, onToggle, userInfo }: MyInfoModalProps) {
           bg="white"
           overflow="auto">
           <DialogHeader>
-            <DialogTitle fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" textAlign="center" mb={2}>
+            <DialogTitle
+              fontSize={{ base: 'xl', md: '2xl' }}
+              fontWeight="bold"
+              textAlign="center"
+              mb={2}
+              color="teal.600">
               내 정보
             </DialogTitle>
           </DialogHeader>
