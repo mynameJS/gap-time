@@ -1,0 +1,102 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { Box, Flex, HStack, Text, Button, Image, Avatar, Menu, Portal, Spinner } from '@chakra-ui/react';
+import { logoutUser, getUserInfo } from '@/lib/api/firebase/auth';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+export default function Header() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  // ✅ uid는 여전히 sessionStorage에서 추출
+  const uid = JSON.parse(sessionStorage.getItem('user') || '{}')?.uid;
+
+  // ✅ React Query로 유저 정보 가져오기
+  const {
+    data: user,
+    isLoading,
+    // isError,
+  } = useQuery({
+    queryKey: ['userInfo', uid],
+    queryFn: () => getUserInfo(uid),
+    enabled: !!uid,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const handleMenuSelect = async (details: { value: string }) => {
+    const selected = details.value;
+    if (selected === 'mypage') {
+      router.push('/mypage');
+    } else if (selected === 'logout') {
+      await logoutUser();
+      queryClient.removeQueries({ queryKey: ['userInfo', uid] }); // 캐시 제거
+      router.push('/');
+    }
+  };
+
+  return (
+    <Box w="100%" as="header" bg="white" py={6}>
+      <Flex justify="space-between" align="center">
+        {/* 로고 영역 */}
+        <HStack>
+          <Image src="/image/logo_2.png" alt="로고 이미지" w="28px" />
+          <Text
+            fontSize="xl"
+            fontWeight="bold"
+            color="teal.600"
+            letterSpacing="-0.5px"
+            userSelect="none"
+            cursor="pointer"
+            onClick={() => router.push('/')}>
+            틈새시간
+          </Text>
+        </HStack>
+
+        {/* 유저 상태에 따른 렌더링 */}
+        {isLoading ? (
+          <Spinner color="teal.500" size="sm" />
+        ) : user ? (
+          <Box cursor="pointer">
+            <Menu.Root onSelect={handleMenuSelect}>
+              <Menu.Trigger asChild>
+                <HStack gap={3} pr={2}>
+                  <Avatar.Root variant="solid" colorPalette="teal">
+                    <Avatar.Fallback name={user.nickname} />
+                  </Avatar.Root>
+                  <Text fontWeight="medium" fontSize="sm" color="gray.700">
+                    {user.nickname}
+                  </Text>
+                </HStack>
+              </Menu.Trigger>
+              <Portal>
+                <Menu.Positioner>
+                  <Menu.Content>
+                    <Menu.Item value="myinfo">내 정보</Menu.Item>
+                    <Menu.Item value="mypage">마이페이지</Menu.Item>
+                    <Menu.Item value="logout">로그아웃</Menu.Item>
+                  </Menu.Content>
+                </Menu.Positioner>
+              </Portal>
+            </Menu.Root>
+          </Box>
+        ) : (
+          <HStack gap={4}>
+            <Button
+              colorPalette="teal"
+              variant="ghost"
+              borderRadius="md"
+              px={6}
+              _hover={{ bg: 'teal.50' }}
+              onClick={() => router.push('/signup')}>
+              회원가입
+            </Button>
+            <Button colorPalette="teal" borderRadius="md" px={6} onClick={() => router.push('/login')}>
+              로그인
+            </Button>
+          </HStack>
+        )}
+      </Flex>
+    </Box>
+  );
+}
