@@ -1,9 +1,10 @@
 'use client';
 
-import { Box, Text, VStack, HStack, Icon, Badge, Image, Circle, Spinner, Link, Button } from '@chakra-ui/react';
+import { Box, Text, VStack, HStack, Icon, Badge, Image, Circle, Link, Button, Spinner } from '@chakra-ui/react';
 import { FaMapMarkerAlt, FaStar, FaRoute, FaClock, FaExternalLinkAlt } from 'react-icons/fa';
 import PlaceDetailModal from './PlaceDetailModal';
 import usePlanStore from '@/store/usePlanInfoStore';
+import useSelectedPlanStore from '@/store/useSelectedPlanStore';
 import calculateTravelTimes from '@/utils/plan/calculateTravelTimes';
 import { ScheduleBlock, GeocodeItem, PlaceDetails } from '@/types/interface';
 import useCustomPlaceListStore from '@/store/useCustomPlaceListStore';
@@ -17,6 +18,7 @@ import generateSchedule from '@/utils/plan/generateSchedule';
 import getGoogleMapsDirectionUrl from '@/utils/location/getGoogleMapsDirectionUrl';
 import { addPlanToUser } from '@/lib/api/firebase/plan';
 import { useRouter } from 'next/navigation';
+import { useEffect, useMemo } from 'react';
 
 interface PlanListProps {
   currentDetailData: PlaceDetails | undefined | null;
@@ -28,14 +30,14 @@ interface PlanListProps {
 function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, onToggle }: PlanListProps) {
   const { planInfo } = usePlanStore();
   const { customPlaceList } = useCustomPlaceListStore();
+  const { selectedPlan } = useSelectedPlanStore();
   const { setGeocodeList } = useGeocodeListStore();
   const { setPolylineList } = usePolylineListStore();
-
   const router = useRouter();
 
   const { data: planList, isLoading } = useQuery<ScheduleBlock[]>({
     queryKey: ['planList', planInfo, customPlaceList],
-    enabled: !!planInfo,
+    enabled: !!planInfo && !selectedPlan,
     queryFn: async () => {
       const schedule: ScheduleBlock[] =
         customPlaceList.length > 0
@@ -72,11 +74,31 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
     },
   });
 
+  const finalPlanList = useMemo(() => selectedPlan || planList, [selectedPlan, planList]);
+
+  useEffect(() => {
+    if (selectedPlan) {
+      const geocodeList: GeocodeItem[] = [];
+      const polylineList: string[] = [];
+
+      selectedPlan.forEach(item => {
+        if (item.placeDetails && item.placeId) {
+          geocodeList.push({ place_id: item.placeId, geocode: item.placeDetails.geocode });
+        } else if (item.travel) {
+          polylineList.push(item.travel.polyline);
+        }
+      });
+
+      setGeocodeList(geocodeList);
+      setPolylineList(polylineList);
+    }
+  }, [selectedPlan, setGeocodeList, setPolylineList]);
+
   const handlePlanSave = async () => {
     const userData = sessionStorage.getItem('user');
     const uid = JSON.parse(userData!).uid;
-    if (planList) {
-      await addPlanToUser(uid, planList);
+    if (finalPlanList) {
+      await addPlanToUser(uid, finalPlanList);
       const result = confirm('일정이 저장되었습니다. 마이페이지로 이동하시겠습니까?');
       if (result) {
         router.replace('/mypage');
@@ -84,20 +106,28 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
     }
   };
 
-  if (!planInfo) return null;
+  if (!planInfo && !selectedPlan) return null;
 
   if (isLoading) {
     return (
-      <Box w={{ base: '100%', md: '600px' }} h="100%" display="flex" justifyContent="center" alignItems="center">
-        <VStack gap={3} color="gray.500">
-          <Spinner color="teal.500" size="lg" />
-          <Text fontSize="sm">일정을 생성하는 중입니다...</Text>
+      <Box
+        w={{ base: '100%', md: '600px' }}
+        h="100%"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        bg="white"
+        px={4}>
+        <VStack gap={4} align="center">
+          <Spinner size="xl" color="teal.500" />
+          <Text fontSize="sm" color="gray.500">
+            일정을 생성 중입니다...
+          </Text>
         </VStack>
       </Box>
     );
   }
-
-  if (!planList || planList.length === 0) {
+  if (!finalPlanList || finalPlanList.length === 0) {
     return (
       <Box w={{ base: '100%', md: '600px' }} h="100%" display="flex" justifyContent="center" alignItems="center">
         <Text color="gray.500" fontSize="sm">
@@ -116,7 +146,7 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
             {label}
           </Text>
           <Text fontSize="sm" color="gray.700">
-            {planInfo.formattedAddress}
+            {planInfo?.formattedAddress || '주소 정보 없음'}
           </Text>
         </VStack>
       </HStack>
@@ -124,13 +154,13 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
   );
 
   let placeIndex = 1;
-  console.log('planList', planList);
+
   return (
     <Box w={{ base: '100%', md: '600px' }} h="100%" overflow="auto" bg="white" px={{ base: 3, md: 6 }} py={4}>
       <VStack gap={6} align="stretch">
         {renderCurrentLocationCard('현재 위치 (출발지)')}
 
-        {planList.map((block, index) => {
+        {finalPlanList.map((block, index) => {
           if (block.activityType === 'move') {
             return (
               <HStack key={index} p={4} bg="gray.50" borderRadius="lg" align="flex-start">
@@ -145,8 +175,6 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
                   <Text fontSize="sm" color="gray.700">
                     소요 시간: {formatDurationFromSeconds(block.travel?.duration)}
                   </Text>
-
-                  {/* ✅ 구글 길찾기 링크 */}
                   {block.travel?.origin && block.travel?.destination && (
                     <Link
                       href={getGoogleMapsDirectionUrl(block.travel.origin, block.travel.destination)}
@@ -248,7 +276,7 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
           );
         })}
 
-        {planInfo.routeType === '왕복' && renderCurrentLocationCard('현재 위치 (도착지)')}
+        {planInfo?.routeType === '왕복' && renderCurrentLocationCard('현재 위치 (도착지)')}
       </VStack>
 
       {isDetailModalOpen && currentDetailData && (
@@ -258,11 +286,14 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
           onToggle={onToggle}
         />
       )}
-      <Box mt={6} textAlign="right">
-        <Button colorPalette="teal" onClick={handlePlanSave}>
-          일정 저장하기
-        </Button>
-      </Box>
+
+      {!selectedPlan && (
+        <Box mt={6} textAlign="right">
+          <Button colorPalette="teal" onClick={handlePlanSave}>
+            일정 저장하기
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 }
