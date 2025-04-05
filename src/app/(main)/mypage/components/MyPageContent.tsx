@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getUserInfo } from '@/lib/api/firebase/auth';
 import MyInfo from './MyInfo';
@@ -7,20 +8,34 @@ import MyPlanList from './MyPlanList';
 import { Spinner, Center, Text } from '@chakra-ui/react';
 
 function MyPageContent() {
-  // ✅ uid 따로 저장
-  const stored = sessionStorage.getItem('user');
-  const uid = stored ? JSON.parse(stored).uid : null;
+  const [uid, setUid] = useState<string | null>(null);
 
-  // ✅ React Query로 유저 정보 불러오기
+  // ✅ 클라이언트 사이드에서만 sessionStorage 접근
+  useEffect(() => {
+    const stored = sessionStorage.getItem('user');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      setUid(parsed?.uid ?? null);
+    }
+  }, []);
+
   const {
     data: userInfo,
     isLoading,
     isError,
   } = useQuery({
     queryKey: ['userInfo', uid],
-    queryFn: () => getUserInfo(uid),
+    queryFn: () => getUserInfo(uid!),
     enabled: !!uid,
   });
+
+  if (!uid) {
+    return (
+      <Center py="20">
+        <Spinner size="lg" color="teal.500" />
+      </Center>
+    );
+  }
 
   if (isLoading) {
     return (
