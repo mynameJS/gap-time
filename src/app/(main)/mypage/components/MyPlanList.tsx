@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { PlanWithSchedule, ScheduleBlock } from '@/types/interface';
 import { getUserPlansWithSchedule } from '@/lib/api/firebase/plan';
 import { PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
+import { fetchAddress } from '@/lib/api/google/places';
 
 interface MyPlanListProps {
   userId: string;
@@ -35,15 +36,17 @@ function MyPlanList({ userId }: MyPlanListProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const handleCardClick = (plan: ScheduleBlock[]) => {
+  const handleCardClick = async (plan: ScheduleBlock[]) => {
     setSelectedPlan(plan);
-
     const firstPlan = plan[0];
 
     if (firstPlan?.travel?.origin) {
+      const { lat, lng } = firstPlan.travel.origin;
+      const address = await fetchAddress({ latitude: lat, longitude: lng });
+
       setPlanInfo({
         geocode: firstPlan.travel.origin,
-        formattedAddress: '',
+        formattedAddress: address[0].formatted_address || '주소 정보 없음',
         routeType: '',
         startTime: [plan[0].start],
         endTime: [plan.at(-1)?.end ?? plan[0].end],
@@ -128,7 +131,7 @@ function MyPlanList({ userId }: MyPlanListProps) {
                     {plan.schedule[0]?.start || '시작 시간 없음'} ~ {plan.schedule.at(-1)?.end || '종료 시간 없음'}
                   </Text>
                   <Text fontSize="sm" color="gray.500">
-                    장소 {plan.schedule.length}개 선택
+                    총 방문지 {plan.schedule.filter(item => item.activityType !== 'move').length} 곳
                   </Text>
                   <Flex align="center" gap="1" flexWrap="wrap">
                     <Icon as={FiMapPin} color="teal.500" boxSize="4" />

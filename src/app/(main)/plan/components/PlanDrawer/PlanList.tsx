@@ -42,6 +42,7 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
   const { data: planList, isLoading } = useQuery<ScheduleBlock[]>({
     queryKey: ['planList', planInfo, customPlaceList],
     enabled: !!planInfo && !selectedPlan,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       const schedule =
         customPlaceList.length > 0
