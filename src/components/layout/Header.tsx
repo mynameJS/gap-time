@@ -39,8 +39,8 @@ export default function Header() {
     } else if (selected === 'logout') {
       await logoutUser();
       queryClient.removeQueries({ queryKey: ['userInfo', uid] });
+      setUid(null);
       router.push('/');
-      router.refresh();
     } else if (selected === 'myinfo') {
       setIsOpen(true);
     }
