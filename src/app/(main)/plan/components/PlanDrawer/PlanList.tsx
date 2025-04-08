@@ -1,27 +1,24 @@
 'use client';
 
 import { Box, Text, VStack, HStack, Icon, Badge, Image, Circle, Link, Button, Spinner } from '@chakra-ui/react';
-import { FaMapMarkerAlt, FaStar, FaRoute, FaClock, FaExternalLinkAlt } from 'react-icons/fa';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-
-import PlaceDetailModal from './PlaceDetailModal';
-import usePlanStore from '@/store/usePlanInfoStore';
-import useSelectedPlanStore from '@/store/useSelectedPlanStore';
+import { FaMapMarkerAlt, FaStar, FaRoute, FaClock, FaExternalLinkAlt } from 'react-icons/fa';
+import { PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
+import { addPlanToUser } from '@/lib/api/firebase/plan';
 import useCustomPlaceListStore from '@/store/useCustomPlaceListStore';
 import useGeocodeListStore from '@/store/useGeocodeListStore';
+import usePlanStore from '@/store/usePlanInfoStore';
 import usePolylineListStore from '@/store/usePolylineListStore';
-
-import calculateTravelTimes from '@/utils/plan/calculateTravelTimes';
-import generateSchedule from '@/utils/plan/generateSchedule';
-import getGoogleMapsDirectionUrl from '@/utils/location/getGoogleMapsDirectionUrl';
+import useSelectedPlanStore from '@/store/useSelectedPlanStore';
+import { ScheduleBlock, GeocodeItem, PlaceDetails } from '@/types/interface';
 import formatDistance from '@/utils/format/formatDistance';
 import formatDurationFromSeconds from '@/utils/format/formatDurationFromSeconds';
-import { addPlanToUser } from '@/lib/api/firebase/plan';
-
-import { ScheduleBlock, GeocodeItem, PlaceDetails } from '@/types/interface';
-import { PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
+import getGoogleMapsDirectionUrl from '@/utils/location/getGoogleMapsDirectionUrl';
+import calculateTravelTimes from '@/utils/plan/calculateTravelTimes';
+import generateSchedule from '@/utils/plan/generateSchedule';
+import PlaceDetailModal from './PlaceDetailModal';
 
 interface PlanListProps {
   currentDetailData: PlaceDetails | undefined | null;

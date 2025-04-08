@@ -1,13 +1,17 @@
 'use client';
 
 import { VStack, HStack, Input, Button, Text, Icon, Image, Badge, Spinner, Box } from '@chakra-ui/react';
-import { InputGroup } from '@/components/ui/input-group';
-import { FaCheck, FaPlus, FaSearch } from 'react-icons/fa';
-import { PRIMARY_PLACES_CATEGORY, DEFAULT_PLACES_CATEGORY, PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
-import { PlaceDetails, PlanInfo } from '@/types/interface';
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { FaCheck, FaPlus, FaSearch } from 'react-icons/fa';
+import { InputGroup } from '@/components/ui/input-group';
+import { PRIMARY_PLACES_CATEGORY, DEFAULT_PLACES_CATEGORY, PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
 import { fetchNearbyPlacesDetail } from '@/lib/api/google/places';
+import useGeocodeListStore from '@/store/useGeocodeListStore';
+import usePolylineListStore from '@/store/usePolylineListStore';
+import useSelectedPlanStore from '@/store/useSelectedPlanStore';
+import { PlaceDetails, PlanInfo } from '@/types/interface';
 
 interface PlaceSearchPanelProps {
   planInfo: PlanInfo | null;
@@ -26,6 +30,11 @@ function PlaceSearchPanel({
 }: PlaceSearchPanelProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>(DEFAULT_PLACES_CATEGORY);
+  const pathname = usePathname();
+
+  const { clearSelectedPlan } = useSelectedPlanStore();
+  const { clearGeocodeList } = useGeocodeListStore();
+  const { clearPolylineList } = usePolylineListStore();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value);
 
@@ -62,7 +71,16 @@ function PlaceSearchPanel({
     enabled: false,
   });
 
-  const placeList = searchTerm ? searchResult ?? [] : categoryPlaces ?? [];
+  const placeList = searchTerm ? (searchResult ?? []) : (categoryPlaces ?? []);
+
+  // ✅ 브라우저 뒤로가기로 /plan/select 재진입 시 selectedPlan 초기화
+  useEffect(() => {
+    if (pathname === '/plan') {
+      clearSelectedPlan();
+      clearGeocodeList();
+      clearPolylineList();
+    }
+  }, [pathname, clearSelectedPlan, clearGeocodeList, clearPolylineList]);
 
   return (
     <VStack

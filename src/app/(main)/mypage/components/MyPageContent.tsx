@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Spinner, Center, Text } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { getUserInfo } from '@/lib/api/firebase/auth';
 import MyInfo from './MyInfo';
 import MyPlanList from './MyPlanList';
-import { Spinner, Center, Text } from '@chakra-ui/react';
 
 function MyPageContent() {
   const [uid, setUid] = useState<string | null>(null);

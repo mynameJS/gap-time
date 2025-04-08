@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@chakra-ui/react';
+import { useState } from 'react';
 import PlanInfoModal from '../../../components/modal/PlanInfoModal/PlanInfoModal';
 
 function PlanModalController() {

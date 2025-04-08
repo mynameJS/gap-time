@@ -1,8 +1,8 @@
 'use client';
 
 import { HStack, Flex, Text, VStack, Icon, createListCollection } from '@chakra-ui/react';
-import { SelectRoot, SelectTrigger, SelectContent, SelectItem, SelectValueText } from '@/components/ui/select';
 import { FaClock } from 'react-icons/fa';
+import { SelectRoot, SelectTrigger, SelectContent, SelectItem, SelectValueText } from '@/components/ui/select';
 import { PlanInfo } from '@/types/interface';
 
 // 09:00 ~ 24:00 시간 목록 생성

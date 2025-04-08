@@ -1,10 +1,10 @@
 'use client';
 
 import { Box, Button, Input, Text, VStack, Field, Link, Flex, IconButton } from '@chakra-ui/react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import { FcGoogle } from 'react-icons/fc';
 import { Toaster, toaster } from '@/components/ui/toaster';
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { loginUser, loginWithGoogle } from '@/lib/api/firebase/auth';
 
 function LoginRegister() {

@@ -1,13 +1,13 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { GoogleMap, OverlayView, Polyline, Polygon, LoadScriptNext } from '@react-google-maps/api';
 import { Box, Spinner, VStack, Text } from '@chakra-ui/react';
-import usePlanStore from '@/store/usePlanInfoStore';
+import { GoogleMap, OverlayView, Polygon, LoadScriptNext } from '@react-google-maps/api';
+import { useSearchParams } from 'next/navigation';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import useGeocodeListStore from '@/store/useGeocodeListStore';
-import getConvexHull from '@/utils/format/getConvexHull';
+import usePlanStore from '@/store/usePlanInfoStore';
 import usePolylineListStore from '@/store/usePolylineListStore';
 import decodePolyline from '@/utils/format/decodePolyline';
+import getConvexHull from '@/utils/format/getConvexHull';
 
 // 타입 정의
 const containerStyle: React.CSSProperties = {
@@ -16,42 +16,66 @@ const containerStyle: React.CSSProperties = {
 };
 
 const mapOptions: google.maps.MapOptions = {
-  zoomControl: false, // 줌 버튼 비활성화
-  mapTypeControl: false, // 지도/위성 전환 버튼 비활성화
-  streetViewControl: false, // 로드뷰 버튼 비활성화
-  cameraControl: false, // 카메라 각도 조절 버튼 비활성화
+  zoomControl: false,
+  mapTypeControl: false,
+  streetViewControl: false,
+  cameraControl: false,
 };
 
 function GoogleMaps() {
-  // 추후 마커나 마우스무브, 세부페이지 이동 시에 사용예정
-  const [map, setMap] = useState<google.maps.Map | null>(null); // 맵 객체 타입 정의
+  const [map, setMap] = useState<google.maps.Map | null>(null);
   const { planInfo } = usePlanStore();
   const { geocodeList } = useGeocodeListStore();
   const { polylineList } = usePolylineListStore();
   const searchParams = useSearchParams();
   const mode = searchParams.get('mode');
 
-  const decodingPolylineList = polylineList.map(polyline => decodePolyline(polyline));
+  const polylineObjectsRef = useRef<google.maps.Polyline[]>([]);
+  const calculatedPolygon = geocodeList.map(item => item.geocode);
 
-  // onLoad 콜백
+  // ✅ 수동으로 Polyline 직접 관리
+  useEffect(() => {
+    if (!map) return;
+
+    // 기존 폴리라인 제거
+    polylineObjectsRef.current.forEach(p => p.setMap(null));
+    polylineObjectsRef.current = [];
+
+    // 'result' 모드일 때만 다시 그림
+    if (mode === 'result' && polylineList.length > 0) {
+      const decoded = polylineList.map(decodePolyline);
+      const newPolylines = decoded.map(path => {
+        const polyline = new google.maps.Polyline({
+          path,
+          map,
+          strokeColor: '#4285F4',
+          strokeOpacity: 0.8,
+          strokeWeight: 4,
+        });
+        return polyline;
+      });
+
+      polylineObjectsRef.current = newPolylines;
+    }
+  }, [map, polylineList, mode]);
+
+  // ✅ onLoad 콜백
   const onLoad = useCallback((map: google.maps.Map) => {
-    setMap(map); // 맵 객체 상태에 저장
+    setMap(map);
   }, []);
 
-  // onUnmount 콜백
+  // ✅ onUnmount 콜백
   const onUnmount = useCallback(() => {
-    setMap(null); // 맵 객체 초기화
+    setMap(null);
   }, []);
 
-  // 장소 클릭 시 해당 지역으로 부드럽게 이동 로직
+  // ✅ 장소 클릭 시 지도 이동
   useEffect(() => {
     if (!map || geocodeList.length === 0) return;
 
     const latestLocation = geocodeList[geocodeList.length - 1].geocode;
-    map.panTo(latestLocation); // 부드럽게 이동
+    map.panTo(latestLocation);
   }, [geocodeList, map]);
-
-  const calculatedPolygon = geocodeList.map(item => item.geocode);
 
   if (!planInfo) return null;
 
@@ -61,10 +85,11 @@ function GoogleMaps() {
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={planInfo?.geocode}
-          zoom={14}
+          zoom={15}
           options={mapOptions}
           onLoad={onLoad}
           onUnmount={onUnmount}>
+          {/* 현재 위치 */}
           <OverlayView position={planInfo.geocode} mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}>
             <VStack align="center">
               <Text
@@ -75,12 +100,14 @@ function GoogleMaps() {
                 borderRadius="md"
                 boxShadow="sm"
                 w="50px"
-                textAlign={'center'}>
+                textAlign="center">
                 현재 위치
               </Text>
               <Box w="30px" h="30px" borderRadius="full" bg="blue.500" border="2px solid white" boxShadow="md" />
             </VStack>
           </OverlayView>
+
+          {/* 방문 마커 */}
           {geocodeList.map((item, index) => (
             <OverlayView key={item.place_id} position={item.geocode} mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}>
               <Box
@@ -99,19 +126,9 @@ function GoogleMaps() {
               </Box>
             </OverlayView>
           ))}
-          {mode === 'result' ? (
-            decodingPolylineList.map((polyline, index) => (
-              <Polyline
-                key={index}
-                path={polyline}
-                options={{
-                  strokeColor: '#4285F4',
-                  strokeOpacity: 0.8,
-                  strokeWeight: 4,
-                }}
-              />
-            ))
-          ) : mode === 'select' ? (
+
+          {/* Polygon (선택 모드) */}
+          {mode === 'select' && calculatedPolygon.length > 0 && (
             <Polygon
               path={getConvexHull(calculatedPolygon)}
               options={{
@@ -122,7 +139,7 @@ function GoogleMaps() {
                 fillOpacity: 0,
               }}
             />
-          ) : null}
+          )}
         </GoogleMap>
       </LoadScriptNext>
     </Box>

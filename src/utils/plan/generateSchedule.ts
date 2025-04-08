@@ -1,8 +1,8 @@
 import { fetchNearbyPlaces, fetchPlaceDetailsWithPhoto } from '@/lib/api/google/places';
-import getTimeBlocks from './getTimeBlocks';
-import getActivityByTimes from './getActivityByTimes';
-import getRandomIndexes from '../getRandomIndexes';
 import { PlaceDetails } from '@/types/interface';
+import getRandomIndexes from '../getRandomIndexes';
+import getActivityByTimes from './getActivityByTimes';
+import getTimeBlocks from './getTimeBlocks';
 
 interface FetchAllNearbyPlacesParams {
   latitude: number;
@@ -26,7 +26,7 @@ const fetchAllNearbyPlaces = async ({ latitude, longitude, activityCounts }: Fet
         console.error(`Error fetching places for type: ${type}`, error);
         placesMap[type] = []; // 에러 발생 시 빈 배열 처리
       }
-    })
+    }),
   );
   return placesMap;
 };
@@ -66,7 +66,7 @@ const generateSchedule = async ({ startTime, endTime, latitude, longitude }: Gen
       .map(async placeId => {
         const details = await fetchPlaceDetailsWithPhoto(placeId);
         if (details) placeDetailsMap[placeId] = details;
-      })
+      }),
   );
 
   const schedule = scheduleBlocks.map(block => {

@@ -1,5 +1,5 @@
-import { PlanInfo } from '@/types/interface';
 import { create } from 'zustand';
+import { PlanInfo } from '@/types/interface';
 
 interface PlanInfoState {
   planInfo: PlanInfo | null;

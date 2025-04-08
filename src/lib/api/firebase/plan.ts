@@ -1,6 +1,17 @@
-import { db } from './init';
-import { addDoc, collection, serverTimestamp, getDocs, query, orderBy, Timestamp, where } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  serverTimestamp,
+  getDocs,
+  query,
+  orderBy,
+  Timestamp,
+  where,
+  deleteDoc,
+  doc,
+} from 'firebase/firestore';
 import { ScheduleBlock, PlanWithSchedule } from '@/types/interface';
+import { db } from './init';
 
 // 생성 일정 데이터 추가
 export async function addPlanToUser(uid: string, newPlan: ScheduleBlock[]) {
@@ -67,5 +78,27 @@ export const getPlanByCreatedAt = async (uid: string, createdAt: number): Promis
   } catch (error) {
     console.error('🔥 getPlanByCreatedAt 오류:', error);
     return null;
+  }
+};
+
+// 사용자 특정 일정 데이터 삭제하기
+export const deletePlanByCreatedAt = async (uid: string, createdAt: string) => {
+  try {
+    const plansRef = collection(db, 'users', uid, 'plans');
+
+    // ✅ string → Date → Timestamp 변환
+    const timestamp = Timestamp.fromDate(new Date(createdAt));
+
+    const q = query(plansRef, where('createdAt', '==', timestamp));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return;
+    }
+
+    const targetDoc = querySnapshot.docs[0];
+    await deleteDoc(doc(db, 'users', uid, 'plans', targetDoc.id));
+  } catch (error) {
+    console.error('🔥 deletePlanByCreatedAt 오류:', error);
   }
 };

@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { Flex } from '@chakra-ui/react';
-import { CloseButton } from '@/components/ui/close-button';
+import { useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
+import { CloseButton } from '@/components/ui/close-button';
 import { PlaceDetails } from '@/types/interface';
 import PlaceSelector from './PlaceSelector/PlaceSelector';
 import PlanList from './PlanList';

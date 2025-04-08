@@ -1,11 +1,11 @@
 'use client';
 
 import { Box, Button, Input, Text, VStack, HStack, Field, Link, Icon, Spinner } from '@chakra-ui/react';
-import { InputGroup } from '@/components/ui/input-group';
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Toaster, toaster } from '@/components/ui/toaster';
+import { useEffect, useState } from 'react';
 import { IoMdEye, IoIosEyeOff } from 'react-icons/io';
+import { InputGroup } from '@/components/ui/input-group';
+import { Toaster, toaster } from '@/components/ui/toaster';
 import { sendVerificationCode } from '@/lib/api/firebase/auth';
 import { registerUser } from '@/lib/api/firebase/auth';
 import generate6DigitCode from '@/utils/generate6DigitCode';

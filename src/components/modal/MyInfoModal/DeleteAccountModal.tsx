@@ -1,11 +1,11 @@
 'use client';
 
+import { Field, Input, Button, Text, VStack, HStack } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { DialogRoot, DialogContent, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/components/ui/dialog';
-import { Field, Input, Button, Text, VStack, HStack } from '@chakra-ui/react';
-import { deleteUserAccount } from '@/lib/api/firebase/auth';
-import { useRouter } from 'next/navigation';
 import { Toaster, toaster } from '@/components/ui/toaster';
+import { deleteUserAccount } from '@/lib/api/firebase/auth';
 
 interface DeleteAccountModalProps {
   isOpen: boolean;
