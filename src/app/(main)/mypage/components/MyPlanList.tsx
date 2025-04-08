@@ -1,18 +1,20 @@
 'use client';
 
-import { Box, Text, Heading, Flex, Image, Badge, VStack, Icon, Spinner, Stack } from '@chakra-ui/react';
+import { Box, Text, Heading, Flex, Image, Badge, VStack, Icon, Spinner, Stack, Menu, Portal } from '@chakra-ui/react';
+import { Toaster, toaster } from '@/components/ui/toaster';
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import usePlanStore from '@/store/usePlanInfoStore';
 import useSelectedPlanStore from '@/store/useSelectedPlanStore';
 import useGeocodeListStore from '@/store/useGeocodeListStore';
 import usePolylineListStore from '@/store/usePolylineListStore';
-import { FiMapPin } from 'react-icons/fi';
-import { useQuery } from '@tanstack/react-query';
+import { FiMapPin, FiMoreVertical } from 'react-icons/fi';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PlanWithSchedule, ScheduleBlock } from '@/types/interface';
 import { getUserPlansWithSchedule } from '@/lib/api/firebase/plan';
 import { PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
 import { fetchAddress } from '@/lib/api/google/places';
+import { deletePlanByCreatedAt } from '@/lib/api/firebase/plan';
 
 interface MyPlanListProps {
   userId: string;
@@ -35,6 +37,7 @@ function MyPlanList({ userId }: MyPlanListProps) {
 
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
 
   const handleCardClick = async (plan: ScheduleBlock[]) => {
     setSelectedPlan(plan);
@@ -53,6 +56,31 @@ function MyPlanList({ userId }: MyPlanListProps) {
       });
     }
     router.push('/plan?mode=result');
+  };
+
+  const handleMenuSelect = async (details: { value: string; planCreatedAt: string }) => {
+    const selected = details.value;
+
+    if (selected === 'delete') {
+      try {
+        await deletePlanByCreatedAt(userId, details.planCreatedAt);
+
+        toaster.create({
+          title: '일정이 삭제되었습니다.',
+          type: 'success',
+        });
+
+        queryClient.invalidateQueries({ queryKey: ['userPlans', userId] });
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : '알 수 없는 오류입니다.';
+
+        toaster.create({
+          title: '삭제 중 오류가 발생했습니다.',
+          description: message,
+          type: 'error',
+        });
+      }
+    }
   };
 
   // ✅ 새로 입장 시 planInfo 초기화
@@ -87,7 +115,7 @@ function MyPlanList({ userId }: MyPlanListProps) {
         </Text>
       ) : (
         <VStack gap="6" align="stretch">
-          {plans.map((plan, index) => {
+          {plans.map(plan => {
             const place = plan.schedule[1]?.placeDetails;
             const rawType = place?.type ?? 'unknown';
             const categoryInfo =
@@ -97,7 +125,7 @@ function MyPlanList({ userId }: MyPlanListProps) {
 
             return (
               <Stack
-                key={index}
+                key={plan.createdAt}
                 direction={{ base: 'column', md: 'row' }}
                 gap="5"
                 p="4"
@@ -107,9 +135,7 @@ function MyPlanList({ userId }: MyPlanListProps) {
                 bg="white"
                 boxShadow="xs"
                 _hover={{ boxShadow: 'md' }}
-                transition="all 0.2s"
-                onClick={() => handleCardClick(plan.schedule)}
-                cursor="pointer">
+                transition="all 0.2s">
                 <Image
                   src={place?.photo_url || place?.icon[0]}
                   alt="대표 이미지"
@@ -118,7 +144,14 @@ function MyPlanList({ userId }: MyPlanListProps) {
                   borderRadius="xl"
                   objectFit="cover"
                 />
-                <VStack align="start" gap="1" flex="1" w="full" justify="center">
+                <VStack
+                  align="start"
+                  gap="1"
+                  flex="1"
+                  w="full"
+                  justify="center"
+                  cursor="pointer"
+                  onClick={() => handleCardClick(plan.schedule)}>
                   <Flex align="center" gap="2">
                     <Badge variant="subtle" colorPalette={categoryInfo.color}>
                       {categoryInfo.ko}
@@ -148,11 +181,24 @@ function MyPlanList({ userId }: MyPlanListProps) {
                   display={{ base: 'none', md: 'block' }}>
                   생성일 {new Date(plan.createdAt).toLocaleDateString()}
                 </Text>
+                <Menu.Root onSelect={value => handleMenuSelect({ value: value.value, planCreatedAt: plan.createdAt })}>
+                  <Menu.Trigger asChild cursor="pointer">
+                    <Icon as={FiMoreVertical} color="gray.400" boxSize="5" />
+                  </Menu.Trigger>
+                  <Portal>
+                    <Menu.Positioner>
+                      <Menu.Content>
+                        <Menu.Item value="delete">삭제</Menu.Item>
+                      </Menu.Content>
+                    </Menu.Positioner>
+                  </Portal>
+                </Menu.Root>
               </Stack>
             );
           })}
         </VStack>
       )}
+      <Toaster />
     </Box>
   );
 }
