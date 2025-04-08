@@ -1,3 +1,4 @@
+import { FirebaseError } from 'firebase/app';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -10,9 +11,8 @@ import {
   reauthenticateWithPopup,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db, auth } from './init';
-import { FirebaseError } from 'firebase/app';
 import { UserInfo } from '@/types/interface';
+import { db, auth } from './init';
 
 // 인증코드 이메일 전송
 export async function sendVerificationCode(email: string, code: string) {
@@ -93,7 +93,7 @@ export const loginUser = async ({ email, password }: LoginData) => {
         nickname: userData.nickname,
         createdAt: userData.createdAt,
         uid,
-      })
+      }),
     );
 
     return { success: true };
@@ -151,7 +151,7 @@ export const loginWithGoogle = async () => {
         nickname: userData?.nickname || user.displayName || 'unknown',
         uid: user.uid,
         provider: 'google',
-      })
+      }),
     );
 
     return { success: true };

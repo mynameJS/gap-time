@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Button, VStack, HStack, Text } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { DialogBody, DialogContent, DialogFooter, DialogHeader, DialogRoot, DialogTitle } from '@/components/ui/dialog';
 import usePlanStore from '@/store/usePlanInfoStore';
-import TimeSelector from './TimeSelector';
+import { PlanInfo } from '@/types/interface';
 import LocationPicker from './LocationPicker';
 import RouteSelector from './RouteSelector';
-import { PlanInfo } from '@/types/interface';
-import { useRouter } from 'next/navigation';
+import TimeSelector from './TimeSelector';
 
 interface PlanInfoModalProps {
   isOpen: boolean;
@@ -38,10 +38,13 @@ function PlanInfoModal({ isOpen, onToggle }: PlanInfoModalProps) {
     setPlanInfo(prev => ({ ...prev, ...updates }));
     setMissing(prev => ({
       ...prev,
-      ...Object.keys(updates).reduce((acc, key) => {
-        acc[key as keyof PlanInfo] = false;
-        return acc;
-      }, {} as Record<keyof PlanInfo, boolean>),
+      ...Object.keys(updates).reduce(
+        (acc, key) => {
+          acc[key as keyof PlanInfo] = false;
+          return acc;
+        },
+        {} as Record<keyof PlanInfo, boolean>,
+      ),
     }));
   };
 

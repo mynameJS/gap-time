@@ -1,5 +1,5 @@
-import type { Metadata } from 'next';
 import { Box } from '@chakra-ui/react';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Time-Gap',

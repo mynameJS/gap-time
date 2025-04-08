@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { Flex, HStack, Button, VStack, Text, Box, Icon } from '@chakra-ui/react';
+import { useState } from 'react';
 import { FaMapMarkerAlt } from 'react-icons/fa';
-import getCurrentLocationAddress from '@/utils/location/getCurrentLocationAddress';
 import { PlanInfo } from '@/types/interface';
+import getCurrentLocationAddress from '@/utils/location/getCurrentLocationAddress';
 
 interface LocationPickerProps {
   formattedAddress: string;

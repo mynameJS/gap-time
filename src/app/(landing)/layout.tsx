@@ -1,6 +1,6 @@
-import type { Metadata } from 'next';
-import Header from '@/components/layout/Header';
 import { Box, Flex } from '@chakra-ui/react';
+import Header from '@/components/layout/Header';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Time-Gap',

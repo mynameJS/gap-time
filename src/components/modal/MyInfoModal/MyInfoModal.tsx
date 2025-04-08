@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Field, Input, Button, HStack, Box } from '@chakra-ui/react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { DialogBody, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogRoot } from '@/components/ui/dialog';
 import { Toaster, toaster } from '@/components/ui/toaster';
 import { updateUserNickname } from '@/lib/api/firebase/auth';
-import { useQueryClient } from '@tanstack/react-query';
 import { UserInfo } from '@/types/interface';
 import DeleteAccountModal from './DeleteAccountModal';
 

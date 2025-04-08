@@ -1,13 +1,13 @@
 'use client';
 
 import { VStack, HStack, Input, Button, Text, Icon, Image, Badge, Spinner, Box } from '@chakra-ui/react';
-import { InputGroup } from '@/components/ui/input-group';
-import { FaCheck, FaPlus, FaSearch } from 'react-icons/fa';
-import { PRIMARY_PLACES_CATEGORY, DEFAULT_PLACES_CATEGORY, PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
-import { PlaceDetails, PlanInfo } from '@/types/interface';
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { FaCheck, FaPlus, FaSearch } from 'react-icons/fa';
+import { InputGroup } from '@/components/ui/input-group';
+import { PRIMARY_PLACES_CATEGORY, DEFAULT_PLACES_CATEGORY, PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
 import { fetchNearbyPlacesDetail } from '@/lib/api/google/places';
+import { PlaceDetails, PlanInfo } from '@/types/interface';
 
 interface PlaceSearchPanelProps {
   planInfo: PlanInfo | null;
@@ -62,7 +62,7 @@ function PlaceSearchPanel({
     enabled: false,
   });
 
-  const placeList = searchTerm ? searchResult ?? [] : categoryPlaces ?? [];
+  const placeList = searchTerm ? (searchResult ?? []) : (categoryPlaces ?? []);
 
   return (
     <VStack

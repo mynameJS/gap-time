@@ -1,16 +1,15 @@
-// components/PlaceSelector/PlaceSelector.tsx
 'use client';
 
-import { useState } from 'react';
 import { Flex } from '@chakra-ui/react';
-import usePlanStore from '@/store/usePlanInfoStore';
-import useGeocodeListStore from '@/store/useGeocodeListStore';
+import { useState } from 'react';
 import useCustomPlaceListStore from '@/store/useCustomPlaceListStore';
+import useGeocodeListStore from '@/store/useGeocodeListStore';
+import usePlanStore from '@/store/usePlanInfoStore';
 import { PlaceDetails } from '@/types/interface';
+import getTimeBlocks from '@/utils/plan/getTimeBlocks';
+import PlaceDetailModal from '../PlaceDetailModal';
 import PlaceSearchPanel from './PlaceSearchPanel';
 import PlaceSelectionPanel from './PlaceSelectionPanel';
-import PlaceDetailModal from '../PlaceDetailModal';
-import getTimeBlocks from '@/utils/plan/getTimeBlocks';
 
 interface PlaceSelectorProps {
   currentDetailData: PlaceDetails | undefined | null;

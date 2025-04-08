@@ -1,4 +1,3 @@
-import { db } from './init';
 import {
   addDoc,
   collection,
@@ -12,6 +11,7 @@ import {
   doc,
 } from 'firebase/firestore';
 import { ScheduleBlock, PlanWithSchedule } from '@/types/interface';
+import { db } from './init';
 
 // 생성 일정 데이터 추가
 export async function addPlanToUser(uid: string, newPlan: ScheduleBlock[]) {

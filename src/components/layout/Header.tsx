@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Box, Flex, HStack, Text, Button, Image, Avatar, Menu, Portal, Spinner } from '@chakra-ui/react';
-import MyInfoModal from '../modal/MyInfoModal/MyInfoModal';
-import { logoutUser, getUserInfo } from '@/lib/api/firebase/auth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { logoutUser, getUserInfo } from '@/lib/api/firebase/auth';
+import MyInfoModal from '../modal/MyInfoModal/MyInfoModal';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);

@@ -4,12 +4,6 @@ interface fetchOptimizedRouteParams {
   routeType: string;
 }
 
-// type OptimizedRouteResponse = {
-//   waypoint_order: number[];
-//   polyline: string;
-//   legs: any[]; // 필요시 타입 상세화 가능
-// };
-
 export async function fetchOptimizedRoute({ origin, waypoints, routeType }: fetchOptimizedRouteParams) {
   const response = await fetch('/api/google-maps/direction', {
     method: 'POST',

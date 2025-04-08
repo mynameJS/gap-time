@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { Box, HStack, Text, Avatar, VStack, Icon } from '@chakra-ui/react';
+import { useState } from 'react';
 import { FaGear } from 'react-icons/fa6';
-import { UserInfo } from '@/types/interface';
 import MyInfoModal from '@/components/modal/MyInfoModal/MyInfoModal';
+import { UserInfo } from '@/types/interface';
 
 interface MyInfoProps {
   userInfo: UserInfo | null;

@@ -1,8 +1,8 @@
-import { Suspense } from 'react';
 import { Box, Flex, Spinner } from '@chakra-ui/react';
-import PlanRouteGuard from './components/PlanRouteGuard';
-import PlanDrawer from './components/PlanDrawer/PlanDrawer';
+import { Suspense } from 'react';
 import GoogleMaps from './components/Maps/GoogleMap';
+import PlanDrawer from './components/PlanDrawer/PlanDrawer';
+import PlanRouteGuard from './components/PlanRouteGuard';
 
 export default async function Page() {
   return (

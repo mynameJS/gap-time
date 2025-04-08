@@ -1,4 +1,3 @@
-// import { fetchDistanceMatrix } from '@/lib/api/distance';
 import { fetchRoute } from '@/lib/api/google/route';
 import { ScheduleBlock } from '@/types/interface';
 
@@ -37,7 +36,7 @@ const calculateTravelTimes = async ({ schedule, mode, routeType, currentLocation
 
   // ✅ 2. 기존 일정의 각 장소 간 이동 거리 & 시간 요청
   const travelDataList = await Promise.all(
-    places.slice(0, -1).map((placeId, index) => fetchRoute(placeId, places[index + 1], mode))
+    places.slice(0, -1).map((placeId, index) => fetchRoute(placeId, places[index + 1], mode)),
   );
 
   // ✅ 3. 각 블록을 이동 블록(`move`)과 일정 블록(`activity`)로 나누어 추가

@@ -1,16 +1,16 @@
 'use client';
 
-import { useState } from 'react';
 import { VStack, HStack, Text, Icon, Image, Button, Badge } from '@chakra-ui/react';
-import PlanInfoModal from '@/components/modal/PlanInfoModal/PlanInfoModal';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
 import { FaClock, FaLocationDot, FaRoute, FaGear } from 'react-icons/fa6';
+import PlanInfoModal from '@/components/modal/PlanInfoModal/PlanInfoModal';
 import { PlanInfo, PlaceDetails } from '@/types/interface';
+import { ScheduleBlock } from '@/types/interface';
 import getDurationFromTimeString from '@/utils/format/getDurationFromTimeString';
 import getTimeBlocks from '@/utils/plan/getTimeBlocks';
-import { useRouter } from 'next/navigation';
-import { Dispatch, SetStateAction } from 'react';
-import { ScheduleBlock } from '@/types/interface';
 
 interface Props {
   planInfo: PlanInfo | null;
@@ -57,7 +57,7 @@ function PlaceSelectionPanel({
 
     if (count > selectedPlaces.length) {
       const confirmed = window.confirm(
-        '선택한 장소 수가 적어 전체 일정보다 일찍 끝날 수 있습니다. 그래도 계속하시겠습니까?'
+        '선택한 장소 수가 적어 전체 일정보다 일찍 끝날 수 있습니다. 그래도 계속하시겠습니까?',
       );
       if (!confirmed) return;
     }

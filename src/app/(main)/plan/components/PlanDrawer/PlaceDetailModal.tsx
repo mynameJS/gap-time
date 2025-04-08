@@ -1,9 +1,9 @@
 'use client';
 
 import { Button, VStack, HStack, Text, Icon, Image, Badge, Collapsible, Link } from '@chakra-ui/react';
-import { DialogBody, DialogContent, DialogHeader, DialogRoot } from '@/components/ui/dialog';
 import { FaMapMarkerAlt, FaPhone, FaClock, FaExternalLinkAlt } from 'react-icons/fa';
 import { ImCross } from 'react-icons/im';
+import { DialogBody, DialogContent, DialogHeader, DialogRoot } from '@/components/ui/dialog';
 import { PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
 import { PlaceDetails } from '@/types/interface';
 
@@ -15,10 +15,10 @@ interface PlaceDetailModalProps {
 
 function PlaceDetailModal({ currentDetailData, isDetailModalOpen, onToggle }: PlaceDetailModalProps) {
   const categoryInfo = currentDetailData?.type
-    ? PLACES_CATEGORY_COLOR_SET[currentDetailData.type as keyof typeof PLACES_CATEGORY_COLOR_SET] ?? {
+    ? (PLACES_CATEGORY_COLOR_SET[currentDetailData.type as keyof typeof PLACES_CATEGORY_COLOR_SET] ?? {
         ko: currentDetailData.type,
         color: 'gray',
-      }
+      })
     : null;
 
   const typeBadge = categoryInfo ? (
