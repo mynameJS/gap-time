@@ -119,11 +119,22 @@ function PlanInfoModal({ isOpen, onToggle }: PlanInfoModalProps) {
         </DialogBody>
 
         <DialogFooter mt={6} flexDirection="column">
-          <HStack gap={4}>
-            <Button colorPalette="teal" size="lg" px={8} onClick={() => handleRouterClick('result')}>
+          <HStack gap={4} flexWrap="wrap" justify="center" w="full">
+            <Button
+              colorPalette="teal"
+              size="lg"
+              px={{ base: 4, sm: 8 }}
+              w={{ base: '100%', sm: 'auto' }}
+              onClick={() => handleRouterClick('result')}>
               추천 일정 만들기
             </Button>
-            <Button variant="outline" colorPalette="gray" size="lg" px={8} onClick={() => handleRouterClick('select')}>
+            <Button
+              variant="outline"
+              colorPalette="gray"
+              size="lg"
+              px={{ base: 4, sm: 8 }}
+              w={{ base: '100%', sm: 'auto' }}
+              onClick={() => handleRouterClick('select')}>
               직접 장소 선택하기
             </Button>
           </HStack>
