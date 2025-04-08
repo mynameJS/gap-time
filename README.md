@@ -6,7 +6,7 @@
 >
 > 개발 기간: 2025. 2. 25 ~ 4. 7 (MVP 모델)
 >
-> [GAPTIME](https://gap-time.vercel.app/)
+> [GAPTIME](https://www.gaptime.online/)
 <br />
 <br />
 
