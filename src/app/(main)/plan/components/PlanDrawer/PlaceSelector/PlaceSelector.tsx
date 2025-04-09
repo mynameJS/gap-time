@@ -1,15 +1,21 @@
 'use client';
 
 import { Flex } from '@chakra-ui/react';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import useCustomPlaceListStore from '@/store/useCustomPlaceListStore';
 import useGeocodeListStore from '@/store/useGeocodeListStore';
 import usePlanStore from '@/store/usePlanInfoStore';
 import { PlaceDetails } from '@/types/interface';
 import getTimeBlocks from '@/utils/plan/getTimeBlocks';
-import PlaceDetailModal from '../PlaceDetailModal';
 import PlaceSearchPanel from './PlaceSearchPanel';
 import PlaceSelectionPanel from './PlaceSelectionPanel';
+
+// ✅ PlaceDetailModal을 동적 import로 지연 로딩
+const PlaceDetailModal = dynamic(() => import('../PlaceDetailModal'), {
+  ssr: false,
+  loading: () => null,
+});
 
 interface PlaceSelectorProps {
   currentDetailData: PlaceDetails | undefined | null;

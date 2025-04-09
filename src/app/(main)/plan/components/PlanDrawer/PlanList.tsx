@@ -2,6 +2,7 @@
 
 import { Box, Text, VStack, HStack, Icon, Badge, Image, Circle, Link, Button, Spinner } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { FaMapMarkerAlt, FaStar, FaRoute, FaClock, FaExternalLinkAlt } from 'react-icons/fa';
@@ -18,7 +19,12 @@ import formatDurationFromSeconds from '@/utils/format/formatDurationFromSeconds'
 import getGoogleMapsDirectionUrl from '@/utils/location/getGoogleMapsDirectionUrl';
 import calculateTravelTimes from '@/utils/plan/calculateTravelTimes';
 import generateSchedule from '@/utils/plan/generateSchedule';
-import PlaceDetailModal from './PlaceDetailModal';
+
+// ✅ PlaceSearchPanel을 동적 import로 지연 로딩
+const PlaceDetailModal = dynamic(() => import('./PlaceDetailModal'), {
+  ssr: false,
+  loading: () => null,
+});
 
 interface PlanListProps {
   currentDetailData: PlaceDetails | undefined | null;
