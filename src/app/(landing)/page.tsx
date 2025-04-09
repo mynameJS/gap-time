@@ -1,9 +1,13 @@
 'use client';
 
-import { Box, Flex, Text, Image } from '@chakra-ui/react';
+import { Box, Flex, Text, useBreakpointValue } from '@chakra-ui/react';
+import Image from 'next/image';
+import landingImg from '../../../public/image/landing2.webp';
 import PlanModalController from './components/PlanModalController';
 
 export default function Page() {
+  const imageMaxHeight = useBreakpointValue({ base: '300px', md: '350px', lg: '450px' });
+
   return (
     <Flex
       direction={{ base: 'column', lg: 'row' }}
@@ -35,15 +39,25 @@ export default function Page() {
       </Box>
 
       {/* Right Side */}
-      <Box w={{ base: '100%', lg: '50%' }} maxW="600px" mx="auto" maxH={{ base: '300px', md: '400px', lg: 'none' }}>
+      <Box
+        w={{ base: '100%', lg: '50%' }}
+        maxW="600px"
+        mx="auto"
+        display="flex"
+        justifyContent="center"
+        alignItems="center">
         <Image
-          src="/image/landing2.webp"
+          src={landingImg}
           alt="틈새시간 계획 일러스트"
-          width="854px"
-          objectFit="contain"
-          w="100%"
-          aspectRatio={854 / 570}
-          mx="auto"
+          width={854}
+          height={570}
+          style={{
+            width: '100%',
+            height: 'auto',
+            maxHeight: imageMaxHeight,
+            objectFit: 'contain',
+          }}
+          priority
         />
       </Box>
     </Flex>
