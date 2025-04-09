@@ -35,8 +35,16 @@ export default function Page() {
       </Box>
 
       {/* Right Side */}
-      <Box w={{ base: '100%', lg: '50%' }} maxW="600px" mx="auto">
-        <Image src="/image/landing.png" alt="틈새시간 계획 일러스트" width="100%" objectFit="contain" />
+      <Box w={{ base: '100%', lg: '50%' }} maxW="600px" mx="auto" maxH={{ base: '300px', md: '400px', lg: 'none' }}>
+        <Image
+          src="/image/landing2.webp"
+          alt="틈새시간 계획 일러스트"
+          width="854px"
+          objectFit="contain"
+          w="100%"
+          aspectRatio={854 / 570}
+          mx="auto"
+        />
       </Box>
     </Flex>
   );
