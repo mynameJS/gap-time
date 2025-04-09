@@ -1,16 +1,21 @@
 'use client';
 
 import { VStack, HStack, Text, Icon, Image, Button, Badge } from '@chakra-ui/react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Dispatch, SetStateAction } from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
 import { FaClock, FaLocationDot, FaRoute, FaGear } from 'react-icons/fa6';
-import PlanInfoModal from '@/components/modal/PlanInfoModal/PlanInfoModal';
-import { PlanInfo, PlaceDetails } from '@/types/interface';
-import { ScheduleBlock } from '@/types/interface';
+import { PlanInfo, PlaceDetails, ScheduleBlock } from '@/types/interface';
 import getDurationFromTimeString from '@/utils/format/getDurationFromTimeString';
 import getTimeBlocks from '@/utils/plan/getTimeBlocks';
+
+// ✅ PlanInfoModal을 동적 import로 지연 로딩
+const PlanInfoModal = dynamic(() => import('@/components/modal/PlanInfoModal/PlanInfoModal'), {
+  ssr: false,
+  loading: () => null,
+});
 
 interface Props {
   planInfo: PlanInfo | null;
@@ -83,7 +88,6 @@ function PlaceSelectionPanel({
               {selectedPlaces.length} / {count} 장소
             </Text>
           </HStack>
-
           <HStack gap={2}>
             <Icon as={FaRoute} color="blue.500" />
             <Text fontSize="sm" fontWeight="medium" color="gray.700">
@@ -162,6 +166,8 @@ function PlaceSelectionPanel({
           일정 만들기
         </Button>
       </VStack>
+
+      {/* ✅ PlanInfoModal은 dynamic import로 렌더링 */}
       <PlanInfoModal isOpen={planInfoModalOpen} onToggle={togglePlanInfoModalOpen} />
     </>
   );

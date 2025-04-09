@@ -1,8 +1,14 @@
 'use client';
 
 import { Button } from '@chakra-ui/react';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import PlanInfoModal from '../../../components/modal/PlanInfoModal/PlanInfoModal';
+
+// ✅ PlanInfoModal만 dynamic import로 분리
+const PlanInfoModal = dynamic(() => import('../../../components/modal/PlanInfoModal/PlanInfoModal'), {
+  ssr: false,
+  loading: () => null,
+});
 
 function PlanModalController() {
   const [isOpen, setIsOpen] = useState<boolean>(false);

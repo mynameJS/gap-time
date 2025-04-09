@@ -2,20 +2,25 @@
 
 import { Box, Flex, HStack, Text, Button, Image, Avatar, Menu, Portal, Spinner } from '@chakra-ui/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { logoutUser, getUserInfo } from '@/lib/api/firebase/auth';
-import MyInfoModal from '../modal/MyInfoModal/MyInfoModal';
+
+// ✅ MyInfoModal을 dynamic import로 변경
+const MyInfoModal = dynamic(() => import('../modal/MyInfoModal/MyInfoModal'), {
+  ssr: false,
+  loading: () => null,
+});
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const [uid, setUid] = useState<string | null>(null); // ✅ 상태로 분리
+  const [uid, setUid] = useState<string | null>(null);
   const handleToggle = () => setIsOpen(prev => !prev);
 
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  // ✅ 클라이언트에서만 실행되도록 useEffect 사용
   useEffect(() => {
     const user = sessionStorage.getItem('user');
     const parsed = user ? JSON.parse(user) : null;
@@ -50,7 +55,7 @@ export default function Header() {
     <Box w="100%" as="header" bg="white" py={6}>
       <Flex justify="space-between" align="center">
         <HStack>
-          <Image src="/image/logo_2.png" alt="로고 이미지" w="28px" />
+          <Image src="/image/logo_2.webp" alt="로고 이미지" width="28px" height="28px" />
           <Text
             fontSize="xl"
             fontWeight="bold"
