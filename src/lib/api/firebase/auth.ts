@@ -42,11 +42,9 @@ interface SignUpData {
 // 회원가입
 export const registerUser = async ({ email, password, nickname }: SignUpData) => {
   try {
-    // 1. Authentication 등록
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const uid = userCredential.user.uid;
 
-    // 2. Firestore에 유저 정보 저장
     await setDoc(doc(db, 'users', uid), {
       email,
       nickname,
@@ -56,9 +54,11 @@ export const registerUser = async ({ email, password, nickname }: SignUpData) =>
     return { success: true, uid };
   } catch (err) {
     if (err instanceof FirebaseError) {
-      console.error('Firestore FirebaseError:', err.code, err.message);
+      console.error('FirebaseError:', err.code, err.message);
+      throw err;
     } else {
-      console.error('Firestore Unknown Error:', err);
+      console.error('Unknown Error:', err);
+      throw new Error('회원가입 중 알 수 없는 오류가 발생했습니다.');
     }
   }
 };
@@ -245,6 +245,7 @@ export const deleteUserAccount = async ({
   }
 };
 
+// 비밀번호 재설정 이메일 전송
 export const sendResetEmail = async (email: string) => {
   try {
     await sendPasswordResetEmail(auth, email);

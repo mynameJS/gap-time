@@ -102,17 +102,36 @@ function SignUpRegister() {
       toaster.create({ description: '이메일 인증을 먼저 완료해주세요.', type: 'error' });
       return;
     }
+
     if (!validateAll()) return;
 
     try {
       await registerUser({ email, password, nickname });
+
       toaster.create({ description: '회원가입이 완료되었습니다 🎉', type: 'success' });
       router.push('/login');
     } catch (error: any) {
-      toaster.create({ description: error.message || '회원가입 실패', type: 'error' });
+      if (error.code === 'auth/email-already-in-use') {
+        toaster.create({
+          description: '이미 가입된 이메일입니다. 다시 입력해주세요.',
+          type: 'error',
+        });
+
+        // ✅ 이메일 인증 초기화
+        setIsVerified(false);
+        setEmailStatus('idle');
+        setVerificationCode('');
+        setGeneratedCode('');
+        setCodeSentAt(null);
+        setRemainingSeconds(0);
+      } else {
+        toaster.create({
+          description: error.message || '회원가입 중 문제가 발생했습니다.',
+          type: 'error',
+        });
+      }
     }
   };
-
   useEffect(() => {
     if (remainingSeconds <= 0) return;
     const timer = setInterval(() => {
