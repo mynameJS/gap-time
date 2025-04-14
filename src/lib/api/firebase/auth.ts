@@ -9,6 +9,7 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential,
   reauthenticateWithPopup,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc } from 'firebase/firestore';
 import { UserInfo } from '@/types/interface';
@@ -241,5 +242,15 @@ export const deleteUserAccount = async ({
           ? 'Google 인증 창이 닫혔습니다.'
           : error.message || '회원탈퇴에 실패했습니다.',
     };
+  }
+};
+
+export const sendResetEmail = async (email: string) => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+    console.log('비밀번호 재설정 메일을 전송했습니다.');
+  } catch (error: any) {
+    console.error('비밀번호 재설정 실패', error.message);
+    throw error;
   }
 };
