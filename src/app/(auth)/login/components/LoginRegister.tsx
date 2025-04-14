@@ -4,12 +4,14 @@ import { Box, Button, Input, Text, VStack, Field, Link, Flex, IconButton } from 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { FcGoogle } from 'react-icons/fc';
+import ResetPasswordModal from '@/components/modal/ResetPasswordModal';
 import { Toaster, toaster } from '@/components/ui/toaster';
 import { loginUser, loginWithGoogle } from '@/lib/api/firebase/auth';
 
 function LoginRegister() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -51,6 +53,8 @@ function LoginRegister() {
     }
   };
 
+  const toggleModal = () => setIsOpen(prev => !prev);
+
   return (
     <Box
       w="100%"
@@ -64,7 +68,14 @@ function LoginRegister() {
       boxShadow="md"
       bg="white"
       onKeyDown={e => {
-        if (e.key === 'Enter') handleLogin();
+        if (e.key === 'Enter') {
+          if (isOpen) {
+            e.preventDefault();
+            e.stopPropagation(); // 모달 내 엔터 감지 방지
+            return;
+          }
+          handleLogin();
+        }
       }}>
       <VStack gap={5} align="stretch">
         <Text
@@ -102,6 +113,7 @@ function LoginRegister() {
             color="gray.500"
             textAlign="right"
             pr={1}
+            onClick={toggleModal}
             cursor="pointer"
             _hover={{ textDecoration: 'underline' }}>
             비밀번호를 잊으셨나요?
@@ -138,6 +150,7 @@ function LoginRegister() {
         </VStack>
       </VStack>
       <Toaster />
+      <ResetPasswordModal isOpen={isOpen} onToggle={toggleModal} />
     </Box>
   );
 }
