@@ -64,6 +64,7 @@ function PlaceSearchPanel({
       return fetchNearbyPlacesDetail({
         latitude: planInfo.geocode.lat,
         longitude: planInfo.geocode.lng,
+        sortBy: 'distance',
         keyword: searchTerm,
       });
     },
