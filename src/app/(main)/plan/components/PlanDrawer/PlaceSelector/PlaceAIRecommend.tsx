@@ -8,10 +8,12 @@ import { GPTMessage } from '@/types/interface';
 
 function PlaceAIRecommend({ onPlaceSelect }: { onPlaceSelect: any }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+
   const [mode, setMode] = useState<'closed' | 'open'>('closed');
   const [messages, setMessages] = useState<GPTMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [typingMessage, setTypingMessage] = useState<string | null>(null);
 
   const handleSend = async () => {
     const message = input.trim();
@@ -29,15 +31,33 @@ function PlaceAIRecommend({ onPlaceSelect }: { onPlaceSelect: any }) {
         body: JSON.stringify({
           location: '서울 노원구',
           timeLimit: 60,
-          mood: message, // ✅ 여기도 지역 변수 사용
+          mood: message,
         }),
       });
       const data = await res.json();
-      const gptMessage = { role: 'gpt', content: data.result } as GPTMessage;
-      setMessages(prev => [...prev, gptMessage]);
-    } catch (e) {
+      const content = data.result;
+
+      setTypingMessage('');
+      let i = 0;
+
+      const interval = setInterval(() => {
+        setTypingMessage(prev => (prev || '') + content[i]);
+        i++;
+        if (i >= content.length) {
+          clearInterval(interval);
+          setMessages(prev => [...prev, { role: 'gpt', content }]);
+          setTypingMessage(null);
+          setLoading(false);
+        }
+      }, 30);
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        console.error('API 호출 오류:', e.message);
+      } else {
+        console.error('알 수 없는 오류:', e);
+      }
+
       setMessages(prev => [...prev, { role: 'gpt', content: '추천을 가져오는 데 실패했어요 😢' }]);
-    } finally {
       setLoading(false);
     }
   };
@@ -46,7 +66,7 @@ function PlaceAIRecommend({ onPlaceSelect }: { onPlaceSelect: any }) {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, typingMessage]);
 
   return (
     <Box position="fixed" bottom="6" right="6" zIndex="1400">
@@ -78,7 +98,6 @@ function PlaceAIRecommend({ onPlaceSelect }: { onPlaceSelect: any }) {
               borderRadius="lg"
               w="600px"
               h="400px"
-              maxH="500px"
               overflow="hidden"
               position="relative">
               <IconButton
@@ -92,7 +111,7 @@ function PlaceAIRecommend({ onPlaceSelect }: { onPlaceSelect: any }) {
                 <RxCross2 />
               </IconButton>
 
-              <VStack ref={scrollRef} align="stretch" gap={2} overflowY="auto" w="100%" h="300px" maxH="350px" mt={8}>
+              <VStack ref={scrollRef} align="stretch" gap={2} overflowY="auto" w="100%" h="300px" mt={8}>
                 {messages.length === 0 && (
                   <Flex
                     direction="column"
@@ -117,6 +136,7 @@ function PlaceAIRecommend({ onPlaceSelect }: { onPlaceSelect: any }) {
                     </Text>
                   </Flex>
                 )}
+
                 {messages.map((msg, idx) => (
                   <Box
                     key={idx}
@@ -129,7 +149,14 @@ function PlaceAIRecommend({ onPlaceSelect }: { onPlaceSelect: any }) {
                     <Text fontSize="sm">{msg.content}</Text>
                   </Box>
                 ))}
+                {/* 타이핑 애니메이션효과 */}
+                {typingMessage && (
+                  <Box alignSelf="flex-start" bg="gray.100" px={3} py={2} borderRadius="md" maxW="80%">
+                    <Text fontSize="sm">{typingMessage}</Text>
+                  </Box>
+                )}
               </VStack>
+
               <InputGroup
                 mt={2}
                 w="100%"
