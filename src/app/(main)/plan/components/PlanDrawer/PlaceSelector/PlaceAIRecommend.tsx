@@ -1,7 +1,8 @@
-import { Box, Button, IconButton, Input, Text, VStack } from '@chakra-ui/react';
+import { Box, Button, Flex, IconButton, Input, Text, VStack, Icon } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { RxCross2 } from 'react-icons/rx';
+import { TbBulb } from 'react-icons/tb';
 import { InputGroup } from '@/components/ui/input-group';
 import { GPTMessage } from '@/types/interface';
 
@@ -92,6 +93,30 @@ function PlaceAIRecommend({ onPlaceSelect }: { onPlaceSelect: any }) {
               </IconButton>
 
               <VStack ref={scrollRef} align="stretch" gap={2} overflowY="auto" w="100%" h="300px" maxH="350px" mt={8}>
+                {messages.length === 0 && (
+                  <Flex
+                    direction="column"
+                    align="center"
+                    justify="center"
+                    px={4}
+                    py={6}
+                    w="100%"
+                    h="100%"
+                    bg="gray.50"
+                    borderRadius="md">
+                    <Box fontSize="40px" mb={4} color="gray.400">
+                      <Icon as={TbBulb} />
+                    </Box>
+                    <Text fontSize="sm" fontWeight="500" color="gray.500" textAlign="center">
+                      원하는 분위기나 조건을 입력하면
+                      <br />
+                      AI가 어울리는 장소를 추천해드려요.
+                    </Text>
+                    <Text fontSize="sm" color="gray.500" mt={3} textAlign="center">
+                      예: <b>&quot;조용한 카페&quot;</b> 또는 <b>&quot;30분 안에 다녀올 산책 코스&quot;</b>
+                    </Text>
+                  </Flex>
+                )}
                 {messages.map((msg, idx) => (
                   <Box
                     key={idx}
@@ -125,9 +150,9 @@ function PlaceAIRecommend({ onPlaceSelect }: { onPlaceSelect: any }) {
                 <Input
                   value={input}
                   onChange={e => setInput(e.target.value)}
-                  placeholder="예: 혼자 쉬고 싶은 곳"
+                  placeholder="가고 싶은 장소를 말해보세요"
                   onKeyDown={e => {
-                    if (e.key === 'Enter') {
+                    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
                       e.preventDefault();
                       handleSend();
                     }
