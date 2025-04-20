@@ -54,7 +54,7 @@ function PlaceSelector({ currentDetailData, isDetailModalOpen, setCurrentDetailD
       <PlaceSearchPanel
         planInfo={planInfo}
         selectedPlaces={selectedPlaces}
-        handleTogglePlace={handleTogglePlace}
+        onPlaceSelect={handleTogglePlace}
         setCurrentDetailData={setCurrentDetailData}
         onToggle={onToggle}
       />
