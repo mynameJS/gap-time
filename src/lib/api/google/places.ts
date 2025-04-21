@@ -23,12 +23,12 @@ export const fetchNearbyPlaces = async (params: NearbyPlacesParams) => {
 
     const places = await response.json();
 
+    // ✅ 정렬 조건 분기 처리
     if (params.sortBy === 'rating') {
-      /* eslint-disable @typescript-eslint/no-explicit-any */
       places.sort((a: any, b: any) => (b.rating || 0) - (a.rating || 0));
-    } else if (params.sortBy === 'distance') {
+    } else if (params.sortBy === 'distance' && !params.keyword) {
+      // ✅ 키워드 기반일 경우 정렬 생략
       places.sort((a: any, b: any) => (b.total_reviews || 0) - (a.total_reviews || 0));
-      /* eslint-disable @typescript-eslint/no-explicit-any */
     }
 
     return places;
@@ -168,7 +168,7 @@ export const fetchNearbyPlacesDetail = async (params: NearbyPlacesParams) => {
           photo_url,
           ...detail,
         };
-      })
+      }),
     );
 
     // 3. 정렬 조건 적용
@@ -182,6 +182,49 @@ export const fetchNearbyPlacesDetail = async (params: NearbyPlacesParams) => {
   } catch (error) {
     console.error('Error fetching nearby places detail:', error);
     return [];
+  }
+};
+
+// 키워드 기반 검색, 각 키워드 별 최상위 장소 1곳만 페칭(detail, photo_url ..)
+export const fetchTopPlaceByKeyword = async (params: NearbyPlacesParams) => {
+  try {
+    // 1. 해당 키워드로 nearby 장소 가져오기
+    const response = await fetch('/api/google-maps/places/nearby', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch nearby places');
+
+    const places = await response.json();
+    const topPlace = places[0];
+    if (!topPlace) return null;
+
+    // 2. 상세 정보
+    const detail = await fetchPlaceDetails(topPlace.place_id);
+
+    // 3. 사진 URL
+    let photo_url = null;
+    if (topPlace.photo_reference) {
+      try {
+        const photoRes = await fetch(`/api/google-maps/photo?photo_reference=${topPlace.photo_reference}`);
+        if (photoRes.ok) {
+          photo_url = photoRes.url;
+        }
+      } catch (err) {
+        console.error(`Failed to fetch photo for place_id: ${topPlace.place_id}`, err);
+      }
+    }
+
+    return {
+      ...topPlace,
+      ...detail,
+      photo_url,
+    };
+  } catch (error) {
+    console.error('❌ Error fetching top place by keyword:', error);
+    return null;
   }
 };
 

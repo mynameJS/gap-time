@@ -16,7 +16,7 @@ import { PlaceDetails, PlanInfo } from '@/types/interface';
 interface PlaceSearchPanelProps {
   planInfo: PlanInfo | null;
   selectedPlaces: PlaceDetails[];
-  handleTogglePlace: (place: PlaceDetails) => void;
+  onPlaceSelect: (place: PlaceDetails) => void;
   setCurrentDetailData: (place: PlaceDetails) => void;
   onToggle: () => void;
 }
@@ -24,7 +24,7 @@ interface PlaceSearchPanelProps {
 function PlaceSearchPanel({
   planInfo,
   selectedPlaces,
-  handleTogglePlace,
+  onPlaceSelect,
   setCurrentDetailData,
   onToggle,
 }: PlaceSearchPanelProps) {
@@ -203,7 +203,7 @@ function PlaceSearchPanel({
                 <Button
                   size="sm"
                   bg={isSelected ? 'green.500' : 'gray.200'}
-                  onClick={() => handleTogglePlace(place)}
+                  onClick={() => onPlaceSelect(place)}
                   flexShrink={0}
                   minW="36px"
                   h="100%">

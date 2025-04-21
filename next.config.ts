@@ -8,7 +8,8 @@ const nextConfig = {
   },
 };
 
-export default withBundleAnalyzer({
-  ...nextConfig,
+const withBundle = withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
+
+export default withBundle(nextConfig);

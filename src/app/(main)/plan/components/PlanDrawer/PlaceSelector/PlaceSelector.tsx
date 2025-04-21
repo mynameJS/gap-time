@@ -8,6 +8,7 @@ import useGeocodeListStore from '@/store/useGeocodeListStore';
 import usePlanStore from '@/store/usePlanInfoStore';
 import { PlaceDetails } from '@/types/interface';
 import getTimeBlocks from '@/utils/plan/getTimeBlocks';
+import PlaceAIRecommend from './PlaceAIRecommend';
 import PlaceSearchPanel from './PlaceSearchPanel';
 import PlaceSelectionPanel from './PlaceSelectionPanel';
 
@@ -53,7 +54,7 @@ function PlaceSelector({ currentDetailData, isDetailModalOpen, setCurrentDetailD
       <PlaceSearchPanel
         planInfo={planInfo}
         selectedPlaces={selectedPlaces}
-        handleTogglePlace={handleTogglePlace}
+        onPlaceSelect={handleTogglePlace}
         setCurrentDetailData={setCurrentDetailData}
         onToggle={onToggle}
       />
@@ -65,6 +66,7 @@ function PlaceSelector({ currentDetailData, isDetailModalOpen, setCurrentDetailD
         removeGeocodeById={removeGeocodeById}
         count={count}
       />
+      <PlaceAIRecommend onPlaceSelect={handleTogglePlace} selectedPlaces={selectedPlaces} />
       {isDetailModalOpen && currentDetailData && (
         <PlaceDetailModal
           currentDetailData={currentDetailData}

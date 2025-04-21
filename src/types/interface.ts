@@ -83,3 +83,8 @@ export interface PlanWithSchedule {
   createdAt: string;
   schedule: ScheduleBlock[];
 }
+
+export interface ChatMessage {
+  role: 'user' | 'gpt';
+  content: string | PlaceDetails[];
+}
