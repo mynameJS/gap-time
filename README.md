@@ -38,6 +38,14 @@
 
 ![화면 기록 2025-04-07 오전 11 52 17](https://github.com/user-attachments/assets/ddbf9f6c-406e-4c1f-8188-d4b41f675245)
 
+#### 📝 `AI 장소 추천`
+#### 플랜페이지 우측 하단의 `AI 추천` 버튼을 통해 AI 채팅을 진행할 수 있습니다.
+#### 원하는 장소의 유형이나 특정 장소 키워드를 입력하면 AI 가 추천하는 장소 리스트가 카드 형태로 제시됩니다.
+#### 해당 카드를 클릭하여 상세 정보를 열람하거나 + 버튼을 클릭하여 내 일정에 추가할 수 있습니다.
+
+
+![화면 기록 2025-04-22 오전 3 14 01](https://github.com/user-attachments/assets/a3ac34ca-dc82-4834-83fc-cb41f75bcaaf)
+
 ### `마이페이지 (/mypage)`
 #### 마이페이지에서는 저장된 일정과 회원정보를 관리할 수 있습니다.
 #### 내가 만든 일정 리스트를 통해 이전에 만들었던 일정 내용을 클릭하여 확인할 수 있습니다.
@@ -68,7 +76,8 @@
 | Styles         | ![Chakra UI](https://img.shields.io/badge/ChakraUI-319795?style=for-the-badge&logo=chakraui&logoColor=white) |              |             |
 | State Mgmt     | ![Zustand](https://img.shields.io/badge/Zustand-F0BA47?style=for-the-badge&logo=Zustand&logoColor=white) |              |             |
 | Data Fetching  | ![TanStack Query](https://img.shields.io/badge/TanStack_Query-FF4154?style=for-the-badge&logo=reactquery&logoColor=white) |              |             |
-| API / External | ![Google API](https://img.shields.io/badge/Google%20API-4285F4?style=for-the-badge&logo=google&logoColor=white) |              |             |
+| API / External | ![Google API](https://img.shields.io/badge/Google%20API-4285F4?style=for-the-badge&logo=google&logoColor=white) ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white) |              |             |
 | Convention     | ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white) ![Prettier](https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=white) |              |             |
+
 
 
