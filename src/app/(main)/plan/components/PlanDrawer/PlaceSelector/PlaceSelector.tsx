@@ -66,7 +66,7 @@ function PlaceSelector({ currentDetailData, isDetailModalOpen, setCurrentDetailD
         removeGeocodeById={removeGeocodeById}
         count={count}
       />
-      <PlaceAIRecommend onPlaceSelect={handleTogglePlace} />
+      <PlaceAIRecommend onPlaceSelect={handleTogglePlace} selectedPlaces={selectedPlaces} />
       {isDetailModalOpen && currentDetailData && (
         <PlaceDetailModal
           currentDetailData={currentDetailData}
