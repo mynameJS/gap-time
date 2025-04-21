@@ -1,21 +1,28 @@
-import OpenAI from 'openai';
+import { fetchTopPlaceByKeyword } from '@/lib/api/google/places';
 
-export async function getGPT3PlaceSuggestion(apiKey: string, prompt: string) {
+export async function getRecommendedPlacesByPrompt(prompt: string, lat: number, lng: number) {
   try {
-    const openai = new OpenAI({ apiKey });
-
-    const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: '너는 여행 장소 추천 비서야.' },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.7,
+    const res = await fetch('/api/ai-recommend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
     });
 
-    return response.choices[0]?.message?.content ?? '추천 결과가 없습니다.';
-  } catch (err) {
-    console.error('GPT 요청 중 오류 발생:', err);
-    throw err;
+    const { result: keywords }: { result: string[] } = await res.json();
+
+    const placePromises = keywords.map(keyword =>
+      fetchTopPlaceByKeyword({
+        latitude: lat,
+        longitude: lng,
+        keyword,
+        sortBy: 'distance',
+      }),
+    );
+
+    const results = await Promise.all(placePromises);
+    return results.filter(Boolean); // null/undefined 제거
+  } catch (error) {
+    console.error('🛑 클라이언트 추천 장소 처리 실패:', error);
+    return [];
   }
 }
