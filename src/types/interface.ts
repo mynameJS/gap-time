@@ -84,7 +84,7 @@ export interface PlanWithSchedule {
   schedule: ScheduleBlock[];
 }
 
-export interface GPTMessage {
+export interface ChatMessage {
   role: 'user' | 'gpt';
-  content: string;
+  content: string | PlaceDetails[];
 }
