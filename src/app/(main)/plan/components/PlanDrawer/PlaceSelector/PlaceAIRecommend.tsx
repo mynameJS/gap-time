@@ -1,77 +1,107 @@
-import { Box, Button, Flex, IconButton, Input, Text, VStack, Icon } from '@chakra-ui/react';
+import { Box, Button, Flex, IconButton, Input, Text, VStack, HStack, Icon } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { RxCross2 } from 'react-icons/rx';
 import { TbBulb } from 'react-icons/tb';
 import { InputGroup } from '@/components/ui/input-group';
-import { GPTMessage } from '@/types/interface';
+import { getRecommendedPlacesByPrompt } from '@/lib/api/openai/openai';
+import usePlanStore from '@/store/usePlanInfoStore';
+import { ChatMessage, PlaceDetails } from '@/types/interface';
+import { getIntroReply, getClosingReply } from '@/utils/getRandomGptReply';
+import { RecommendedPlaceCard } from './RecommendedPlaceCard';
 
-function PlaceAIRecommend({ onPlaceSelect }: { onPlaceSelect: any }) {
+interface PlaceAIRecommendProps {
+  onPlaceSelect: (place: PlaceDetails) => void;
+  selectedPlaces: PlaceDetails[];
+}
+
+function PlaceAIRecommend({ onPlaceSelect, selectedPlaces }: PlaceAIRecommendProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-
   const [mode, setMode] = useState<'closed' | 'open'>('closed');
-  const [messages, setMessages] = useState<GPTMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [typingMessage, setTypingMessage] = useState<string | null>(null);
+  const { planInfo } = usePlanStore();
 
   const handleSend = async () => {
     const message = input.trim();
-    if (!message) return;
+    if (!message || !planInfo) return;
 
-    const userMessage = { role: 'user', content: message } as GPTMessage;
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => [...prev, { role: 'user', content: message }]);
     setInput('');
     setLoading(true);
 
     try {
-      const res = await fetch('/api/ai-recommend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location: '서울 노원구',
-          timeLimit: 60,
-          mood: message,
-        }),
-      });
-      const data = await res.json();
-      const content = data.result;
+      const places = await getRecommendedPlacesByPrompt(message, planInfo.geocode.lat, planInfo.geocode.lng);
+      if (!places || places.length === 0) throw new Error('추천 장소를 찾을 수 없습니다.');
 
+      const intro = getIntroReply(message);
+      const closing = getClosingReply();
+
+      // GPT 응답 시 타이핑 효과로 메시지 순차 출력
       setTypingMessage('');
+      const fullMessage = intro;
       let i = 0;
-
       const interval = setInterval(() => {
-        setTypingMessage(prev => (prev || '') + content[i]);
+        setTypingMessage(prev => (prev || '') + fullMessage[i]);
         i++;
-        if (i >= content.length) {
+        if (i >= fullMessage.length) {
           clearInterval(interval);
-          setMessages(prev => [...prev, { role: 'gpt', content }]);
+          setMessages(prev => [
+            ...prev,
+            { role: 'gpt', content: intro },
+            { role: 'gpt', content: places },
+            { role: 'gpt', content: closing },
+          ]);
           setTypingMessage(null);
           setLoading(false);
         }
       }, 30);
     } catch (e: unknown) {
       if (e instanceof Error) {
-        console.error('API 호출 오류:', e.message);
+        console.error('AI 추천 실패:', e.message);
       } else {
-        console.error('알 수 없는 오류:', e);
+        console.error('AI 추천 알 수 없는 오류:', e);
       }
-
-      setMessages(prev => [...prev, { role: 'gpt', content: '추천을 가져오는 데 실패했어요 😢' }]);
+      setMessages(prev => [...prev, { role: 'gpt', content: '추천 장소를 찾을 수 없어요 😢' }]);
       setLoading(false);
     }
   };
 
+  // 새로운 메세지 추가 시 스크롤 하단
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, typingMessage]);
 
+  // AI추천 채팅 OPEN 시 스크롤 하단
+  useEffect(() => {
+    if (mode === 'open') {
+      const scrollToBottom = () => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+      };
+
+      // ChakraUI 렌더방식으로 인해 ref 참조 시 DOM 연동이 늦어 확실한 보장을 위해 타임아웃 3번 실행 (개선필요)
+      const timeouts = [
+        setTimeout(scrollToBottom, 200),
+        setTimeout(scrollToBottom, 500),
+        setTimeout(scrollToBottom, 1000),
+      ];
+
+      return () => {
+        timeouts.forEach(clearTimeout);
+      };
+    }
+  }, [mode]);
+
   return (
-    <Box position="fixed" bottom="6" right="6" zIndex="1400">
+    <Box position="fixed" bottom="7" right="6" zIndex="1400">
       <AnimatePresence mode="wait">
-        {mode === 'closed' && (
+        {mode === 'closed' ? (
           <motion.div
             key="button"
             initial={{ opacity: 0, y: 20 }}
@@ -82,9 +112,7 @@ function PlaceAIRecommend({ onPlaceSelect }: { onPlaceSelect: any }) {
               AI 추천
             </Button>
           </motion.div>
-        )}
-
-        {mode === 'open' && (
+        ) : (
           <motion.div
             key="chatbox"
             initial={{ opacity: 0, y: 20 }}
@@ -96,8 +124,8 @@ function PlaceAIRecommend({ onPlaceSelect }: { onPlaceSelect: any }) {
               boxShadow="lg"
               p={4}
               borderRadius="lg"
-              w="600px"
-              h="400px"
+              w={{ base: '90vw', md: '600px' }}
+              h={{ base: '400px', md: '500px' }}
               overflow="hidden"
               position="relative">
               <IconButton
@@ -111,7 +139,7 @@ function PlaceAIRecommend({ onPlaceSelect }: { onPlaceSelect: any }) {
                 <RxCross2 />
               </IconButton>
 
-              <VStack ref={scrollRef} align="stretch" gap={2} overflowY="auto" w="100%" h="300px" mt={8}>
+              <VStack ref={scrollRef} align="stretch" gap={2} overflowY="auto" w="100%" h="400px" mt={8}>
                 {messages.length === 0 && (
                   <Flex
                     direction="column"
@@ -137,19 +165,35 @@ function PlaceAIRecommend({ onPlaceSelect }: { onPlaceSelect: any }) {
                   </Flex>
                 )}
 
-                {messages.map((msg, idx) => (
-                  <Box
-                    key={idx}
-                    alignSelf={msg.role === 'user' ? 'flex-end' : 'flex-start'}
-                    bg={msg.role === 'user' ? 'green.100' : 'gray.100'}
-                    px={3}
-                    py={2}
-                    borderRadius="md"
-                    maxW="80%">
-                    <Text fontSize="sm">{msg.content}</Text>
-                  </Box>
-                ))}
-                {/* 타이핑 애니메이션효과 */}
+                {messages.map((msg, idx) => {
+                  if (msg.role === 'user') {
+                    return (
+                      <Box key={idx} alignSelf="flex-end" bg="green.100" px={3} py={2} borderRadius="md" maxW="80%">
+                        <Text fontSize="sm">{msg.content as string}</Text>
+                      </Box>
+                    );
+                  }
+                  if (Array.isArray(msg.content)) {
+                    return (
+                      <HStack key={idx} gap={3} w="max-content" px={1} alignSelf="flex-start">
+                        {msg.content.map(place => (
+                          <RecommendedPlaceCard
+                            key={place.place_id}
+                            place={place}
+                            onSelect={onPlaceSelect}
+                            isSelected={selectedPlaces.some(p => p.place_id === place.place_id)}
+                          />
+                        ))}
+                      </HStack>
+                    );
+                  }
+                  return (
+                    <Box key={idx} alignSelf="flex-start" bg="gray.100" px={3} py={2} borderRadius="md" maxW="80%">
+                      <Text fontSize="sm">{msg.content as string}</Text>
+                    </Box>
+                  );
+                })}
+
                 {typingMessage && (
                   <Box alignSelf="flex-start" bg="gray.100" px={3} py={2} borderRadius="md" maxW="80%">
                     <Text fontSize="sm">{typingMessage}</Text>
@@ -177,7 +221,7 @@ function PlaceAIRecommend({ onPlaceSelect }: { onPlaceSelect: any }) {
                 <Input
                   value={input}
                   onChange={e => setInput(e.target.value)}
-                  placeholder="가고 싶은 장소를 말해보세요"
+                  placeholder="원하는 장소의 유형을 입력해 주세요!"
                   onKeyDown={e => {
                     if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
                       e.preventDefault();
