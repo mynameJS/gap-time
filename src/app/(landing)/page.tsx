@@ -45,7 +45,7 @@ export default function Page() {
         justifyContent="center"
         alignItems="center">
         <Image
-          src="/image/landing2.webp"
+          src="/image/landing.webp"
           alt="틈새시간 계획 일러스트"
           width={854}
           height={570}
