@@ -35,12 +35,19 @@ const getCurrentLocationAddress = (): Promise<LocationResult> => {
       },
       (err: GeolocationPositionError) => {
         console.error('Geolocation error:', err);
+
+        const isMac = navigator.userAgent.includes('Macintosh');
+
         switch (err.code) {
           case 1:
             reject(new Error('위치 권한이 거부되었습니다.'));
             break;
           case 2:
-            reject(new Error('위치 정보를 사용할 수 없습니다 (POSITION_UNAVAILABLE).'));
+            if (isMac) {
+              reject(new Error('위치 정보를 사용할 수 없습니다. Mac을 사용 중이라면 Wi-Fi를 껐다가 다시 켜보세요.'));
+            } else {
+              reject(new Error('위치 정보를 사용할 수 없습니다 (POSITION_UNAVAILABLE).'));
+            }
             break;
           case 3:
             reject(new Error('위치 정보 요청이 시간 초과되었습니다.'));
@@ -52,8 +59,8 @@ const getCurrentLocationAddress = (): Promise<LocationResult> => {
       {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 0,
-      }
+        maximumAge: 60000,
+      },
     );
   });
 };
