@@ -55,7 +55,7 @@ export default function Header() {
     <Box w="100%" as="header" bg="white" py={6}>
       <Flex justify="space-between" align="center">
         <HStack>
-          <Image src="/image/logo_2.webp" alt="로고 이미지" width="28px" height="28px" />
+          <Image src="/image/logo.webp" alt="로고 이미지" width="28px" height="28px" />
           <Text
             fontSize="xl"
             fontWeight="bold"
