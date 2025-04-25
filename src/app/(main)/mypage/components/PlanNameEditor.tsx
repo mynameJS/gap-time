@@ -9,7 +9,7 @@ interface PlanNameEditorProps {
   onSave: (newName: string) => void;
 }
 
-export default function PlanNameEditor({ initialName, onSave }: PlanNameEditorProps) {
+function PlanNameEditor({ initialName, onSave }: PlanNameEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState<string | null>(initialName);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -24,7 +24,7 @@ export default function PlanNameEditor({ initialName, onSave }: PlanNameEditorPr
   };
 
   return (
-    <Flex align="center" onClick={e => e.stopPropagation()}>
+    <Flex align="center" onClick={e => e.stopPropagation()} maxW="100%" gap="1" minW={0}>
       {isEditing ? (
         <>
           <Input
@@ -46,7 +46,15 @@ export default function PlanNameEditor({ initialName, onSave }: PlanNameEditorPr
         </>
       ) : (
         <>
-          <Text fontWeight="semibold" fontSize="lg" truncate>
+          <Text
+            fontWeight="semibold"
+            fontSize="lg"
+            truncate
+            whiteSpace="nowrap"
+            overflow="hidden"
+            textOverflow="ellipsis"
+            maxW="calc(100% - 32px)" // 버튼 공간 뺀 너비
+          >
             {initialName || '일정 제목 없음'}
           </Text>
           <IconButton
@@ -64,3 +72,5 @@ export default function PlanNameEditor({ initialName, onSave }: PlanNameEditorPr
     </Flex>
   );
 }
+
+export default PlanNameEditor;
