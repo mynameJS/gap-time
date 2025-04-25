@@ -9,6 +9,7 @@ import {
   where,
   deleteDoc,
   doc,
+  updateDoc,
 } from 'firebase/firestore';
 import { ScheduleBlock, PlanWithSchedule } from '@/types/interface';
 import { db } from './init';
@@ -20,6 +21,7 @@ export async function addPlanToUser(uid: string, newPlan: ScheduleBlock[], creat
     await addDoc(plansRef, {
       createdAt: serverTimestamp(),
       creationAddress: creationAddress, // 일정 생성 시 위치 저장
+      planName: null,
       schedule: newPlan, // ✅ 이 안에 배열로 저장하면 Firestore 허용
     });
     console.log('일정 저장 성공');
@@ -48,6 +50,7 @@ export async function getUserPlansWithSchedule(uid: string): Promise<PlanWithSch
       result.push({
         createdAt: createdAtTimestamp?.toDate().toISOString() ?? '',
         createdAddress: data.creationAddress,
+        planName: data.planName,
         schedule,
       });
     });
@@ -77,6 +80,7 @@ export const getPlanByCreatedAt = async (uid: string, createdAt: number): Promis
       schedule: data.schedule,
       createdAt: data.createdAt,
       createdAddress: data.creationAddress,
+      planName: data.planName,
     };
   } catch (error) {
     console.error('🔥 getPlanByCreatedAt 오류:', error);
@@ -103,5 +107,33 @@ export const deletePlanByCreatedAt = async (uid: string, createdAt: string) => {
     await deleteDoc(doc(db, 'users', uid, 'plans', targetDoc.id));
   } catch (error) {
     console.error('🔥 deletePlanByCreatedAt 오류:', error);
+  }
+};
+
+// 사용자 특정 일정의 제목 수정하기
+export const updatePlanNameByCreatedAt = async (uid: string, createdAt: string, newName: string) => {
+  try {
+    const plansRef = collection(db, 'users', uid, 'plans');
+
+    // ✅ string → Date → Timestamp 변환
+    const timestamp = Timestamp.fromDate(new Date(createdAt));
+
+    const q = query(plansRef, where('createdAt', '==', timestamp));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.warn('🛑 해당 일정이 존재하지 않습니다.');
+      return;
+    }
+
+    const targetDoc = querySnapshot.docs[0];
+
+    await updateDoc(doc(db, 'users', uid, 'plans', targetDoc.id), {
+      planName: newName,
+    });
+
+    console.log('✅ 일정 이름이 수정되었습니다.');
+  } catch (error) {
+    console.error('🔥 updatePlanNameByCreatedAt 오류:', error);
   }
 };
