@@ -1,19 +1,18 @@
 'use client';
 
-import { Box, Text, Heading, Flex, Image, Badge, VStack, Icon, Spinner, Stack, Menu, Portal } from '@chakra-ui/react';
+import { Box, Text, Heading, Flex, Image, VStack, Icon, Spinner, Stack, Menu, Portal } from '@chakra-ui/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { FiMapPin, FiMoreVertical } from 'react-icons/fi';
 import { Toaster, toaster } from '@/components/ui/toaster';
-import { PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
-import { getUserPlansWithSchedule } from '@/lib/api/firebase/plan';
-import { deletePlanByCreatedAt } from '@/lib/api/firebase/plan';
+import { getUserPlansWithSchedule, deletePlanByCreatedAt, updatePlanNameByCreatedAt } from '@/lib/api/firebase/plan';
 import useGeocodeListStore from '@/store/useGeocodeListStore';
 import usePlanStore from '@/store/usePlanInfoStore';
 import usePolylineListStore from '@/store/usePolylineListStore';
 import useSelectedPlanStore from '@/store/useSelectedPlanStore';
 import { PlanWithSchedule } from '@/types/interface';
+import PlanNameEditor from './PlanNameEditor';
 
 interface MyPlanListProps {
   userId: string;
@@ -70,7 +69,6 @@ function MyPlanList({ userId }: MyPlanListProps) {
         queryClient.invalidateQueries({ queryKey: ['userPlans', userId] });
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : '알 수 없는 오류입니다.';
-
         toaster.create({
           title: '삭제 중 오류가 발생했습니다.',
           description: message,
@@ -79,6 +77,21 @@ function MyPlanList({ userId }: MyPlanListProps) {
       }
     }
   };
+
+  // ✅ planName 수정 함수
+  const handlePlanNameSave = useCallback(
+    async (createdAt: string, newName: string) => {
+      try {
+        await updatePlanNameByCreatedAt(userId, createdAt, newName);
+        toaster.create({ title: '일정 제목이 수정되었습니다.', type: 'success' });
+        queryClient.invalidateQueries({ queryKey: ['userPlans', userId] });
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : '알 수 없는 오류입니다.';
+        toaster.create({ title: '수정 중 오류 발생', description: message, type: 'error' });
+      }
+    },
+    [userId, queryClient],
+  );
 
   // ✅ 새로 입장 시 planInfo 초기화
   useEffect(() => {
@@ -114,12 +127,6 @@ function MyPlanList({ userId }: MyPlanListProps) {
         <VStack gap="6" align="stretch">
           {plans.map(plan => {
             const place = plan.schedule[1]?.placeDetails;
-            const rawType = place?.type ?? 'unknown';
-            const categoryInfo =
-              rawType in PLACES_CATEGORY_COLOR_SET
-                ? PLACES_CATEGORY_COLOR_SET[rawType as keyof typeof PLACES_CATEGORY_COLOR_SET]
-                : { ko: '기타', color: 'gray' };
-
             return (
               <Stack
                 key={plan.createdAt}
@@ -149,14 +156,10 @@ function MyPlanList({ userId }: MyPlanListProps) {
                   justify="center"
                   cursor="pointer"
                   onClick={() => handleCardClick(plan)}>
-                  <Flex align="center" gap="2">
-                    <Badge variant="subtle" colorPalette={categoryInfo.color}>
-                      {categoryInfo.ko}
-                    </Badge>
-                    <Text fontWeight="semibold" fontSize="lg" color="gray.700">
-                      {place?.name || '일정 제목 없음'}
-                    </Text>
-                  </Flex>
+                  <PlanNameEditor
+                    initialName={plan.planName || '일정 제목 없음'}
+                    onSave={newName => handlePlanNameSave(plan.createdAt, newName)}
+                  />
                   <Text fontSize="sm" color="gray.500">
                     {plan.schedule[0]?.start || '시작 시간 없음'} ~ {plan.schedule.at(-1)?.end || '종료 시간 없음'}
                   </Text>
