@@ -81,6 +81,7 @@ export interface UserInfo {
 
 export interface PlanWithSchedule {
   createdAt: string;
+  createdAddress: string;
   schedule: ScheduleBlock[];
 }
 

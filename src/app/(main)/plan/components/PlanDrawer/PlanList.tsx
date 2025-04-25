@@ -81,9 +81,26 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
       return result;
     },
   });
-
   const finalPlanList = useMemo(() => selectedPlan || planList, [selectedPlan, planList]);
 
+  const handlePlanSave = async () => {
+    const userData = sessionStorage.getItem('user');
+    const uid = userData ? JSON.parse(userData).uid : null;
+
+    if (!uid) {
+      sessionStorage.setItem('savePending', 'true');
+      router.push('/login?redirect=/plan?mode=result');
+      return;
+    }
+
+    if (finalPlanList && planInfo) {
+      await addPlanToUser(uid, finalPlanList, planInfo?.formattedAddress);
+      const result = confirm('일정이 저장되었습니다. 마이페이지로 이동하시겠습니까?');
+      if (result) {
+        router.replace('/mypage');
+      }
+    }
+  };
   useEffect(() => {
     if (selectedPlan) {
       const geocodeList: GeocodeItem[] = [];
@@ -112,7 +129,8 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
       setHasSaved(true);
 
       const saveAfterLogin = async () => {
-        await addPlanToUser(uid, finalPlanList);
+        if (!planInfo) return;
+        await addPlanToUser(uid, finalPlanList, planInfo?.formattedAddress);
         const result = confirm('일정이 저장되었습니다. 마이페이지로 이동하시겠습니까?');
         if (result) {
           router.replace('/mypage');
@@ -121,26 +139,7 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
 
       saveAfterLogin();
     }
-  }, [finalPlanList, hasSaved, router]);
-
-  const handlePlanSave = async () => {
-    const userData = sessionStorage.getItem('user');
-    const uid = userData ? JSON.parse(userData).uid : null;
-
-    if (!uid) {
-      sessionStorage.setItem('savePending', 'true');
-      router.push('/login?redirect=/plan?mode=result');
-      return;
-    }
-
-    if (finalPlanList) {
-      await addPlanToUser(uid, finalPlanList);
-      const result = confirm('일정이 저장되었습니다. 마이페이지로 이동하시겠습니까?');
-      if (result) {
-        router.replace('/mypage');
-      }
-    }
-  };
+  }, [finalPlanList, hasSaved, router, planInfo]);
 
   if (!planInfo && !selectedPlan) return null;
 

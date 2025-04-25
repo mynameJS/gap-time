@@ -9,12 +9,11 @@ import { Toaster, toaster } from '@/components/ui/toaster';
 import { PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
 import { getUserPlansWithSchedule } from '@/lib/api/firebase/plan';
 import { deletePlanByCreatedAt } from '@/lib/api/firebase/plan';
-import { fetchAddress } from '@/lib/api/google/places';
 import useGeocodeListStore from '@/store/useGeocodeListStore';
 import usePlanStore from '@/store/usePlanInfoStore';
 import usePolylineListStore from '@/store/usePolylineListStore';
 import useSelectedPlanStore from '@/store/useSelectedPlanStore';
-import { PlanWithSchedule, ScheduleBlock } from '@/types/interface';
+import { PlanWithSchedule } from '@/types/interface';
 
 interface MyPlanListProps {
   userId: string;
@@ -39,22 +38,20 @@ function MyPlanList({ userId }: MyPlanListProps) {
   const pathname = usePathname();
   const queryClient = useQueryClient();
 
-  const handleCardClick = async (plan: ScheduleBlock[]) => {
-    setSelectedPlan(plan);
-    const firstPlan = plan[0];
+  const handleCardClick = (planData: PlanWithSchedule) => {
+    setSelectedPlan(planData.schedule);
+    const firstPlan = planData.schedule[0];
 
     if (firstPlan?.travel?.origin) {
-      const { lat, lng } = firstPlan.travel.origin;
-      const address = await fetchAddress({ latitude: lat, longitude: lng });
-
       setPlanInfo({
         geocode: firstPlan.travel.origin,
-        formattedAddress: address[0].formatted_address || '주소 정보 없음',
+        formattedAddress: planData.createdAddress || '주소 정보 없음',
         routeType: '',
-        startTime: [plan[0].start],
-        endTime: [plan.at(-1)?.end ?? plan[0].end],
+        startTime: [firstPlan.start],
+        endTime: [planData.schedule.at(-1)?.end ?? firstPlan.end],
       });
     }
+
     router.push('/plan?mode=result');
   };
 
@@ -151,7 +148,7 @@ function MyPlanList({ userId }: MyPlanListProps) {
                   w="full"
                   justify="center"
                   cursor="pointer"
-                  onClick={() => handleCardClick(plan.schedule)}>
+                  onClick={() => handleCardClick(plan)}>
                   <Flex align="center" gap="2">
                     <Badge variant="subtle" colorPalette={categoryInfo.color}>
                       {categoryInfo.ko}
@@ -169,7 +166,7 @@ function MyPlanList({ userId }: MyPlanListProps) {
                   <Flex align="center" gap="1" flexWrap="wrap">
                     <Icon as={FiMapPin} color="teal.500" boxSize="4" />
                     <Text fontSize="sm" color="gray.500">
-                      생성위치 : {place?.address || '위치 정보 없음'}
+                      생성위치 : {plan.createdAddress || '위치 정보 없음'}
                     </Text>
                   </Flex>
                 </VStack>
