@@ -14,11 +14,12 @@ import { ScheduleBlock, PlanWithSchedule } from '@/types/interface';
 import { db } from './init';
 
 // 생성 일정 데이터 추가
-export async function addPlanToUser(uid: string, newPlan: ScheduleBlock[]) {
+export async function addPlanToUser(uid: string, newPlan: ScheduleBlock[], creationAddress: string) {
   try {
     const plansRef = collection(db, 'users', uid, 'plans');
     await addDoc(plansRef, {
       createdAt: serverTimestamp(),
+      creationAddress: creationAddress, // 일정 생성 시 위치 저장
       schedule: newPlan, // ✅ 이 안에 배열로 저장하면 Firestore 허용
     });
     console.log('일정 저장 성공');
@@ -46,6 +47,7 @@ export async function getUserPlansWithSchedule(uid: string): Promise<PlanWithSch
 
       result.push({
         createdAt: createdAtTimestamp?.toDate().toISOString() ?? '',
+        createdAddress: data.creationAddress,
         schedule,
       });
     });
@@ -74,6 +76,7 @@ export const getPlanByCreatedAt = async (uid: string, createdAt: number): Promis
     return {
       schedule: data.schedule,
       createdAt: data.createdAt,
+      createdAddress: data.creationAddress,
     };
   } catch (error) {
     console.error('🔥 getPlanByCreatedAt 오류:', error);
