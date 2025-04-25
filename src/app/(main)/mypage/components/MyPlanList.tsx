@@ -147,8 +147,9 @@ function MyPlanList({ userId }: MyPlanListProps) {
                 boxShadow="xs"
                 _hover={{ boxShadow: 'md' }}
                 transition="all 0.2s"
+                align="stretch"
+                wrap="nowrap"
                 justify="space-between">
-                {/* 📸 이미지 */}
                 <Image
                   src={place?.photo_url || place?.icon[0]}
                   alt="대표 이미지"
@@ -158,11 +159,12 @@ function MyPlanList({ userId }: MyPlanListProps) {
                   objectFit="cover"
                 />
 
-                {/* 📄 본문 콘텐츠 */}
                 <VStack
                   align="start"
                   gap="1"
                   flex="1"
+                  flexShrink={1}
+                  minW={0}
                   w="full"
                   justify="center"
                   cursor="pointer"
@@ -178,7 +180,6 @@ function MyPlanList({ userId }: MyPlanListProps) {
                     총 방문지 {plan.schedule.filter(item => item.activityType !== 'move').length} 곳
                   </Text>
 
-                  {/* 📱 모바일: 생성위치 + 메뉴 버튼 한 줄 */}
                   {isMobile ? (
                     <Flex justify="space-between" align="center" w="full" gap="2" flexWrap="nowrap">
                       <Flex align="center" gap="1" minW={0}>
@@ -186,10 +187,10 @@ function MyPlanList({ userId }: MyPlanListProps) {
                         <Text
                           fontSize="sm"
                           color="gray.500"
-                          truncate
                           whiteSpace="nowrap"
                           overflow="hidden"
-                          textOverflow="ellipsis">
+                          textOverflow="ellipsis"
+                          truncate>
                           생성위치 : {plan.createdAddress || '위치 정보 없음'}
                         </Text>
                       </Flex>
@@ -205,11 +206,22 @@ function MyPlanList({ userId }: MyPlanListProps) {
                   )}
                 </VStack>
 
-                {/* 🖥 데스크탑: 생성일 + 메뉴 오른쪽 상단 */}
                 {!isMobile && (
-                  <Flex direction="column" align="flex-end" justify="space-between">
-                    <Flex align="center" gap="2">
-                      <Text fontSize="xs" color="gray.400" whiteSpace="nowrap">
+                  <Flex
+                    direction="column"
+                    align="flex-end"
+                    justify="space-between"
+                    minW="max-content"
+                    maxW="140px"
+                    flexShrink={0}>
+                    <Flex align="center" gap="2" minW={0}>
+                      <Text
+                        fontSize="xs"
+                        color="gray.400"
+                        whiteSpace="nowrap"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                        truncate>
                         생성일 {new Date(plan.createdAt).toLocaleDateString()}
                       </Text>
                       <MenuTrigger createdAt={plan.createdAt} onSelect={handleMenuSelect} />
@@ -226,7 +238,6 @@ function MyPlanList({ userId }: MyPlanListProps) {
   );
 }
 
-// 메뉴 버튼 재사용 컴포넌트
 function MenuTrigger({
   createdAt,
   onSelect,
