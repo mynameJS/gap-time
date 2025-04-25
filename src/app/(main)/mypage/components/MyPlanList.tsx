@@ -1,6 +1,19 @@
 'use client';
 
-import { Box, Text, Heading, Flex, Image, VStack, Icon, Spinner, Stack, Menu, Portal } from '@chakra-ui/react';
+import {
+  Box,
+  Text,
+  Heading,
+  Flex,
+  Image,
+  VStack,
+  Icon,
+  Spinner,
+  Stack,
+  Menu,
+  Portal,
+  useBreakpointValue,
+} from '@chakra-ui/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useCallback } from 'react';
@@ -36,6 +49,7 @@ function MyPlanList({ userId }: MyPlanListProps) {
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   const handleCardClick = (planData: PlanWithSchedule) => {
     setSelectedPlan(planData.schedule);
@@ -55,50 +69,42 @@ function MyPlanList({ userId }: MyPlanListProps) {
   };
 
   const handleMenuSelect = async (details: { value: string; planCreatedAt: string }) => {
-    const selected = details.value;
-
-    if (selected === 'delete') {
+    if (details.value === 'delete') {
       try {
         await deletePlanByCreatedAt(userId, details.planCreatedAt);
-
-        toaster.create({
-          title: '일정이 삭제되었습니다.',
-          type: 'success',
-        });
-
+        toaster.create({ title: '일정이 삭제되었습니다.', type: 'success' });
         queryClient.invalidateQueries({ queryKey: ['userPlans', userId] });
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : '알 수 없는 오류입니다.';
+      } catch (error: any) {
         toaster.create({
           title: '삭제 중 오류가 발생했습니다.',
-          description: message,
+          description: error.message || '알 수 없는 오류입니다.',
           type: 'error',
         });
       }
     }
   };
 
-  // ✅ planName 수정 함수
   const handlePlanNameSave = useCallback(
     async (createdAt: string, newName: string) => {
       try {
         await updatePlanNameByCreatedAt(userId, createdAt, newName);
         toaster.create({ title: '일정 제목이 수정되었습니다.', type: 'success' });
         queryClient.invalidateQueries({ queryKey: ['userPlans', userId] });
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : '알 수 없는 오류입니다.';
-        toaster.create({ title: '수정 중 오류 발생', description: message, type: 'error' });
+      } catch (error: any) {
+        toaster.create({
+          title: '수정 중 오류 발생',
+          description: error.message || '알 수 없는 오류입니다.',
+          type: 'error',
+        });
       }
     },
     [userId, queryClient],
   );
 
-  // ✅ 새로 입장 시 planInfo 초기화
   useEffect(() => {
     setPlanInfo(null);
   }, [setPlanInfo]);
 
-  // ✅ 브라우저 뒤로가기로 마이페이지 재진입 시 selectedPlan 초기화
   useEffect(() => {
     if (pathname === '/mypage') {
       clearSelectedPlan();
@@ -127,6 +133,7 @@ function MyPlanList({ userId }: MyPlanListProps) {
         <VStack gap="6" align="stretch">
           {plans.map(plan => {
             const place = plan.schedule[1]?.placeDetails;
+
             return (
               <Stack
                 key={plan.createdAt}
@@ -139,7 +146,9 @@ function MyPlanList({ userId }: MyPlanListProps) {
                 bg="white"
                 boxShadow="xs"
                 _hover={{ boxShadow: 'md' }}
-                transition="all 0.2s">
+                transition="all 0.2s"
+                justify="space-between">
+                {/* 📸 이미지 */}
                 <Image
                   src={place?.photo_url || place?.icon[0]}
                   alt="대표 이미지"
@@ -148,6 +157,8 @@ function MyPlanList({ userId }: MyPlanListProps) {
                   borderRadius="xl"
                   objectFit="cover"
                 />
+
+                {/* 📄 본문 콘텐츠 */}
                 <VStack
                   align="start"
                   gap="1"
@@ -166,33 +177,45 @@ function MyPlanList({ userId }: MyPlanListProps) {
                   <Text fontSize="sm" color="gray.500">
                     총 방문지 {plan.schedule.filter(item => item.activityType !== 'move').length} 곳
                   </Text>
-                  <Flex align="center" gap="1" flexWrap="wrap">
-                    <Icon as={FiMapPin} color="teal.500" boxSize="4" />
-                    <Text fontSize="sm" color="gray.500">
-                      생성위치 : {plan.createdAddress || '위치 정보 없음'}
-                    </Text>
-                  </Flex>
+
+                  {/* 📱 모바일: 생성위치 + 메뉴 버튼 한 줄 */}
+                  {isMobile ? (
+                    <Flex justify="space-between" align="center" w="full" gap="2" flexWrap="nowrap">
+                      <Flex align="center" gap="1" minW={0}>
+                        <Icon as={FiMapPin} color="teal.500" boxSize="4" />
+                        <Text
+                          fontSize="sm"
+                          color="gray.500"
+                          truncate
+                          whiteSpace="nowrap"
+                          overflow="hidden"
+                          textOverflow="ellipsis">
+                          생성위치 : {plan.createdAddress || '위치 정보 없음'}
+                        </Text>
+                      </Flex>
+                      <MenuTrigger createdAt={plan.createdAt} onSelect={handleMenuSelect} />
+                    </Flex>
+                  ) : (
+                    <Flex align="center" gap="1">
+                      <Icon as={FiMapPin} color="teal.500" boxSize="4" />
+                      <Text fontSize="sm" color="gray.500">
+                        생성위치 : {plan.createdAddress || '위치 정보 없음'}
+                      </Text>
+                    </Flex>
+                  )}
                 </VStack>
-                <Text
-                  fontSize="xs"
-                  color="gray.400"
-                  whiteSpace="nowrap"
-                  alignSelf="flex-start"
-                  display={{ base: 'none', md: 'block' }}>
-                  생성일 {new Date(plan.createdAt).toLocaleDateString()}
-                </Text>
-                <Menu.Root onSelect={value => handleMenuSelect({ value: value.value, planCreatedAt: plan.createdAt })}>
-                  <Menu.Trigger asChild cursor="pointer">
-                    <Icon as={FiMoreVertical} color="gray.400" boxSize="5" />
-                  </Menu.Trigger>
-                  <Portal>
-                    <Menu.Positioner>
-                      <Menu.Content>
-                        <Menu.Item value="delete">삭제</Menu.Item>
-                      </Menu.Content>
-                    </Menu.Positioner>
-                  </Portal>
-                </Menu.Root>
+
+                {/* 🖥 데스크탑: 생성일 + 메뉴 오른쪽 상단 */}
+                {!isMobile && (
+                  <Flex direction="column" align="flex-end" justify="space-between">
+                    <Flex align="center" gap="2">
+                      <Text fontSize="xs" color="gray.400" whiteSpace="nowrap">
+                        생성일 {new Date(plan.createdAt).toLocaleDateString()}
+                      </Text>
+                      <MenuTrigger createdAt={plan.createdAt} onSelect={handleMenuSelect} />
+                    </Flex>
+                  </Flex>
+                )}
               </Stack>
             );
           })}
@@ -200,6 +223,30 @@ function MyPlanList({ userId }: MyPlanListProps) {
       )}
       <Toaster />
     </Box>
+  );
+}
+
+// 메뉴 버튼 재사용 컴포넌트
+function MenuTrigger({
+  createdAt,
+  onSelect,
+}: {
+  createdAt: string;
+  onSelect: (args: { value: string; planCreatedAt: string }) => void;
+}) {
+  return (
+    <Menu.Root onSelect={value => onSelect({ value: value.value, planCreatedAt: createdAt })}>
+      <Menu.Trigger asChild cursor="pointer" onClick={e => e.stopPropagation()}>
+        <Icon as={FiMoreVertical} color="gray.400" boxSize="5" />
+      </Menu.Trigger>
+      <Portal>
+        <Menu.Positioner>
+          <Menu.Content>
+            <Menu.Item value="delete">삭제</Menu.Item>
+          </Menu.Content>
+        </Menu.Positioner>
+      </Portal>
+    </Menu.Root>
   );
 }
 
