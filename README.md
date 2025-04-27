@@ -1,4 +1,7 @@
-<img width="1557" alt="스크린샷 2025-04-07 오전 9 30 15" src="https://github.com/user-attachments/assets/094e41b7-93d6-4e65-a46d-3e6d57fde868" />
+
+<img width="1547" alt="스크린샷 2025-04-27 오후 10 38 10" src="https://github.com/user-attachments/assets/8e7eb1c5-54ba-4bdb-9bad-fbc29c930f81" />
+
+
 
 > 프로젝트명 : GAP-TIME (틈새시간)
 >
@@ -28,6 +31,12 @@
 
 
 ![화면 기록 2025-04-07 오전 11 02 49 (1)](https://github.com/user-attachments/assets/55f3de9b-1e75-4b2f-bf61-28ceb85482e5)
+
+#### 🛠️ 일정페이지 UI 개선 (Timeline)
+<img width="1670" alt="스크린샷 2025-04-27 오후 10 37 51" src="https://github.com/user-attachments/assets/7d5a7080-6fc8-4604-a6b2-93dea47895dc" />
+
+
+
 
 #### 📝 `직접 장소 선택`
 #### 직접 장소 선택의 경우, 선택된 시간대를 계산하여 지정할 수 있는 장소의 갯수가 할당됩니다.
@@ -78,6 +87,3 @@
 | Data Fetching  | ![TanStack Query](https://img.shields.io/badge/TanStack_Query-FF4154?style=for-the-badge&logo=reactquery&logoColor=white) |              |             |
 | API / External | ![Google API](https://img.shields.io/badge/Google%20API-4285F4?style=for-the-badge&logo=google&logoColor=white) ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white) |              |             |
 | Convention     | ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white) ![Prettier](https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=white) |              |             |
-
-
-
