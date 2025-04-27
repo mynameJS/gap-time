@@ -1,11 +1,12 @@
 'use client';
 
-import { Box, Text, VStack, HStack, Icon, Badge, Image, Circle, Link, Button, Spinner } from '@chakra-ui/react';
+import { Box, Text, VStack, HStack, Icon, Spinner, Link, Button, Image, Badge } from '@chakra-ui/react';
+import { Timeline } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { FaMapMarkerAlt, FaStar, FaRoute, FaClock, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaRoute, FaStar, FaClock, FaExternalLinkAlt } from 'react-icons/fa';
 import { PLACES_CATEGORY_COLOR_SET } from '@/constants/place';
 import { addPlanToUser } from '@/lib/api/firebase/plan';
 import useCustomPlaceListStore from '@/store/useCustomPlaceListStore';
@@ -20,11 +21,7 @@ import getGoogleMapsDirectionUrl from '@/utils/location/getGoogleMapsDirectionUr
 import calculateTravelTimes from '@/utils/plan/calculateTravelTimes';
 import generateSchedule from '@/utils/plan/generateSchedule';
 
-// ✅ PlaceSearchPanel을 동적 import로 지연 로딩
-const PlaceDetailModal = dynamic(() => import('./PlaceDetailModal'), {
-  ssr: false,
-  loading: () => null,
-});
+const PlaceDetailModal = dynamic(() => import('./PlaceDetailModal'), { ssr: false, loading: () => null });
 
 interface PlanListProps {
   currentDetailData: PlaceDetails | undefined | null;
@@ -47,21 +44,23 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
     enabled: !!planInfo && !selectedPlan,
     refetchOnWindowFocus: false,
     queryFn: async () => {
+      if (!planInfo) throw new Error('planInfo가 없습니다.');
+
       const schedule =
         customPlaceList.length > 0
           ? customPlaceList
           : await generateSchedule({
-              startTime: planInfo!.startTime[0],
-              endTime: planInfo!.endTime[0],
-              latitude: planInfo!.geocode.lat,
-              longitude: planInfo!.geocode.lng,
+              startTime: planInfo.startTime[0],
+              endTime: planInfo.endTime[0],
+              latitude: planInfo.geocode.lat,
+              longitude: planInfo.geocode.lng,
             });
 
       const result = await calculateTravelTimes({
         schedule,
         mode: 'TRANSIT',
-        routeType: planInfo!.routeType,
-        currentLocation: planInfo!.geocode,
+        routeType: planInfo.routeType,
+        currentLocation: planInfo.geocode,
       });
 
       const geocodeList: GeocodeItem[] = [];
@@ -81,7 +80,9 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
       return result;
     },
   });
+
   const finalPlanList = useMemo(() => selectedPlan || planList, [selectedPlan, planList]);
+  const onlyPlaceBlocks = finalPlanList?.filter(block => block.activityType !== 'move') || [];
 
   const handlePlanSave = async () => {
     const userData = sessionStorage.getItem('user');
@@ -94,13 +95,32 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
     }
 
     if (finalPlanList && planInfo) {
-      await addPlanToUser(uid, finalPlanList, planInfo?.formattedAddress);
+      await addPlanToUser(uid, finalPlanList, planInfo.formattedAddress);
       const result = confirm('일정이 저장되었습니다. 마이페이지로 이동하시겠습니까?');
-      if (result) {
-        router.replace('/mypage');
-      }
+      if (result) router.replace('/mypage');
     }
   };
+
+  useEffect(() => {
+    const pending = sessionStorage.getItem('savePending');
+    const userData = sessionStorage.getItem('user');
+    const uid = userData ? JSON.parse(userData).uid : null;
+
+    if (pending && uid && finalPlanList && !hasSaved) {
+      sessionStorage.removeItem('savePending');
+      setHasSaved(true);
+
+      const saveAfterLogin = async () => {
+        if (!planInfo) return;
+        await addPlanToUser(uid, finalPlanList, planInfo.formattedAddress);
+        const result = confirm('일정이 저장되었습니다. 마이페이지로 이동하시겠습니까?');
+        if (result) router.replace('/mypage');
+      };
+
+      saveAfterLogin();
+    }
+  }, [finalPlanList, hasSaved, router, planInfo]);
+
   useEffect(() => {
     if (selectedPlan) {
       const geocodeList: GeocodeItem[] = [];
@@ -119,30 +139,7 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
     }
   }, [selectedPlan, setGeocodeList, setPolylineList]);
 
-  useEffect(() => {
-    const pending = sessionStorage.getItem('savePending');
-    const userData = sessionStorage.getItem('user');
-    const uid = userData ? JSON.parse(userData).uid : null;
-
-    if (pending && uid && finalPlanList && !hasSaved) {
-      sessionStorage.removeItem('savePending');
-      setHasSaved(true);
-
-      const saveAfterLogin = async () => {
-        if (!planInfo) return;
-        await addPlanToUser(uid, finalPlanList, planInfo?.formattedAddress);
-        const result = confirm('일정이 저장되었습니다. 마이페이지로 이동하시겠습니까?');
-        if (result) {
-          router.replace('/mypage');
-        }
-      };
-
-      saveAfterLogin();
-    }
-  }, [finalPlanList, hasSaved, router, planInfo]);
-
   if (!planInfo && !selectedPlan) return null;
-
   if (isLoading) {
     return (
       <Box
@@ -173,147 +170,135 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
     );
   }
 
-  const renderCurrentLocationCard = (label: string) => (
-    <Box p={4} borderRadius="lg" bg="gray.50" borderWidth={1}>
-      <HStack align="center" gap={3}>
-        <Icon as={FaMapMarkerAlt} color="teal.500" />
-        <VStack align="start" gap={1}>
-          <Text fontWeight="bold" fontSize="sm" color="teal.700">
-            {label}
-          </Text>
-          <Text fontSize="sm" color="gray.700">
-            {planInfo?.formattedAddress || '주소 정보 없음'}
-          </Text>
-        </VStack>
-      </HStack>
-    </Box>
-  );
-
-  let placeIndex = 1;
-
   return (
-    <Box w={{ base: '100%', md: '600px' }} h="100%" overflow="auto" bg="white" px={{ base: 3, md: 6 }} py={4}>
-      <VStack gap={6} align="stretch">
-        {renderCurrentLocationCard('현재 위치 (출발지)')}
+    <Box w={{ base: '100%', md: '600px' }} h="100%" overflowY="auto" bg="white" p={4}>
+      <Timeline.Root>
+        <Timeline.Item>
+          <Timeline.Separator />
+          <Timeline.Indicator>
+            <FaMapMarkerAlt />
+          </Timeline.Indicator>
+          <Timeline.Content>
+            <Box p={3} borderWidth={1} borderColor="gray.200" borderRadius="lg" bg="gray.50">
+              <Timeline.Title>현재 위치 (출발지)</Timeline.Title>
+              <Timeline.Description>{planInfo?.formattedAddress}</Timeline.Description>
+            </Box>
+          </Timeline.Content>
+        </Timeline.Item>
 
         {finalPlanList.map((block, index) => {
           if (block.activityType === 'move') {
             return (
-              <HStack key={index} p={4} bg="gray.50" borderRadius="lg" align="flex-start">
-                <Icon as={FaRoute} color="blue.500" boxSize={5} />
-                <VStack align="start" gap={1}>
-                  <Text fontWeight="bold" fontSize="sm" color="blue.600">
+              <Timeline.Item key={`move-${index}`}>
+                <Timeline.Separator />
+                <Timeline.Indicator>
+                  <FaRoute />
+                </Timeline.Indicator>
+                <Timeline.Content>
+                  <Timeline.Title>
                     이동 ({block.start} ~ {block.end})
-                  </Text>
-                  <Text fontSize="sm" color="gray.700">
-                    거리: {formatDistance(block.travel?.distance)}
-                  </Text>
-                  <Text fontSize="sm" color="gray.700">
-                    소요 시간: {formatDurationFromSeconds(block.travel?.duration)}
-                  </Text>
-                  {block.travel?.origin && block.travel?.destination && (
-                    <Link
-                      href={getGoogleMapsDirectionUrl(block.travel.origin, block.travel.destination)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      display="inline-flex"
-                      alignItems="center"
-                      fontSize="sm"
-                      color="blue.500"
-                      fontWeight="medium"
-                      _hover={{ textDecoration: 'underline', color: 'blue.600' }}
-                      gap={1}
-                      pt={1}>
-                      <Icon as={FaExternalLinkAlt} boxSize={3.5} />
-                      길찾기
-                    </Link>
-                  )}
-                </VStack>
-              </HStack>
+                  </Timeline.Title>
+                  <Timeline.Description>
+                    거리 {formatDistance(block.travel?.distance)}, 시간{' '}
+                    {formatDurationFromSeconds(block.travel?.duration)}
+                    {block.travel?.origin && block.travel?.destination && (
+                      <Link
+                        href={getGoogleMapsDirectionUrl(block.travel.origin, block.travel.destination)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        ml={2}
+                        color="blue.500">
+                        <Icon as={FaExternalLinkAlt} boxSize={3} /> 길찾기
+                      </Link>
+                    )}
+                  </Timeline.Description>
+                </Timeline.Content>
+              </Timeline.Item>
             );
           }
 
-          const place = block?.placeDetails;
-          const rawType = place?.type ?? 'unknown';
-          const categoryInfo =
-            rawType in PLACES_CATEGORY_COLOR_SET
-              ? PLACES_CATEGORY_COLOR_SET[rawType as keyof typeof PLACES_CATEGORY_COLOR_SET]
-              : { ko: '기타', color: 'gray' };
-
-          const currentIndex = placeIndex++;
+          const placeIndex = onlyPlaceBlocks.findIndex(b => b === block);
 
           return (
-            <Box
-              key={index}
-              p={4}
-              borderRadius="xl"
-              borderWidth={1}
-              boxShadow="sm"
-              bg="white"
+            <Timeline.Item
+              key={`place-${index}`}
               onClick={() => {
-                setCurrentDetailData(place);
+                setCurrentDetailData(block.placeDetails);
                 onToggle();
               }}
               cursor="pointer">
-              <VStack align="stretch" gap={4}>
-                <HStack gap={2}>
-                  <Circle
-                    size="24px"
-                    bg="gray.700"
-                    color="white"
-                    fontSize="sm"
-                    fontWeight="bold"
-                    flexShrink={0}
-                    textAlign="center">
-                    {currentIndex}
-                  </Circle>
-                  <Text fontWeight="bold" fontSize="lg">
-                    {place?.name || '장소 없음'}
-                  </Text>
-                </HStack>
+              <Timeline.Separator />
+              <Timeline.Indicator bg="teal.500" color="white" w="24px" h="24px" fontSize="xs" fontWeight="bold">
+                {placeIndex + 1}
+              </Timeline.Indicator>
+              <Timeline.Content>
+                <Box p={3} borderWidth={1} borderRadius="lg" bg="white" _hover={{ bg: 'gray.50' }}>
+                  <HStack align="start" gap={4}>
+                    <Image
+                      src={block.placeDetails?.photo_url ?? block.placeDetails?.icon[0]}
+                      alt={block.placeDetails?.name}
+                      boxSize="100px"
+                      borderRadius="md"
+                      objectFit="cover"
+                      flexShrink={0}
+                    />
+                    <VStack align="start" gap={1} flex="1" overflow="hidden">
+                      {(() => {
+                        const categoryInfo = PLACES_CATEGORY_COLOR_SET[
+                          (block.placeDetails?.type ?? 'unknown') as keyof typeof PLACES_CATEGORY_COLOR_SET
+                        ] ?? { ko: '기타', color: 'gray' };
 
-                <HStack gap={4} align="start">
-                  <Image
-                    src={place?.photo_url ?? place?.icon[0]}
-                    alt={place?.name}
-                    boxSize="80px"
-                    borderRadius="md"
-                    objectFit="cover"
-                    flexShrink={0}
-                  />
-                  <VStack align="start" gap={1} flex="1">
-                    <HStack>
-                      <Badge colorPalette={categoryInfo.color} fontSize="xs">
-                        {categoryInfo.ko}
-                      </Badge>
-                    </HStack>
-                    <HStack>
-                      <Icon as={FaMapMarkerAlt} color="red.400" />
-                      <Text fontSize="sm" color="gray.700">
-                        {place?.address || '주소 정보 없음'}
-                      </Text>
-                    </HStack>
-                    <HStack>
-                      <Icon as={FaStar} color="yellow.400" />
-                      <Text fontSize="sm" color="gray.700">
-                        {place?.rating?.toFixed(1) || '-'} ({place?.total_reviews?.toLocaleString() || 0} 리뷰)
-                      </Text>
-                    </HStack>
-                    <HStack>
-                      <Icon as={FaClock} color="teal.500" />
-                      <Text fontSize="sm" color="gray.700">
-                        {block.start} ~ {block.end}
-                      </Text>
-                    </HStack>
-                  </VStack>
-                </HStack>
-              </VStack>
-            </Box>
+                        return (
+                          <>
+                            <HStack gap={2} w="100%" overflow="hidden">
+                              <Badge colorPalette={categoryInfo.color}>{categoryInfo.ko}</Badge>
+                              <Text fontWeight="bold" fontSize="md" maxW="100%" truncate>
+                                {block.placeDetails?.name}
+                              </Text>
+                            </HStack>
+
+                            <Text fontSize="sm" color="gray.600" maxW="100%" truncate>
+                              {block.placeDetails?.address}
+                            </Text>
+
+                            <HStack gap={1}>
+                              <Icon as={FaStar} color="yellow.400" />
+                              <Text fontSize="sm">
+                                {block.placeDetails?.rating?.toFixed(1)} (
+                                {block.placeDetails?.total_reviews?.toLocaleString()} 리뷰)
+                              </Text>
+                            </HStack>
+
+                            <HStack gap={1}>
+                              <Icon as={FaClock} color="teal.500" />
+                              <Text fontSize="sm">
+                                {block.start} ~ {block.end}
+                              </Text>
+                            </HStack>
+                          </>
+                        );
+                      })()}
+                    </VStack>
+                  </HStack>
+                </Box>
+              </Timeline.Content>
+            </Timeline.Item>
           );
         })}
 
-        {planInfo?.routeType === '왕복' && renderCurrentLocationCard('현재 위치 (도착지)')}
-      </VStack>
+        {planInfo?.routeType === '왕복' && (
+          <Timeline.Item>
+            <Timeline.Separator />
+            <Timeline.Indicator>
+              <FaMapMarkerAlt />
+            </Timeline.Indicator>
+            <Timeline.Content>
+              <Timeline.Title>현재 위치 (도착지)</Timeline.Title>
+              <Timeline.Description>{planInfo?.formattedAddress}</Timeline.Description>
+            </Timeline.Content>
+          </Timeline.Item>
+        )}
+      </Timeline.Root>
 
       {isDetailModalOpen && currentDetailData && (
         <PlaceDetailModal
@@ -324,7 +309,7 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
       )}
 
       {!selectedPlan && (
-        <Box mt={6} textAlign="right">
+        <Box textAlign="right">
           <Button colorPalette="teal" onClick={handlePlanSave}>
             일정 저장하기
           </Button>
