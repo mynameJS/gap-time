@@ -95,7 +95,7 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
     }
 
     if (finalPlanList && planInfo) {
-      await addPlanToUser(uid, finalPlanList, planInfo.formattedAddress);
+      await addPlanToUser(uid, finalPlanList, planInfo.formattedAddress, planInfo.routeType);
       const result = confirm('일정이 저장되었습니다. 마이페이지로 이동하시겠습니까?');
       if (result) router.replace('/mypage');
     }
@@ -112,7 +112,7 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
 
       const saveAfterLogin = async () => {
         if (!planInfo) return;
-        await addPlanToUser(uid, finalPlanList, planInfo.formattedAddress);
+        await addPlanToUser(uid, finalPlanList, planInfo.formattedAddress, planInfo.routeType);
         const result = confirm('일정이 저장되었습니다. 마이페이지로 이동하시겠습니까?');
         if (result) router.replace('/mypage');
       };
@@ -293,8 +293,10 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
               <FaMapMarkerAlt />
             </Timeline.Indicator>
             <Timeline.Content>
-              <Timeline.Title>현재 위치 (도착지)</Timeline.Title>
-              <Timeline.Description>{planInfo?.formattedAddress}</Timeline.Description>
+              <Box p={3} borderWidth={1} borderColor="gray.200" borderRadius="lg" bg="gray.50">
+                <Timeline.Title>현재 위치 (도착지)</Timeline.Title>
+                <Timeline.Description>{planInfo?.formattedAddress}</Timeline.Description>
+              </Box>
             </Timeline.Content>
           </Timeline.Item>
         )}

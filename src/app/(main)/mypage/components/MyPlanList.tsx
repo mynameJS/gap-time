@@ -59,7 +59,7 @@ function MyPlanList({ userId }: MyPlanListProps) {
       setPlanInfo({
         geocode: firstPlan.travel.origin,
         formattedAddress: planData.createdAddress || '주소 정보 없음',
-        routeType: '',
+        routeType: planData.routeType,
         startTime: [firstPlan.start],
         endTime: [planData.schedule.at(-1)?.end ?? firstPlan.end],
       });
