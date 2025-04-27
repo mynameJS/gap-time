@@ -157,6 +157,8 @@ function MyPlanList({ userId }: MyPlanListProps) {
                   h={{ base: '300px', md: '160px' }}
                   borderRadius="xl"
                   objectFit="cover"
+                  onClick={() => handleCardClick(plan)}
+                  cursor="pointer"
                 />
 
                 <VStack
