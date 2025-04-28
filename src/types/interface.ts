@@ -14,7 +14,7 @@ export interface ScheduleBlock {
   travel?: {
     distance: number;
     duration: string;
-    polyline: string;
+    steps: PolylineStep[];
     origin: google.maps.LatLngLiteral | undefined;
     destination: google.maps.LatLngLiteral | undefined;
   } | null;
@@ -90,4 +90,9 @@ export interface PlanWithSchedule {
 export interface ChatMessage {
   role: 'user' | 'gpt';
   content: string | PlaceDetails[];
+}
+
+export interface PolylineStep {
+  travelMode: 'WALK' | 'TRANSIT' | 'DRIVE';
+  polyline: string;
 }
