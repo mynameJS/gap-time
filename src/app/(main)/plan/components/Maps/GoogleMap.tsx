@@ -9,7 +9,6 @@ import usePolylineListStore from '@/store/usePolylineListStore';
 import decodePolyline from '@/utils/format/decodePolyline';
 import getConvexHull from '@/utils/format/getConvexHull';
 
-// 타입 정의
 const containerStyle: React.CSSProperties = {
   width: '100%',
   height: '100%',
@@ -26,14 +25,13 @@ function GoogleMaps() {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const { planInfo } = usePlanStore();
   const { geocodeList } = useGeocodeListStore();
-  const { polylineList } = usePolylineListStore();
+  const { polylineList } = usePolylineListStore(); // ✅ PolylineStep[]로 해석
   const searchParams = useSearchParams();
   const mode = searchParams.get('mode');
 
   const polylineObjectsRef = useRef<google.maps.Polyline[]>([]);
   const calculatedPolygon = geocodeList.map(item => item.geocode);
 
-  // ✅ 수동으로 Polyline 직접 관리
   useEffect(() => {
     if (!map) return;
 
@@ -41,35 +39,50 @@ function GoogleMaps() {
     polylineObjectsRef.current.forEach(p => p.setMap(null));
     polylineObjectsRef.current = [];
 
-    // 'result' 모드일 때만 다시 그림
     if (mode === 'result' && polylineList.length > 0) {
-      const decoded = polylineList.map(decodePolyline);
-      const newPolylines = decoded.map(path => {
+      const newPolylines: google.maps.Polyline[] = [];
+
+      polylineList.forEach(step => {
+        const path = decodePolyline(step.polyline);
+
+        const isWalk = step.travelMode === 'WALK';
+
         const polyline = new google.maps.Polyline({
           path,
           map,
-          strokeColor: '#4285F4',
-          strokeOpacity: 0.8,
-          strokeWeight: 4,
+          strokeColor: isWalk ? '#FF6347' : '#4285F4',
+          strokeOpacity: isWalk ? 0 : 1,
+          strokeWeight: 5,
+          icons: isWalk
+            ? [
+                {
+                  icon: {
+                    path: 'M 0,-1 0,1',
+                    strokeOpacity: 1,
+                    scale: 4,
+                  },
+                  offset: '0',
+                  repeat: '15px',
+                },
+              ]
+            : undefined,
         });
-        return polyline;
+
+        newPolylines.push(polyline);
       });
 
       polylineObjectsRef.current = newPolylines;
     }
   }, [map, polylineList, mode]);
 
-  // ✅ onLoad 콜백
   const onLoad = useCallback((map: google.maps.Map) => {
     setMap(map);
   }, []);
 
-  // ✅ onUnmount 콜백
   const onUnmount = useCallback(() => {
     setMap(null);
   }, []);
 
-  // ✅ 장소 클릭 시 지도 이동
   useEffect(() => {
     if (!map || geocodeList.length === 0) return;
 
