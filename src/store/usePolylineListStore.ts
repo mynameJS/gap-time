@@ -1,8 +1,9 @@
 import { create } from 'zustand';
+import { PolylineStep } from '@/types/interface';
 
 interface PolylineListState {
-  polylineList: string[];
-  setPolylineList: (list: string[]) => void;
+  polylineList: PolylineStep[];
+  setPolylineList: (list: PolylineStep[]) => void;
   clearPolylineList: () => void;
 }
 

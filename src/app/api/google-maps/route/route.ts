@@ -18,6 +18,12 @@ export async function POST(req: NextRequest) {
       travelMode: mode || 'TRANSIT',
       languageCode: 'ko-KR',
       units: 'METRIC',
+      polylineEncoding: 'ENCODED_POLYLINE',
+      routeModifiers: {
+        avoidTolls: false,
+        avoidHighways: false,
+        avoidFerries: false,
+      },
     };
 
     const res = await fetch(url, {
@@ -25,7 +31,8 @@ export async function POST(req: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters,routes.polyline',
+        'X-Goog-FieldMask':
+          'routes.distanceMeters,routes.duration,routes.legs.steps.polyline,routes.legs.steps.travelMode',
       },
       body: JSON.stringify(requestBody),
     });
@@ -41,7 +48,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       distance: route?.distanceMeters,
       duration: route?.duration,
-      polyline: route?.polyline?.encodedPolyline,
+      steps: route?.legs?.[0]?.steps?.map((step: any) => ({
+        travelMode: step.travelMode,
+        polyline: step.polyline?.encodedPolyline,
+      })),
     });
   } catch (err) {
     console.error('Route API 오류:', err);

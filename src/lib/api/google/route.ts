@@ -1,13 +1,15 @@
+import { PolylineStep } from '@/types/interface';
+
 type RouteResult = {
-  distance: number; // 미터 단위
-  duration: string; // "1234s"
-  polyline: string; // 인코딩된 경로
+  distance: number;
+  duration: string;
+  steps: PolylineStep[];
 };
 
 export async function fetchRoute(
   origin: google.maps.LatLngLiteral | string,
   destination: google.maps.LatLngLiteral | string,
-  mode: string
+  mode: string,
 ): Promise<RouteResult | null> {
   try {
     const res = await fetch('/api/google-maps/route', {
@@ -22,7 +24,7 @@ export async function fetchRoute(
     }
 
     const data = await res.json();
-    return data;
+    return data as RouteResult; // 안전하게 타입 명시
   } catch (err) {
     console.error('💥 요청 실패:', err);
     return null;

@@ -15,6 +15,7 @@ import usePlanStore from '@/store/usePlanInfoStore';
 import usePolylineListStore from '@/store/usePolylineListStore';
 import useSelectedPlanStore from '@/store/useSelectedPlanStore';
 import { ScheduleBlock, GeocodeItem, PlaceDetails } from '@/types/interface';
+import { PolylineStep } from '@/types/interface';
 import formatDistance from '@/utils/format/formatDistance';
 import formatDurationFromSeconds from '@/utils/format/formatDurationFromSeconds';
 import getGoogleMapsDirectionUrl from '@/utils/location/getGoogleMapsDirectionUrl';
@@ -64,18 +65,18 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
       });
 
       const geocodeList: GeocodeItem[] = [];
-      const polylineList: string[] = [];
+      const polylineList: PolylineStep[] = []; // ✅ 수정: PolylineStep[]
 
       result.forEach(item => {
         if (item.placeDetails && item.placeId) {
           geocodeList.push({ place_id: item.placeId, geocode: item.placeDetails.geocode });
-        } else if (item.travel) {
-          polylineList.push(item.travel.polyline);
+        } else if (item.travel?.steps) {
+          polylineList.push(...item.travel.steps); // ✅ steps를 모두 펼쳐서 추가
         }
       });
 
       setGeocodeList(geocodeList);
-      setPolylineList(polylineList);
+      setPolylineList(polylineList); // ✅ 그대로 저장
 
       return result;
     },
@@ -124,18 +125,18 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
   useEffect(() => {
     if (selectedPlan) {
       const geocodeList: GeocodeItem[] = [];
-      const polylineList: string[] = [];
+      const polylineList: PolylineStep[] = []; // ✅ string[] → PolylineStep[]
 
       selectedPlan.forEach(item => {
         if (item.placeDetails && item.placeId) {
           geocodeList.push({ place_id: item.placeId, geocode: item.placeDetails.geocode });
-        } else if (item.travel) {
-          polylineList.push(item.travel.polyline);
+        } else if (item.travel?.steps) {
+          polylineList.push(...item.travel.steps); // ✅ steps를 모두 펼쳐서 추가
         }
       });
 
       setGeocodeList(geocodeList);
-      setPolylineList(polylineList);
+      setPolylineList(polylineList); // ✅ 그대로 저장
     }
   }, [selectedPlan, setGeocodeList, setPolylineList]);
 
