@@ -20,10 +20,10 @@ export async function addPlanToUser(uid: string, newPlan: ScheduleBlock[], creat
     const plansRef = collection(db, 'users', uid, 'plans');
     await addDoc(plansRef, {
       createdAt: serverTimestamp(),
-      creationAddress: creationAddress, // 일정 생성 시 위치 저장
+      creationAddress: creationAddress,
       routeType: routeType,
       planName: null,
-      schedule: newPlan, // ✅ 이 안에 배열로 저장하면 Firestore 허용
+      schedule: newPlan,
     });
     console.log('일정 저장 성공');
   } catch (error) {
@@ -32,11 +32,11 @@ export async function addPlanToUser(uid: string, newPlan: ScheduleBlock[], creat
 }
 
 // 사용자 일정 데이터 가져오기
-// 🔥 최신순 정렬
+
 export async function getUserPlansWithSchedule(uid: string): Promise<PlanWithSchedule[]> {
   try {
     const plansRef = collection(db, 'users', uid, 'plans');
-    const q = query(plansRef, orderBy('createdAt', 'desc')); // 🔥 최신순 정렬
+    const q = query(plansRef, orderBy('createdAt', 'desc')); //  최신순 정렬
 
     const snapshot = await getDocs(q);
 
@@ -96,7 +96,6 @@ export const deletePlanByCreatedAt = async (uid: string, createdAt: string) => {
   try {
     const plansRef = collection(db, 'users', uid, 'plans');
 
-    // ✅ string → Date → Timestamp 변환
     const timestamp = Timestamp.fromDate(new Date(createdAt));
 
     const q = query(plansRef, where('createdAt', '==', timestamp));
@@ -118,7 +117,6 @@ export const updatePlanNameByCreatedAt = async (uid: string, createdAt: string, 
   try {
     const plansRef = collection(db, 'users', uid, 'plans');
 
-    // ✅ string → Date → Timestamp 변환
     const timestamp = Timestamp.fromDate(new Date(createdAt));
 
     const q = query(plansRef, where('createdAt', '==', timestamp));

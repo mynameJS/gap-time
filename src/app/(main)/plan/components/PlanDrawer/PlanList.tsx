@@ -65,18 +65,18 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
       });
 
       const geocodeList: GeocodeItem[] = [];
-      const polylineList: PolylineStep[] = []; // ✅ 수정: PolylineStep[]
+      const polylineList: PolylineStep[] = [];
 
       result.forEach(item => {
         if (item.placeDetails && item.placeId) {
           geocodeList.push({ place_id: item.placeId, geocode: item.placeDetails.geocode });
         } else if (item.travel?.steps) {
-          polylineList.push(...item.travel.steps); // ✅ steps를 모두 펼쳐서 추가
+          polylineList.push(...item.travel.steps);
         }
       });
 
       setGeocodeList(geocodeList);
-      setPolylineList(polylineList); // ✅ 그대로 저장
+      setPolylineList(polylineList);
 
       return result;
     },
@@ -125,18 +125,17 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
   useEffect(() => {
     if (selectedPlan) {
       const geocodeList: GeocodeItem[] = [];
-      const polylineList: PolylineStep[] = []; // ✅ string[] → PolylineStep[]
-
+      const polylineList: PolylineStep[] = [];
       selectedPlan.forEach(item => {
         if (item.placeDetails && item.placeId) {
           geocodeList.push({ place_id: item.placeId, geocode: item.placeDetails.geocode });
         } else if (item.travel?.steps) {
-          polylineList.push(...item.travel.steps); // ✅ steps를 모두 펼쳐서 추가
+          polylineList.push(...item.travel.steps);
         }
       });
 
       setGeocodeList(geocodeList);
-      setPolylineList(polylineList); // ✅ 그대로 저장
+      setPolylineList(polylineList);
     }
   }, [selectedPlan, setGeocodeList, setPolylineList]);
 

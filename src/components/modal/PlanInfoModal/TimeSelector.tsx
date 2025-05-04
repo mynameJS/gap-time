@@ -5,10 +5,9 @@ import { FaClock } from 'react-icons/fa';
 import { SelectRoot, SelectTrigger, SelectContent, SelectItem, SelectValueText } from '@/components/ui/select';
 import { PlanInfo } from '@/types/interface';
 
-// 09:00 ~ 24:00 시간 목록 생성
 const timeCollection = createListCollection({
   items: Array.from({ length: 16 }, (_, i) => {
-    const hour = (i + 9).toString().padStart(2, '0'); // 9부터 시작
+    const hour = (i + 9).toString().padStart(2, '0');
     return { label: `${hour}:00`, value: `${hour}:00` };
   }),
 });
@@ -21,19 +20,16 @@ interface TimeSelectorProps {
 }
 
 export default function TimeSelector({ startTime, endTime, onUpdate, isInvalid }: TimeSelectorProps) {
-  // 오늘 날짜 (MM/DD 포맷)
   const today = new Date();
   const month = today.getMonth() + 1;
   const day = today.getDate();
   const formattedDate = `${month} / ${day}`;
 
-  // endTime 리스트 필터링 (startTime 이후 시간만)
   const filteredEndTimeCollection = createListCollection({
     items: startTime.length > 0 ? timeCollection.items.filter(time => time.value > startTime[0]) : timeCollection.items,
   });
 
   const handleTimeChange = (key: keyof PlanInfo, value: string[]) => {
-    // 배열 형태로 변환하여 onUpdate로 넘기기
     onUpdate({ [key]: value });
   };
 

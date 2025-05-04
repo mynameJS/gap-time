@@ -11,7 +11,6 @@ import { PlanInfo, PlaceDetails, ScheduleBlock } from '@/types/interface';
 import getDurationFromTimeString from '@/utils/format/getDurationFromTimeString';
 import getTimeBlocks from '@/utils/plan/getTimeBlocks';
 
-// ✅ PlanInfoModal을 동적 import로 지연 로딩
 const PlanInfoModal = dynamic(() => import('@/components/modal/PlanInfoModal/PlanInfoModal'), {
   ssr: false,
   loading: () => null,

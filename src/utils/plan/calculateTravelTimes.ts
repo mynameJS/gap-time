@@ -15,7 +15,6 @@ const calculateTravelTimes = async ({ schedule, mode, routeType, currentLocation
 
   const finalSchedule: ScheduleBlock[] = [];
 
-  // ✅ 1. 현재 위치에서 첫 번째 장소까지의 이동 블록 추가
   const firstTravel = await fetchRoute(currentLocation, places[0], mode);
 
   const firstMoveBlock: ScheduleBlock = {
@@ -27,7 +26,7 @@ const calculateTravelTimes = async ({ schedule, mode, routeType, currentLocation
       ? {
           distance: firstTravel.distance,
           duration: firstTravel.duration,
-          steps: firstTravel.steps, // ✅ 수정: polyline 대신 steps
+          steps: firstTravel.steps,
           origin: currentLocation,
           destination: schedule[0]?.placeDetails?.geocode,
         }
@@ -35,12 +34,10 @@ const calculateTravelTimes = async ({ schedule, mode, routeType, currentLocation
   };
   finalSchedule.push(firstMoveBlock);
 
-  // ✅ 2. 기존 일정의 각 장소 간 이동 거리 & 시간 요청
   const travelDataList = await Promise.all(
     places.slice(0, -1).map((placeId, index) => fetchRoute(placeId, places[index + 1], mode)),
   );
 
-  // ✅ 3. 각 블록을 이동 블록(`move`)과 일정 블록(`activity`)로 나누어 추가
   schedule.forEach((block, index) => {
     const lastEnd = finalSchedule[finalSchedule.length - 1].end;
 
@@ -62,7 +59,7 @@ const calculateTravelTimes = async ({ schedule, mode, routeType, currentLocation
           ? {
               distance: travelData.distance,
               duration: travelData.duration,
-              steps: travelData.steps, // ✅ 수정
+              steps: travelData.steps,
               origin: schedule[index].placeDetails?.geocode,
               destination: schedule[index + 1].placeDetails?.geocode,
             }
@@ -72,7 +69,6 @@ const calculateTravelTimes = async ({ schedule, mode, routeType, currentLocation
     }
   });
 
-  // ✅ 4. 왕복일 경우
   if (routeType === '왕복') {
     const lastActivity = finalSchedule[finalSchedule.length - 1];
     const returnTravel = await fetchRoute(places[places.length - 1], currentLocation, mode);
@@ -86,7 +82,7 @@ const calculateTravelTimes = async ({ schedule, mode, routeType, currentLocation
         ? {
             distance: returnTravel.distance,
             duration: returnTravel.duration,
-            steps: returnTravel.steps, // ✅ 수정
+            steps: returnTravel.steps,
             origin: schedule[places.length - 1].placeDetails?.geocode,
             destination: currentLocation,
           }
@@ -100,7 +96,6 @@ const calculateTravelTimes = async ({ schedule, mode, routeType, currentLocation
 
 export default calculateTravelTimes;
 
-// ✅ 시간을 조정하는 함수
 const adjustTime = (time: string, offsetInSeconds: string): string => {
   const [hours, minutes] = time.split(':').map(Number);
   const convertToNumber = Number(offsetInSeconds.split('s')[0]);

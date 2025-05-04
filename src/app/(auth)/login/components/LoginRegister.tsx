@@ -15,7 +15,7 @@ function LoginRegister() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get('redirect'); // ✅ redirect 쿼리 추출
+  const redirect = searchParams.get('redirect');
 
   const handleLogin = async () => {
     try {
@@ -24,7 +24,7 @@ function LoginRegister() {
 
       setTimeout(() => {
         if (redirect) {
-          router.replace(redirect); // ✅ 쿼리 경로로 이동
+          router.replace(redirect);
         } else {
           router.push('/');
         }
@@ -42,7 +42,7 @@ function LoginRegister() {
 
       setTimeout(() => {
         if (redirect) {
-          router.replace(redirect); // ✅ 쿼리 경로로 이동
+          router.replace(redirect);
         } else {
           router.push('/');
         }
@@ -71,7 +71,7 @@ function LoginRegister() {
         if (e.key === 'Enter') {
           if (isOpen) {
             e.preventDefault();
-            e.stopPropagation(); // 모달 내 엔터 감지 방지
+            e.stopPropagation();
             return;
           }
           handleLogin();

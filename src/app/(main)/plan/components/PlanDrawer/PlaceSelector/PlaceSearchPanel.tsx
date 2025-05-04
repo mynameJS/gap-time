@@ -73,7 +73,6 @@ function PlaceSearchPanel({
 
   const placeList = searchTerm ? (searchResult ?? []) : (categoryPlaces ?? []);
 
-  // ✅ 브라우저 뒤로가기로 /plan/select 재진입 시 selectedPlan 초기화
   useEffect(() => {
     if (pathname === '/plan') {
       clearSelectedPlan();

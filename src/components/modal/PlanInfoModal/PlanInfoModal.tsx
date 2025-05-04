@@ -69,7 +69,6 @@ function PlanInfoModal({ isOpen, onToggle }: PlanInfoModalProps) {
     router.push(`plan?mode=${mode}`);
   };
 
-  // plan select 페이지에서 기본 유저입력 변경을 위해 modal open 시 기본 값 표시
   useEffect(() => {
     if (!globalPlanInfo) return;
     setPlanInfo(globalPlanInfo);

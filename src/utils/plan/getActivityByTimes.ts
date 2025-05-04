@@ -10,7 +10,7 @@ const getActivityByTimes = (startTime: string): string | string[] => {
   return ['bar', 'night_club', 'tourist_attraction']; // 21:00~24:00 술집, 야경 명소
 };
 
-// ✅ 시간대별 추천 type 표
+//  시간대별 추천 type 표
 // 시간대	추천 활동 (activity)	Google Places API type
 // 09:00 - 12:00	관광지 방문 / 전시회 / 야외 활동	tourist_attraction, museum, park
 // 12:00 - 13:00	점심 식사 (고정)	restaurant
