@@ -24,7 +24,7 @@ export async function fetchRoute(
     }
 
     const data = await res.json();
-    return data as RouteResult; // 안전하게 타입 명시
+    return data as RouteResult;
   } catch (err) {
     console.error('💥 요청 실패:', err);
     return null;

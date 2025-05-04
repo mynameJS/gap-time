@@ -12,7 +12,6 @@ export async function GET(req: NextRequest) {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
     const googlePhotoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photoReference}&key=${apiKey}`;
 
-    // ✅ 서버에서 Google API로 직접 요청 후 이미지 바이너리 데이터 반환
     const response = await fetch(googlePhotoUrl, {
       method: 'GET',
     });
@@ -21,7 +20,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch photo' }, { status: 500 });
     }
 
-    // ✅ 이미지 데이터 그대로 클라이언트에 전달
     const blob = await response.blob();
     return new Response(blob, {
       status: 200,

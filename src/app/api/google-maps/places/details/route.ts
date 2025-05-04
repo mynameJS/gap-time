@@ -13,7 +13,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'API Key is missing' }, { status: 500 });
     }
 
-    // ✅ Google Places Details API 요청 URL (모든 fields 포함)
     const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=address_component,adr_address,formatted_address,geometry,icon,icon_mask_base_uri,icon_background_color,name,permanently_closed,photo,place_id,plus_code,type,url,utc_offset,vicinity,wheelchair_accessible_entrance,opening_hours,curbside_pickup,delivery,dine_in,editorial_summary,formatted_phone_number,international_phone_number,website,price_level,rating,reservable,reviews,serves_beer,serves_breakfast,serves_brunch,serves_dinner,serves_lunch,serves_vegetarian_food,serves_wine,takeout,user_ratings_total&language=ko&key=${apiKey}`;
 
     const response = await fetch(detailsUrl);
