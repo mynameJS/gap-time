@@ -71,12 +71,10 @@ interface LoginData {
 // 로그인
 export const loginUser = async ({ email, password }: LoginData) => {
   try {
-    // 1. Firebase Authentication으로 로그인
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     const uid = user.uid;
 
-    // 2. Firestore에서 유저 정보 가져오기
     const userDocRef = doc(db, 'users', uid);
     const userDocSnap = await getDoc(userDocRef);
 
@@ -86,7 +84,6 @@ export const loginUser = async ({ email, password }: LoginData) => {
 
     const userData = userDocSnap.data();
 
-    // 3. 세션 스토리지에 사용자 정보 저장
     sessionStorage.setItem(
       'user',
       JSON.stringify({
@@ -128,12 +125,10 @@ export const loginWithGoogle = async () => {
 
     if (!user.email) throw new Error('이메일 정보를 가져올 수 없습니다.');
 
-    // Firestore에 유저 정보가 이미 있는지 확인
     const userRef = doc(db, 'users', user.uid);
     const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
-      // 새로 가입한 사용자일 경우 Firestore에 정보 저장
       await setDoc(userRef, {
         email: user.email,
         nickname: user.displayName || 'unknown',
@@ -144,7 +139,6 @@ export const loginWithGoogle = async () => {
 
     const userData = userSnap.data();
 
-    // 세션 스토리지에 사용자 정보 저장
     sessionStorage.setItem(
       'user',
       JSON.stringify({
@@ -168,7 +162,6 @@ export const updateUserNickname = async (uid: string, nickname: string) => {
     const userRef = doc(db, 'users', uid);
     await updateDoc(userRef, { nickname });
 
-    // 세션스토리지 동기화
     const userData = sessionStorage.getItem('user');
     if (userData) {
       const parsed = JSON.parse(userData);
@@ -202,7 +195,7 @@ export const deleteUserAccount = async ({
   email,
   password,
   uid,
-  provider = 'password', // provider 기본값 'password'
+  provider = 'password',
 }: {
   email: string;
   password?: string;
@@ -213,7 +206,6 @@ export const deleteUserAccount = async ({
     const user = auth.currentUser;
     if (!user) throw new Error('현재 로그인된 유저가 없습니다.');
 
-    // 재인증 (로그인 방식에 따라 분기)
     if (provider === 'password') {
       if (!password) throw new Error('비밀번호가 필요합니다.');
       const credential = EmailAuthProvider.credential(email, password);
@@ -223,13 +215,10 @@ export const deleteUserAccount = async ({
       await reauthenticateWithPopup(user, googleProvider);
     }
 
-    // 인증 계정 삭제
     await deleteUser(user);
 
-    // Firestore의 유저 문서 삭제
     await deleteDoc(doc(db, 'users', uid));
 
-    // 세션스토리지 정리
     sessionStorage.clear();
 
     return { success: true };

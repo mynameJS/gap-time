@@ -117,7 +117,6 @@ function SignUpRegister() {
           type: 'error',
         });
 
-        // ✅ 이메일 인증 초기화
         setIsVerified(false);
         setEmailStatus('idle');
         setVerificationCode('');

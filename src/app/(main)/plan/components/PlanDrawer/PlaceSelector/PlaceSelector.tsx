@@ -12,7 +12,6 @@ import PlaceAIRecommend from './PlaceAIRecommend';
 import PlaceSearchPanel from './PlaceSearchPanel';
 import PlaceSelectionPanel from './PlaceSelectionPanel';
 
-// ✅ PlaceDetailModal을 동적 import로 지연 로딩
 const PlaceDetailModal = dynamic(() => import('../PlaceDetailModal'), {
   ssr: false,
   loading: () => null,

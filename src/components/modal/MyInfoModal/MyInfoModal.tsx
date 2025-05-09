@@ -12,7 +12,7 @@ import DeleteAccountModal from './DeleteAccountModal';
 interface MyInfoModalProps {
   isOpen: boolean;
   onToggle: () => void;
-  userInfo: UserInfo; // { email, nickname, provider? }
+  userInfo: UserInfo;
 }
 
 function MyInfoModal({ isOpen, onToggle, userInfo }: MyInfoModalProps) {
@@ -21,28 +21,24 @@ function MyInfoModal({ isOpen, onToggle, userInfo }: MyInfoModalProps) {
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  // ✅ 클라이언트에서만 sessionStorage 접근
   useEffect(() => {
     const stored = sessionStorage.getItem('user');
     const parsed = stored ? JSON.parse(stored) : null;
     setUid(parsed?.uid ?? null);
   }, []);
 
-  // ✅ 모달 열릴 때 닉네임 초기화
   useEffect(() => {
     if (isOpen && userInfo?.nickname) {
       setNickname(userInfo.nickname);
     }
   }, [isOpen, userInfo]);
 
-  // ✅ 저장 버튼 클릭
   const handleSave = async () => {
     if (!uid) return;
 
     const result = await updateUserNickname(uid, nickname);
 
     if (result.success) {
-      // 🔄 캐시 업데이트
       queryClient.setQueryData(['userInfo', uid], {
         ...userInfo,
         nickname,
@@ -50,7 +46,6 @@ function MyInfoModal({ isOpen, onToggle, userInfo }: MyInfoModalProps) {
 
       queryClient.invalidateQueries({ queryKey: ['userInfo', uid] });
 
-      // 🔄 세션스토리지 동기화
       sessionStorage.setItem('user', JSON.stringify({ ...userInfo, uid, nickname }));
 
       toaster.create({
@@ -68,7 +63,6 @@ function MyInfoModal({ isOpen, onToggle, userInfo }: MyInfoModalProps) {
     }
   };
 
-  // ✅ 회원탈퇴 모달 열기
   const handleDeleteModalToggle = () => {
     setDeleteModalOpen(prev => !prev);
   };

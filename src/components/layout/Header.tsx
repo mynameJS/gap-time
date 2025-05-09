@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { logoutUser, getUserInfo } from '@/lib/api/firebase/auth';
 
-// ✅ MyInfoModal을 dynamic import로 변경
 const MyInfoModal = dynamic(() => import('../modal/MyInfoModal/MyInfoModal'), {
   ssr: false,
   loading: () => null,

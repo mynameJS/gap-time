@@ -10,6 +10,8 @@ import {
   deleteDoc,
   doc,
   updateDoc,
+  getDoc,
+  increment,
 } from 'firebase/firestore';
 import { ScheduleBlock, PlanWithSchedule } from '@/types/interface';
 import { db } from './init';
@@ -20,10 +22,10 @@ export async function addPlanToUser(uid: string, newPlan: ScheduleBlock[], creat
     const plansRef = collection(db, 'users', uid, 'plans');
     await addDoc(plansRef, {
       createdAt: serverTimestamp(),
-      creationAddress: creationAddress, // 일정 생성 시 위치 저장
+      creationAddress: creationAddress,
       routeType: routeType,
       planName: null,
-      schedule: newPlan, // ✅ 이 안에 배열로 저장하면 Firestore 허용
+      schedule: newPlan,
     });
     console.log('일정 저장 성공');
   } catch (error) {
@@ -32,11 +34,11 @@ export async function addPlanToUser(uid: string, newPlan: ScheduleBlock[], creat
 }
 
 // 사용자 일정 데이터 가져오기
-// 🔥 최신순 정렬
+
 export async function getUserPlansWithSchedule(uid: string): Promise<PlanWithSchedule[]> {
   try {
     const plansRef = collection(db, 'users', uid, 'plans');
-    const q = query(plansRef, orderBy('createdAt', 'desc')); // 🔥 최신순 정렬
+    const q = query(plansRef, orderBy('createdAt', 'desc')); //  최신순 정렬
 
     const snapshot = await getDocs(q);
 
@@ -96,7 +98,6 @@ export const deletePlanByCreatedAt = async (uid: string, createdAt: string) => {
   try {
     const plansRef = collection(db, 'users', uid, 'plans');
 
-    // ✅ string → Date → Timestamp 변환
     const timestamp = Timestamp.fromDate(new Date(createdAt));
 
     const q = query(plansRef, where('createdAt', '==', timestamp));
@@ -118,7 +119,6 @@ export const updatePlanNameByCreatedAt = async (uid: string, createdAt: string, 
   try {
     const plansRef = collection(db, 'users', uid, 'plans');
 
-    // ✅ string → Date → Timestamp 변환
     const timestamp = Timestamp.fromDate(new Date(createdAt));
 
     const q = query(plansRef, where('createdAt', '==', timestamp));
@@ -138,5 +138,35 @@ export const updatePlanNameByCreatedAt = async (uid: string, createdAt: string, 
     console.log('✅ 일정 이름이 수정되었습니다.');
   } catch (error) {
     console.error('🔥 updatePlanNameByCreatedAt 오류:', error);
+  }
+};
+
+// 생성된 일정 카운트 get
+export const getPlanCount = async (): Promise<number> => {
+  try {
+    const snapshot = await getDoc(doc(db, 'generate_count', 'plan'));
+
+    if (!snapshot.exists()) {
+      return 0;
+    }
+
+    const data = snapshot.data();
+    return data.count ?? 0;
+  } catch (error) {
+    console.error('🔥 getPlanCount 오류:', error);
+    return 0;
+  }
+};
+
+// 생성된 일정 카운트 증가 (+1)
+export const incrementPlanCount = async () => {
+  try {
+    const countRef = doc(db, 'generate_count', 'plan');
+    await updateDoc(countRef, {
+      count: increment(1),
+    });
+    console.log('실행');
+  } catch (error) {
+    console.error('🔥 incrementPlanCount 오류:', error);
   }
 };

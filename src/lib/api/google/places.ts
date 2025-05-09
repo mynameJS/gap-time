@@ -23,11 +23,9 @@ export const fetchNearbyPlaces = async (params: NearbyPlacesParams) => {
 
     const places = await response.json();
 
-    // ✅ 정렬 조건 분기 처리
     if (params.sortBy === 'rating') {
       places.sort((a: any, b: any) => (b.rating || 0) - (a.rating || 0));
     } else if (params.sortBy === 'distance' && !params.keyword) {
-      // ✅ 키워드 기반일 경우 정렬 생략
       places.sort((a: any, b: any) => (b.total_reviews || 0) - (a.total_reviews || 0));
     }
 
@@ -103,7 +101,6 @@ export const fetchPlaceDetailsWithPhoto = async (placeId: string) => {
 
     const detail = await response.json();
 
-    // ✅ 사진 URL 변환
     let photo_url = null;
     if (detail.photo_reference) {
       try {
@@ -126,7 +123,6 @@ export const fetchPlaceDetailsWithPhoto = async (placeId: string) => {
 // nearby, photo, detail api를 이용하여 원하는 데이터 필터링 및 추출 함수
 export const fetchNearbyPlacesDetail = async (params: NearbyPlacesParams) => {
   try {
-    // 1. 주변 장소 가져오기
     const response = await fetch('/api/google-maps/places/nearby', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -137,13 +133,11 @@ export const fetchNearbyPlacesDetail = async (params: NearbyPlacesParams) => {
 
     const rawPlaces = await response.json();
 
-    // 2. 사진 URL 및 상세정보를 순차적으로 추가
     const enrichedPlaces = await Promise.all(
       rawPlaces.map(async (place: any) => {
         let photo_url = null;
         let detail = {};
 
-        // (1) 사진 URL 변환
         if (place.photo_reference) {
           try {
             const photoRes = await fetch(`/api/google-maps/photo?photo_reference=${place.photo_reference}`);
@@ -155,7 +149,6 @@ export const fetchNearbyPlacesDetail = async (params: NearbyPlacesParams) => {
           }
         }
 
-        // (2) 상세 정보 병합
         try {
           const detailData = await fetchPlaceDetails(place.place_id);
           detail = detailData ?? {};
@@ -171,7 +164,6 @@ export const fetchNearbyPlacesDetail = async (params: NearbyPlacesParams) => {
       }),
     );
 
-    // 3. 정렬 조건 적용
     if (params.sortBy === 'rating') {
       enrichedPlaces.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     } else if (params.sortBy === 'distance') {
@@ -188,7 +180,6 @@ export const fetchNearbyPlacesDetail = async (params: NearbyPlacesParams) => {
 // 키워드 기반 검색, 각 키워드 별 최상위 장소 1곳만 페칭(detail, photo_url ..)
 export const fetchTopPlaceByKeyword = async (params: NearbyPlacesParams) => {
   try {
-    // 1. 해당 키워드로 nearby 장소 가져오기
     const response = await fetch('/api/google-maps/places/nearby', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -201,10 +192,8 @@ export const fetchTopPlaceByKeyword = async (params: NearbyPlacesParams) => {
     const topPlace = places[0];
     if (!topPlace) return null;
 
-    // 2. 상세 정보
     const detail = await fetchPlaceDetails(topPlace.place_id);
 
-    // 3. 사진 URL
     let photo_url = null;
     if (topPlace.photo_reference) {
       try {
@@ -227,56 +216,3 @@ export const fetchTopPlaceByKeyword = async (params: NearbyPlacesParams) => {
     return null;
   }
 };
-
-// nearby
-//       place_id: place.place_id,
-//       name: place.name,
-//       photo_reference: place.photos?.[0]?.photo_reference || null,
-//       rating: place.rating,
-//       total_reviews: place.user_ratings_total,
-//       type: place.types[0],
-//       icon: [place.icon, place.icon_background_color],
-//       vicinity: place.vicinity,
-//       geocode: place.geometry.location,
-
-// detail
-
-// name: placeData.name,
-// address: placeData.formatted_address,
-// open_hours: placeData.opening_hours ?? null,
-// rating: placeData.rating ?? null,
-// total_reviews: placeData.user_ratings_total ?? 0,
-// url: placeData.url ?? null,
-// photoReference: placeData.photos?.length ? placeData.photos[0].photo_reference : null,
-// icon: placeData.icon ? [placeData.icon, placeData.icon_background_color] : null,
-// phone_number: placeData.formatted_phone_number ?? null,
-// website: placeData.website ?? null,
-// summary: placeData.editorial_summary?.overview ?? null,
-
-// place_id: string;
-// name: string;
-// photo_reference?: string;
-// rating: number;
-// total_reviews: number;
-// type: string;
-// icon: [string, string];
-// vicinity: string;
-// photo_url: string;
-// geocode: google.maps.LatLngLiteral;
-
-// i want
-
-// place_id -> nearby
-// name -> near
-// address -> detail
-// open_hours -> detail
-// rating -> near
-// total_reviews -> near
-// photo_url -> photo
-// icon -> near
-// geocode -> near
-// type -> near
-// url -> detail
-// phone_number -> detail
-// website -> detail
-// summary -> detail

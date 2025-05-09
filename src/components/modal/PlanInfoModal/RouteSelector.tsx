@@ -30,20 +30,14 @@ function RouteSelector({ routeType, onUpdate, isInvalid }: RouteSelectorProps) {
           이동 경로를 선택하세요
         </Text>
 
-        {/* 🔧 버튼 그룹 (반응형 처리됨) */}
-        <Flex
-          gap={4}
-          w="100%"
-          justify="center"
-          align="center"
-          flexWrap="wrap" // ✅ 이거 추가!
-        >
+        {/*  버튼 그룹 (*/}
+        <Flex gap={4} w="100%" justify="center" align="center" flexWrap="wrap">
           <Button
             colorPalette={routeType === '왕복' ? 'teal' : 'gray'}
             variant={routeType === '왕복' ? 'solid' : 'outline'}
             onClick={() => onUpdate({ routeType: '왕복' })}
             size="md"
-            w={{ base: '100%', sm: '120px' }} // ✅ base에서는 꽉 차게
+            w={{ base: '100%', sm: '120px' }}
             borderRadius="md">
             <Icon as={FaExchangeAlt} mr={2} />
             왕복

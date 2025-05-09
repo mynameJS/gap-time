@@ -4,7 +4,6 @@ import { Button } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 
-// ✅ PlanInfoModal만 dynamic import로 분리
 const PlanInfoModal = dynamic(() => import('../../../components/modal/PlanInfoModal/PlanInfoModal'), {
   ssr: false,
   loading: () => null,

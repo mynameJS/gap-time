@@ -20,7 +20,7 @@ export async function getRecommendedPlacesByPrompt(prompt: string, lat: number, 
     );
 
     const results = await Promise.all(placePromises);
-    return results.filter(Boolean); // null/undefined 제거
+    return results.filter(Boolean);
   } catch (error) {
     console.error('🛑 클라이언트 추천 장소 처리 실패:', error);
     return [];

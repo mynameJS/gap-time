@@ -25,7 +25,7 @@ function GoogleMaps() {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const { planInfo } = usePlanStore();
   const { geocodeList } = useGeocodeListStore();
-  const { polylineList } = usePolylineListStore(); // ✅ PolylineStep[]로 해석
+  const { polylineList } = usePolylineListStore();
   const searchParams = useSearchParams();
   const mode = searchParams.get('mode');
 
@@ -35,7 +35,6 @@ function GoogleMaps() {
   useEffect(() => {
     if (!map) return;
 
-    // 기존 폴리라인 제거
     polylineObjectsRef.current.forEach(p => p.setMap(null));
     polylineObjectsRef.current = [];
 

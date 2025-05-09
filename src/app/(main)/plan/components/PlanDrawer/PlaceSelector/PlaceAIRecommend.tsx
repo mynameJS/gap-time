@@ -39,7 +39,6 @@ function PlaceAIRecommend({ onPlaceSelect, selectedPlaces }: PlaceAIRecommendPro
       const intro = getIntroReply(message);
       const closing = getClosingReply();
 
-      // GPT 응답 시 타이핑 효과로 메시지 순차 출력
       setTypingMessage('');
       const fullMessage = intro;
       let i = 0;
@@ -69,14 +68,12 @@ function PlaceAIRecommend({ onPlaceSelect, selectedPlaces }: PlaceAIRecommendPro
     }
   };
 
-  // 새로운 메세지 추가 시 스크롤 하단
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, typingMessage]);
 
-  // AI추천 채팅 OPEN 시 스크롤 하단
   useEffect(() => {
     if (mode === 'open') {
       const scrollToBottom = () => {

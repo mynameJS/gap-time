@@ -4,7 +4,7 @@ import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react';
 
 const customConfig = defineConfig({
   globalCss: {
-    // ✅ 스크롤바 커스텀
+    // 스크롤바 커스텀
     '::-webkit-scrollbar': {
       width: '6px',
       height: '6px',
