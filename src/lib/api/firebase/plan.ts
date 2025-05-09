@@ -10,6 +10,8 @@ import {
   deleteDoc,
   doc,
   updateDoc,
+  getDoc,
+  increment,
 } from 'firebase/firestore';
 import { ScheduleBlock, PlanWithSchedule } from '@/types/interface';
 import { db } from './init';
@@ -136,5 +138,35 @@ export const updatePlanNameByCreatedAt = async (uid: string, createdAt: string, 
     console.log('✅ 일정 이름이 수정되었습니다.');
   } catch (error) {
     console.error('🔥 updatePlanNameByCreatedAt 오류:', error);
+  }
+};
+
+// 생성된 일정 카운트 get
+export const getPlanCount = async (): Promise<number> => {
+  try {
+    const snapshot = await getDoc(doc(db, 'generate_count', 'plan'));
+
+    if (!snapshot.exists()) {
+      return 0;
+    }
+
+    const data = snapshot.data();
+    return data.count ?? 0;
+  } catch (error) {
+    console.error('🔥 getPlanCount 오류:', error);
+    return 0;
+  }
+};
+
+// 생성된 일정 카운트 증가 (+1)
+export const incrementPlanCount = async () => {
+  try {
+    const countRef = doc(db, 'generate_count', 'plan');
+    await updateDoc(countRef, {
+      count: increment(1),
+    });
+    console.log('실행');
+  } catch (error) {
+    console.error('🔥 incrementPlanCount 오류:', error);
   }
 };
