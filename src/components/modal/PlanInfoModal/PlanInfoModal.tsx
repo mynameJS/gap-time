@@ -4,6 +4,7 @@ import { Button, VStack, HStack, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { DialogBody, DialogContent, DialogFooter, DialogHeader, DialogRoot, DialogTitle } from '@/components/ui/dialog';
+import { incrementPlanCount } from '@/lib/api/firebase/plan';
 import usePlanStore from '@/store/usePlanInfoStore';
 import { PlanInfo } from '@/types/interface';
 import LocationPicker from './LocationPicker';
@@ -62,10 +63,13 @@ function PlanInfoModal({ isOpen, onToggle }: PlanInfoModalProps) {
     return isValid;
   };
 
-  const handleRouterClick = (mode: string) => {
+  const handleRouterClick = async (mode: string) => {
     if (!validate()) return;
     setGlobalPlanInfo(planInfo);
     onToggle();
+    if (mode === 'result') {
+      await incrementPlanCount(); // 생성 일정 카운트 함수 추가
+    }
     router.push(`plan?mode=${mode}`);
   };
 

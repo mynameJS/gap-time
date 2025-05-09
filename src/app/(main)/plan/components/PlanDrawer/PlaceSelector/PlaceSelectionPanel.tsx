@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Dispatch, SetStateAction } from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
 import { FaClock, FaLocationDot, FaRoute, FaGear } from 'react-icons/fa6';
+import { incrementPlanCount } from '@/lib/api/firebase/plan';
 import { PlanInfo, PlaceDetails, ScheduleBlock } from '@/types/interface';
 import getDurationFromTimeString from '@/utils/format/getDurationFromTimeString';
 import getTimeBlocks from '@/utils/plan/getTimeBlocks';
@@ -45,7 +46,7 @@ function PlaceSelectionPanel({
     removeGeocodeById(placeId);
   };
 
-  const handleUpdateCustomPlaceList = () => {
+  const handleUpdateCustomPlaceList = async () => {
     if (!planInfo) return;
 
     const timeBlocks = getTimeBlocks(planInfo.startTime[0], planInfo.endTime[0]);
@@ -67,6 +68,7 @@ function PlaceSelectionPanel({
     }
 
     setCustomPlaceList(newCustomPlaceList);
+    await incrementPlanCount(); // 생성 일정 카운트 함수 추가
     router.push('/plan?mode=result');
   };
 
