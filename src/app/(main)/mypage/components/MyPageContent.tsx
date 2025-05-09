@@ -10,7 +10,7 @@ import MyPlanList from './MyPlanList';
 function MyPageContent() {
   const [uid, setUid] = useState<string | null>(null);
 
-  // ✅ 클라이언트 사이드에서만 sessionStorage 접근
+  
   useEffect(() => {
     const stored = sessionStorage.getItem('user');
     if (stored) {
