@@ -1,14 +1,16 @@
 'use client';
 
-import { Box, Button, Input, Text, VStack, Field, Link, Flex, IconButton } from '@chakra-ui/react';
+import { Box, Button, VStack, Text, Flex, IconButton, Link } from '@chakra-ui/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { FcGoogle } from 'react-icons/fc';
 import ResetPasswordModal from '@/components/modal/ResetPasswordModal';
-import { Toaster, toaster } from '@/components/ui/toaster';
+import { toaster, Toaster } from '@/components/ui/toaster';
 import { loginUser, loginWithGoogle } from '@/lib/api/firebase/auth';
+import FormField from '../../components/FormField';
+import PasswordInput from '../../components/PasswordInput';
 
-function LoginRegister() {
+export default function LoginRegister() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -21,14 +23,7 @@ function LoginRegister() {
     try {
       await loginUser({ email, password });
       toaster.create({ description: '로그인에 성공하였습니다.', type: 'success' });
-
-      setTimeout(() => {
-        if (redirect) {
-          router.replace(redirect);
-        } else {
-          router.push('/');
-        }
-      }, 1000);
+      setTimeout(() => (redirect ? router.replace(redirect) : router.push('/')), 1000);
     } catch (err: any) {
       console.error('로그인 실패:', err);
       toaster.create({ description: '로그인에 실패하였습니다.', type: 'error' });
@@ -39,14 +34,7 @@ function LoginRegister() {
     try {
       await loginWithGoogle();
       toaster.create({ description: '로그인에 성공하였습니다.', type: 'success' });
-
-      setTimeout(() => {
-        if (redirect) {
-          router.replace(redirect);
-        } else {
-          router.push('/');
-        }
-      }, 1000);
+      setTimeout(() => (redirect ? router.replace(redirect) : router.push('/')), 1000);
     } catch (err: any) {
       console.error('구글 로그인 실패:', err);
       toaster.create({ description: '로그인에 실패하였습니다.', type: 'error' });
@@ -69,12 +57,7 @@ function LoginRegister() {
       bg="white"
       onKeyDown={e => {
         if (e.key === 'Enter') {
-          if (isOpen) {
-            e.preventDefault();
-            e.stopPropagation();
-            return;
-          }
-          handleLogin();
+          if (!isOpen) handleLogin();
         }
       }}>
       <VStack gap={5} align="stretch">
@@ -88,30 +71,22 @@ function LoginRegister() {
           틈새시간
         </Text>
 
-        <Field.Root required>
-          <Field.Label>
-            이메일 <Field.RequiredIndicator />
-          </Field.Label>
-          <Input type="email" placeholder="example@email.com" value={email} onChange={e => setEmail(e.target.value)} />
-        </Field.Root>
-
-        <Field.Root required>
-          <Field.Label>
-            비밀번호 <Field.RequiredIndicator />
-          </Field.Label>
-          <Input
-            type="password"
-            placeholder="비밀번호 입력"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-          />
-        </Field.Root>
+        <FormField
+          label="이메일"
+          isRequired
+          type="email"
+          placeholder="example@email.com"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+        />
+        <FormField label="비밀번호" isRequired>
+          <PasswordInput value={password} onChange={e => setPassword(e.target.value)} placeholder="비밀번호 입력" />
+        </FormField>
 
         <Box w="fit-content" ml="auto">
           <Text
             fontSize="sm"
             color="gray.500"
-            textAlign="right"
             pr={1}
             onClick={toggleModal}
             cursor="pointer"
@@ -154,5 +129,3 @@ function LoginRegister() {
     </Box>
   );
 }
-
-export default LoginRegister;
