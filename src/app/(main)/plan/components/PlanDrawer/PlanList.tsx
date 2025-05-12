@@ -231,9 +231,17 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
               <Timeline.Indicator bg="teal.500" color="white" w="24px" h="24px" fontSize="xs" fontWeight="bold">
                 {placeIndex + 1}
               </Timeline.Indicator>
-              <Timeline.Content>
-                <Box p={3} borderWidth={1} borderRadius="lg" bg="white" _hover={{ bg: 'gray.50' }}>
-                  <HStack align="start" gap={4}>
+              <Timeline.Content w="100%" overflow="hidden">
+                <Box
+                  p={3}
+                  borderWidth={1}
+                  borderRadius="lg"
+                  bg="white"
+                  _hover={{ bg: 'gray.50' }}
+                  w="100%"
+                  maxW="100%"
+                  overflow="hidden">
+                  <HStack align="start" gap={4} w="100%" overflow="hidden" minW={0}>
                     <Image
                       src={block.placeDetails?.photo_url ?? block.placeDetails?.icon[0]}
                       alt={block.placeDetails?.name}
@@ -242,7 +250,8 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
                       objectFit="cover"
                       flexShrink={0}
                     />
-                    <VStack align="start" gap={1} flex="1" overflow="hidden">
+
+                    <VStack align="start" gap={1} flex="1" minW={0}>
                       {(() => {
                         const categoryInfo = PLACES_CATEGORY_COLOR_SET[
                           (block.placeDetails?.type ?? 'unknown') as keyof typeof PLACES_CATEGORY_COLOR_SET
@@ -250,14 +259,16 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
 
                         return (
                           <>
-                            <HStack gap={2} w="100%" overflow="hidden">
-                              <Badge colorPalette={categoryInfo.color}>{categoryInfo.ko}</Badge>
-                              <Text fontWeight="bold" fontSize="md" maxW="100%" truncate>
+                            <HStack gap={2} w="100%" overflow="hidden" minW={0}>
+                              <Badge colorPalette={categoryInfo.color} flexShrink={0} whiteSpace="nowrap">
+                                {categoryInfo.ko}
+                              </Badge>
+                              <Text fontWeight="bold" fontSize="md" truncate w="100%" minW={0}>
                                 {block.placeDetails?.name}
                               </Text>
                             </HStack>
 
-                            <Text fontSize="sm" color="gray.600" maxW="100%" truncate>
+                            <Text fontSize="sm" color="gray.600" truncate w="100%" minW={0}>
                               {block.placeDetails?.address}
                             </Text>
 
