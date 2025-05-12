@@ -231,7 +231,7 @@ function PlanList({ currentDetailData, isDetailModalOpen, setCurrentDetailData, 
               <Timeline.Indicator bg="teal.500" color="white" w="24px" h="24px" fontSize="xs" fontWeight="bold">
                 {placeIndex + 1}
               </Timeline.Indicator>
-              <Timeline.Content>
+              <Timeline.Content w="100%" overflow="hidden">
                 <Box
                   p={3}
                   borderWidth={1}
