@@ -69,8 +69,10 @@ function PlanInfoModal({ isOpen, onToggle }: PlanInfoModalProps) {
     onToggle();
     if (mode === 'result') {
       await incrementPlanCount(); // 생성 일정 카운트 함수 추가
+      router.push('/plan?mode=result&source=recommend'); // 추천일정 시 result 외에 recommend 쿼리 추가
+    } else {
+      router.push('/plan?mode=select');
     }
-    router.push(`plan?mode=${mode}`);
   };
 
   useEffect(() => {
