@@ -7,7 +7,9 @@ import PlanRouteGuard from './components/PlanRouteGuard';
 export default async function Page() {
   return (
     <>
-      <PlanRouteGuard />
+      <Suspense fallback={<Spinner />}>
+        <PlanRouteGuard />
+      </Suspense>
       <Box height="100%" width="100%">
         <Flex flexDir={{ base: 'column-reverse', md: 'row' }} height="100%" width="100%" position="relative">
           <Suspense fallback={<Spinner />}>
