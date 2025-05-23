@@ -1,8 +1,8 @@
 'use client';
 
-import { Flex } from '@chakra-ui/react';
+import { Flex, Spinner } from '@chakra-ui/react';
 import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import { CloseButton } from '@/components/ui/close-button';
 import { PlaceDetails } from '@/types/interface';
@@ -18,7 +18,7 @@ function PlanDrawer() {
 
   const toggleModalOpen = () => setIsDetailModalOpen(prev => !prev);
   return (
-    <>
+    <Suspense fallback={<Spinner />}>
       <Flex
         w={mode === 'result' ? undefined : '100%'}
         h={{ base: '70%', md: '100%' }}
@@ -42,7 +42,7 @@ function PlanDrawer() {
         <CloseCustomButton onClick={() => setIsOpened(false)} />
       </Flex>
       {!isOpened && <OpenCustomButton onClick={() => setIsOpened(true)} />}
-    </>
+    </Suspense>
   );
 }
 
